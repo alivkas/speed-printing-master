@@ -1,6 +1,6 @@
 package org.example.processing;
 
-import org.junit.jupiter.api.AfterEach;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * Тестовый класс для проверки функциональности класса CommandHandler
@@ -40,7 +40,7 @@ public class CommandHandlerTest {
                 "/start - Начать тренировку\n" +
                 "/stop - Прервать тренировку\n" +
                 "/exit - Завершить приложение\n";
-        assertTrue(outputStreamCaptor.toString().contains(expectedOutput));
+        Assertions.assertTrue(outputStreamCaptor.toString().contains(expectedOutput));
     }
 
     /**
@@ -54,8 +54,8 @@ public class CommandHandlerTest {
         System.setIn(in);
 
         commandHandler.handleCommand("/settings");
-        assertTrue(outputStreamCaptor.toString().contains("Укажите время на тренировку (минуты)"));
-        assertTrue(outputStreamCaptor.toString().contains("Время тренировки 30 минут"));
+        Assertions.assertTrue(outputStreamCaptor.toString().contains("Укажите время на тренировку (минуты)"));
+        Assertions.assertTrue(outputStreamCaptor.toString().contains("Время тренировки 30 минут"));
     }
 
     /**
@@ -66,7 +66,7 @@ public class CommandHandlerTest {
     @Test
     public void testHandleCommandStart() {
         commandHandler.handleCommand("/start");
-        assertTrue(outputStreamCaptor.toString().contains("Установите время тренировки с помощью команды /settings."));
+        Assertions.assertTrue(outputStreamCaptor.toString().contains("Установите время тренировки с помощью команды /settings."));
     }
 
     /**
@@ -77,7 +77,7 @@ public class CommandHandlerTest {
     @Test
     public void testHandleCommandStop() {
         commandHandler.handleCommand("/stop");
-        assertTrue(outputStreamCaptor.toString().contains("Нет активной тренировки."));
+        Assertions.assertTrue(outputStreamCaptor.toString().contains("Нет активной тренировки."));
     }
 
 
@@ -88,7 +88,7 @@ public class CommandHandlerTest {
     @Test
     public void testHandleCommandUnknown() {
         commandHandler.handleCommand("/unknown");
-        assertTrue(outputStreamCaptor.toString().contains("Неизвестная команда. Введите /help для списка команд."));
+        Assertions.assertTrue(outputStreamCaptor.toString().contains("Неизвестная команда. Введите /help для списка команд."));
     }
 
 
