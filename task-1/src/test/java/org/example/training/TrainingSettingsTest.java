@@ -3,7 +3,7 @@ package org.example.training;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Assertions;
 
 
 /**
@@ -29,7 +29,7 @@ class TrainingSettingsTest {
         int expectedTime = 30;
         trainingSettings.setTrainingTime(expectedTime);
 
-        assertEquals(expectedTime, trainingSettings.getTrainingTime());
+        Assertions.assertEquals(expectedTime, trainingSettings.getTrainingTime());
     }
 
     /**
@@ -37,6 +37,6 @@ class TrainingSettingsTest {
      */
     @Test
     void getTrainingTime() {
-        assertEquals(0, trainingSettings.getTrainingTime());
+        Assertions.assertEquals(0, trainingSettings.getTrainingTime());
     }
 }

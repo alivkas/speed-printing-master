@@ -3,8 +3,7 @@ package org.example.training;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import  org.junit.jupiter.api.Assertions;
 
 
 /**
@@ -27,11 +26,11 @@ public class TrainingSessionTest {
     @Test
     public void testStart() throws InterruptedException {
         trainingSession.start();
-        assertTrue(trainingSession.isActive());
+        Assertions.assertTrue(trainingSession.isActive());
 
 
         Thread.sleep(1100);
-        assertFalse(trainingSession.isActive());
+        Assertions.assertFalse(trainingSession.isActive());
     }
 
     /**
@@ -40,10 +39,10 @@ public class TrainingSessionTest {
     @Test
     public void testStop() {
         trainingSession.start();
-        assertTrue(trainingSession.isActive());
+        Assertions.assertTrue(trainingSession.isActive());
 
         trainingSession.stop();
-        assertFalse(trainingSession.isActive());
+        Assertions.assertFalse(trainingSession.isActive());
     }
 
     /**
@@ -51,12 +50,12 @@ public class TrainingSessionTest {
      */
     @Test
     public void testIsActive() {
-        assertFalse(trainingSession.isActive());
+        Assertions.assertFalse(trainingSession.isActive());
 
         trainingSession.start();
-        assertTrue(trainingSession.isActive());
+        Assertions.assertTrue(trainingSession.isActive());
 
         trainingSession.stop();
-        assertFalse(trainingSession.isActive());
+        Assertions.assertFalse(trainingSession.isActive());
     }
 }
