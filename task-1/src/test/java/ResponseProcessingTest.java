@@ -1,5 +1,5 @@
 import org.example.web.Api;
-import org.example.ResponseProcessing;
+import org.example.processing.ResponseProcessing;
 import org.junit.Assert;
 import org.junit.Test;
 
