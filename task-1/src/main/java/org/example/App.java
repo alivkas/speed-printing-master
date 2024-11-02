@@ -1,6 +1,9 @@
 package org.example;
 
 import org.example.processing.CommandHandler;
+import org.example.training.TrainingProcess;
+import org.example.training.TrainingSession;
+import org.example.training.TrainingSettings;
 
 import java.util.Scanner;
 
@@ -8,8 +11,8 @@ import java.util.Scanner;
  * Класс для запуска тренировочного приложения.
  */
 public class App {
-    private CommandHandler commandHandler;
-    private Scanner scanner;
+    private final CommandHandler commandHandler;
+    private final Scanner scanner;
 
     /**
      * Конструктор класса App.

@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Assertions;
  */
 public class CommandHandlerTest {
     private CommandHandler commandHandler;
+
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 
 
@@ -90,6 +91,4 @@ public class CommandHandlerTest {
         commandHandler.handleCommand("/unknown");
         Assertions.assertTrue(outputStreamCaptor.toString().contains("Неизвестная команда. Введите /help для списка команд."));
     }
-
-
 }
