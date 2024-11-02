@@ -1,3 +1,5 @@
+package org.example.processing;
+
 import org.example.web.Api;
 import org.example.processing.ResponseProcessing;
 import org.junit.Assert;
