@@ -11,7 +11,6 @@ public class App {
     private final CommandHandler commandHandler;
     private final Scanner scanner;
 
-    /**
      * Конструктор класса App, который инициализирует поля commandHandler и scanner
      */
     public App() {
