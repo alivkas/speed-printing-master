@@ -8,8 +8,8 @@ import java.util.Scanner;
  * Класс для запуска тренировочного приложения.
  */
 public class App {
-    private CommandHandler commandHandler;
-    private Scanner scanner;
+    private final CommandHandler commandHandler;
+    private final Scanner scanner;
 
     /**
      * Конструктор класса App.
