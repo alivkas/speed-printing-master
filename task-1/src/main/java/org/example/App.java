@@ -1,6 +1,9 @@
 package org.example;
 
 import org.example.processing.CommandHandler;
+import org.example.training.TrainingProcess;
+import org.example.training.TrainingSession;
+import org.example.training.TrainingSettings;
 
 import java.util.Scanner;
 
