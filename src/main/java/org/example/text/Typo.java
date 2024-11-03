@@ -11,7 +11,7 @@ public class Typo {
     private int typoCounts;
 
     /**
-     * Конструктор Typo
+     * Конструктор Typo, который инициализирует поле typos и typoCount
      */
     public Typo() {
         this.typos = new LinkedHashMap<>();
@@ -98,22 +98,34 @@ public class Typo {
                         j++;
                         k++;
                     } else {
-                        markers.append("^");
-
-                        int nextMatchIndex = k + 1;
-                        while (nextMatchIndex < typoWord.length() &&
-                                j < correctWord.length() &&
-                                correctWord.charAt(j) == typoWord.charAt(nextMatchIndex)) {
-                            nextMatchIndex++;
-                            j++;
-                        }
-
-                        if (nextMatchIndex > k + 1) {
-                            k = nextMatchIndex;
-                        } else {
-                            j++;
+                        // Проверка на замену
+                        if (k + 1 < typoWord.length() && correctWord.charAt(j) == typoWord.charAt(k + 1)) {
+                            markers.append("^");
                             k++;
+                        } else {
+                            // Проверка на пропуск
+                            if (j + 1 < correctWord.length() && correctWord.charAt(j + 1) == typoWord.charAt(k)) {
+                                markers.append("^");
+                                j++;
+                            } else {
+                                // Проверка на лишний символ
+                                if (k + 1 < typoWord.length() && correctWord.charAt(j) == typoWord.charAt(k + 1)) {
+                                    markers.append("^");
+                                    k++;
+                                } else {
+                                    // Несколько подряд идущих ошибок
+                                    markers.append("^");
+                                    j++;
+                                    k++;
+                                    while (j < correctWord.length() && k < typoWord.length() && correctWord.charAt(j) != typoWord.charAt(k)) {
+                                        j++;
+                                        k++;
+                                    }
+                                }
+                            }
                         }
+                        j++;
+                        k++;
                     }
                 } else if (j < correctWord.length()) {
                     markers.append("^");
@@ -125,18 +137,6 @@ public class Typo {
             }
 
             markers.append(" ");
-        }
-
-        if (splitTypo.length > minLength) {
-            for (int i = minLength; i < splitTypo.length; i++) {
-                markers.append(" ".repeat(splitTypo[i].length()));
-                markers.append(" ");
-            }
-        } else if (splitCorrect.length > minLength) {
-            for (int i = minLength; i < splitCorrect.length; i++) {
-                markers.append(" ".repeat(splitCorrect[i].length()));
-                markers.append(" ");
-            }
         }
     }
 

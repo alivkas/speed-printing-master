@@ -58,13 +58,15 @@ public class TypoTest {
         typo.saveTypo("Typo for this text_1", "Typa fgr this texd_1");
         typo.saveTypo("Typo for this text_2", "Typo fgr ths texd_2");
         typo.saveTypo("Typo for this text_3", "Tsypo for this text_3");
+        typo.saveTypo("Typo for this text_4", "Tsdypo for this text_4");
 
         Map<String, String> actual = typo.markTypo();
         Map<String, String> expected = new LinkedHashMap<>();
         expected.put("Typ for this text_0", "   ^                 ");
-        expected.put("Typa fgr this texd_1", "   ^  ^          ^   ");
-        expected.put("Typo fgr ths texd_2", "      ^    ^^    ^   ");
-        expected.put("Tsypo for this text_3", " ^                 ");
+        expected.put("Typa fgr this texd_1", "   ^  ^         ^  ");
+        expected.put("Typo fgr ths texd_2", "      ^   ^    ^  ");
+        expected.put("Tsypo for this text_3", " ^                   ");
+        expected.put("Tsdypo for this text_4", " ^^                 ");
 
         Assert.assertEquals(expected, actual);
     }
@@ -73,7 +75,7 @@ public class TypoTest {
      * Тестирует получение количества ошибок за тренировку
      */
     @Test
-    public void getTypoCountTest() {
+    public void checkGetTypoCountTest() {
         typo.saveTypo("Typo for this text_0", "Typ for this text_0");
         typo.saveTypo("Typo for this text_1", "Typa fgr this texd_1");
 

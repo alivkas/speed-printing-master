@@ -1,8 +1,5 @@
 package org.example.text;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Взаимодействие с текстом
  */

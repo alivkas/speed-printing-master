@@ -1,6 +1,5 @@
 package org.example.web;
 
-import org.example.web.Api;
 import org.junit.Assert;
 import org.junit.Test;
 
