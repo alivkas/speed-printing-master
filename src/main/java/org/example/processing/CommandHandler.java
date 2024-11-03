@@ -1,5 +1,6 @@
 package org.example.processing;
 
+import org.example.training.TrainingProcess;
 import org.example.training.TrainingSession;
 import org.example.training.TrainingSettings;
 
@@ -13,7 +14,7 @@ public class CommandHandler {
     private TrainingSession trainingSession;
 
     /**
-     * Конструктор класса CommandHandler.
+     * Конструктор класса CommandHandler, который инициализирует поле trainingSettings
      */
     public CommandHandler() {
         this.trainingSettings = new TrainingSettings();
@@ -101,5 +102,7 @@ public class CommandHandler {
         int durationMinutes = trainingSettings.getTrainingTime() * 60 * 1000;
         trainingSession = new TrainingSession(durationMinutes);
 
+        TrainingProcess trainingProcess = new TrainingProcess(this, trainingSession, trainingSettings);
+        trainingProcess.process();
     }
 }
