@@ -25,7 +25,7 @@ class TrainingSettingsTest {
      * Устанавливаем время тренировки и проверяем, что оно правильно сохранено
      */
     @Test
-    void setTrainingTime() {
+    void checkSetTrainingTimeTest() {
         int expectedTime = 30;
         trainingSettings.setTrainingTime(expectedTime);
 
@@ -36,7 +36,7 @@ class TrainingSettingsTest {
      * Проверяет, что время тренировки по умолчанию равно 0
      */
     @Test
-    void getTrainingTime() {
+    void checkGetTrainingTimeTest() {
         Assertions.assertEquals(0, trainingSettings.getTrainingTime());
     }
 }

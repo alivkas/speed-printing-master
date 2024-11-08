@@ -9,7 +9,7 @@ public class Animation {
      * Обратный отсчет до начала тренировки
      */
     public void countingDown() {
-        for (int i = 1; i <= 3; i++) {
+        for (int i = 3; i >= 1; i--) {
             System.out.println(i + "...");
             try {
                 Thread.sleep(1000);

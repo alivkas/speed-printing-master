@@ -14,7 +14,7 @@ public class TrainingSession {
     private boolean session; // Статус активности сессии
 
     /**
-     * Конструктор
+     * Конструктор, который передает ссылки на объекты lasting и session
      * @param lasting длительность тренировки в миллисекундах
      */
     public TrainingSession(int lasting){

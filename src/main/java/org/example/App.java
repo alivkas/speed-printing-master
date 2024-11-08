@@ -1,9 +1,6 @@
 package org.example;
 
 import org.example.processing.CommandHandler;
-import org.example.training.TrainingProcess;
-import org.example.training.TrainingSession;
-import org.example.training.TrainingSettings;
 
 import java.util.Scanner;
 
@@ -15,7 +12,7 @@ public class App {
     private final Scanner scanner;
 
     /**
-     * Конструктор класса App.
+     * Конструктор класса App, который инициализирует поля commandHandler и scanner
      */
     public App() {
         commandHandler = new CommandHandler();

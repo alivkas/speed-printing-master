@@ -14,7 +14,7 @@ public class Result {
     private final Typo typo;
 
     /**
-     * Конструктор Result
+     * Конструктор Result, который передает ссылки на объекты
      * @param totalWordsTyped количество введенных слов
      * @param settings ссылка на обект TrainingSettings
      * @param typo ссылка на объект Typo
@@ -49,7 +49,6 @@ public class Result {
 
     /**
      * Получить все опечатки с пометками их положения
-     * @return
      */
     private void getTyposWithMarks() {
         Map<String, String> typos = typo.markTypo();

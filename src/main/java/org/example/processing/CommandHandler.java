@@ -14,7 +14,7 @@ public class CommandHandler {
     private TrainingSession trainingSession;
 
     /**
-     * Конструктор класса CommandHandler.
+     * Конструктор класса CommandHandler, который инициализирует поле trainingSettings
      */
     public CommandHandler() {
         this.trainingSettings = new TrainingSettings();

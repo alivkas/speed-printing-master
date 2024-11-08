@@ -25,7 +25,8 @@ public class TrainingProcess {
     private final Animation animation;
 
     /**
-     * Конструктор TrainingProcess
+     * Конструктор TrainingProcess, который инициализирует поля api, responseProcessing, scanner, textInteraction,
+     * typo, animaation и передает ссылки на объекты commandHandler, session, settings
      * @param commandHandler ссылка на объект CommandHandler
      * @param session ссылка на объект TrainingSession
      * @param settings ссылка на объек TrainingSettings
