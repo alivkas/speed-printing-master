@@ -1,94 +1,172 @@
 package org.example.processing;
 
-
-import org.junit.jupiter.api.BeforeEach;
+import org.example.interfaces.InputOutput;
+import org.example.training.TrainingProcess;
+import org.example.training.TrainingSession;
+import org.example.training.TrainingSettings;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.PrintStream;
-
-import org.junit.jupiter.api.Assertions;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.*;
 
 /**
- * Тестовый класс для проверки функциональности класса CommandHandler
+ * Проверяем команды
  */
 public class CommandHandlerTest {
-    private CommandHandler commandHandler;
 
-    private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 
 
     /**
-     * Инициализируем экземпляр CommandHandler и перенаправляем стандартный вывод.
-     */
-    @BeforeEach
-    public void setUp() {
-        commandHandler = new CommandHandler();
-        System.setOut(new PrintStream(outputStreamCaptor));
-    }
-
-    /**
-     * Тестируем команду "/help".
-     * Проверяем, что выводится правильный список доступных команд.
+     * Обработка команды "/help" должна вывести текст справки
      */
     @Test
-    public void testHandleCommandHelp() {
+    void handleCommand_Help_ShouldOutputHelpText() {
+        InputOutput mockOutput = mock(InputOutput.class);
+        CommandHandler commandHandler = new CommandHandler(mockOutput);
+        String helpText = """
+                /help - Все команды
+                /settings - Настройки тренировки
+                /start - Начать тренировку
+                /stop - Прервать тренировку
+                /exit - Завершить приложение
+                """;
+
         commandHandler.handleCommand("/help");
-        String expectedOutput = "/help - Все команды\n" +
-                "/settings - Настройки тренировки\n" +
-                "/start - Начать тренировку\n" +
-                "/stop - Прервать тренировку\n" +
-                "/exit - Завершить приложение\n";
-        Assertions.assertTrue(outputStreamCaptor.toString().contains(expectedOutput));
+        verify(mockOutput).output(helpText);
+    }
+    /**
+     * Обработка команды "/settings" с правельным вводом, должна установить время тренировки
+     */
+    @Test
+    void correct_Time_Test() {
+        InputOutput mockOutput = mock(InputOutput.class);
+        CommandHandler commandHandler = new CommandHandler(mockOutput);
+        when(mockOutput.input()).thenReturn("30");
+        commandHandler.handleCommand("/settings");
+        verify(mockOutput).output("Укажите время на тренировку (минуты)");
+        verify(mockOutput).output("Время тренировки 30 минут");
     }
 
     /**
-     * Тестируем команду "/settings".
-     * Проверяем, что выводится запрос на ввод времени тренировки.
+     * Обработка команды "/settings" с неправильным вводом, должна вывести сообщение об ошибке
      */
     @Test
-    public void testHandleCommandSettings() {
-        String simulatedInput = "30";
-        InputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
-        System.setIn(in);
+    void not_correct_Time_Test() {
+        InputOutput mockOutput = mock(InputOutput.class);
+        CommandHandler commandHandler = new CommandHandler(mockOutput);
+        when(mockOutput.input()).thenReturn("abc");
 
         commandHandler.handleCommand("/settings");
-        Assertions.assertTrue(outputStreamCaptor.toString().contains("Укажите время на тренировку (минуты)"));
-        Assertions.assertTrue(outputStreamCaptor.toString().contains("Время тренировки 30 минут"));
+
+        verify(mockOutput).output("Укажите время на тренировку (минуты)");
+        verify(mockOutput).output("Некорректный ввод. Введите целое положительное число.");
     }
 
     /**
-     * Тестируем команду "/start".
-     * Проверяем, что выводится сообщение о необходимости установить время,
-     * если время тренировки не было установлено.
+     * Oбработка команды "/settings" с отрицательным вводом, должна вывести сообщение об ошибке.
      */
     @Test
-    public void testHandleCommandStart() {
+    void negative_Time_Test() {
+        InputOutput mockOutput = mock(InputOutput.class);
+        CommandHandler commandHandler = new CommandHandler(mockOutput);
+        when(mockOutput.input()).thenReturn("-5");
+
+        commandHandler.handleCommand("/settings");
+
+        verify(mockOutput).output("Укажите время на тренировку (минуты)");
+        verify(mockOutput).output("Время тренировки должно быть положительным числом.");
+    }
+
+//    /**
+//     * Проверяем что после команды /start ссесия активна
+//     */
+//    @Test
+//    void testStartTrainingWithValidSetting() {
+//        InputOutput mockOutput = Mockito.mock(InputOutput.class);
+//        CommandHandler commandHandler = new CommandHandler(mockOutput);
+//        TrainingSettings mockSettings = Mockito.mock(TrainingSettings.class);
+//        TrainingSession mockSession = Mockito.mock(TrainingSession.class);
+//
+//        when(mockSettings.getTrainingTime()).thenReturn(1);
+//        commandHandler.trainingSettings = mockSettings;
+//        commandHandler.trainingSession = mockSession;
+//
+//        // Act
+//        commandHandler.handleCommand("/start");
+//
+//        // Assert
+//        verify(mockSession).start();
+//        Assumptions.assumeTrue(true);
+//    }
+
+    /**
+     * Обработка команды "/start" без установленного времени тренировки должна вывести сообщение об ошибке.
+     */
+    @Test
+    void handleCommand_Start_WithoutTrainingTime_OutputsError() {
+        InputOutput mockOutput = mock(InputOutput.class);
+        CommandHandler commandHandler = new CommandHandler(mockOutput);
+        TrainingSettings mockSettings = mock(TrainingSettings.class);
+        when(mockSettings.getTrainingTime()).thenReturn(0);
+
         commandHandler.handleCommand("/start");
-        Assertions.assertTrue(outputStreamCaptor.toString().contains("Установите время тренировки с помощью команды /settings."));
+
+        verify(mockOutput).output("Установите время тренировки с помощью команды /settings.");
     }
 
     /**
-     * Тестируем команду "/stop".
-     * Проверяем, что выводится сообщение о завершении тренировки,
-     * если активная тренировка не была начата.
+     * Обработка команды "/stop" должна прервать активную тренировку, если она есть.
      */
     @Test
-    public void testHandleCommandStop() {
+    void testStopTrainingWithActiveSession() {
+        InputOutput mockOutput = Mockito.mock(InputOutput.class);
+        CommandHandler commandHandler = new CommandHandler(mockOutput);
+        TrainingSettings mockSettings = Mockito.mock(TrainingSettings.class);
+        TrainingSession mockSession = Mockito.mock(TrainingSession.class);
+
+        when(mockSettings.getTrainingTime()).thenReturn(1);
+        commandHandler.trainingSettings = mockSettings;
+        commandHandler.trainingSession = mockSession;
+
         commandHandler.handleCommand("/stop");
-        Assertions.assertTrue(outputStreamCaptor.toString().contains("Нет активной тренировки."));
+
+        verify(mockSession).stop();
+        verify(mockOutput, never()).output("Нет активной тренировки.");
     }
 
-
     /**
-     * Тестируем обработку неизвестной команды.
-     * Проверяем, что выводится сообщение о неизвестной команде.
+     * Обработка команды "/stop" должна вывести сообщение, если тренировка не активна.
      */
     @Test
-    public void testHandleCommandUnknown() {
-        commandHandler.handleCommand("/unknown");
-        Assertions.assertTrue(outputStreamCaptor.toString().contains("Неизвестная команда. Введите /help для списка команд."));
+    void testStopTrainingWithoutActiveSession() {
+        InputOutput mockOutput = Mockito.mock(InputOutput.class);
+        CommandHandler commandHandler = new CommandHandler(mockOutput);
+        TrainingSettings mockSettings = Mockito.mock(TrainingSettings.class);
+        TrainingSession mockSession = Mockito.mock(TrainingSession.class);
+
+        when(mockSettings.getTrainingTime()).thenReturn(1);
+        commandHandler.trainingSettings = mockSettings;
+        commandHandler.trainingSession = null;
+
+        commandHandler.handleCommand("/stop");
+
+        verify(mockSession, never()).stop();
+        verify(mockOutput).output("Нет активной тренировки.");
+    }
+
+    /**
+     * Обработка неизвестной команды должна вывести сообщение об ошибке и предложение ввести /help.
+     */
+    @Test
+    void testHandleUnknownCommand() {
+        InputOutput mockOutput = Mockito.mock(InputOutput.class);
+        CommandHandler commandHandler = new CommandHandler(mockOutput);
+        String unknownCommand = "unknown_command";
+
+        commandHandler.handleCommand(unknownCommand);
+
+        verify(mockOutput).output("Неизвестная команда. Введите /help для списка команд.");
     }
 }
