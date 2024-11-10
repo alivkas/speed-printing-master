@@ -1,6 +1,6 @@
 package org.example.training;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Тестирование класса TrainingProcessTest

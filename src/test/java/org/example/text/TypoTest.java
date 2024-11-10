@@ -1,7 +1,7 @@
 package org.example.text;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -23,30 +23,40 @@ public class TypoTest {
         typo.saveTypo(originalText, userText);
         Map<String, String> typos = typo.getTypos();
 
-        Assert.assertEquals("Random tet", typos.get("Random text"));
+        Assertions.assertEquals("Random tet", typos.get("Random text"));
     }
 
     /**
-     * Тестирует очистку словаря
+     * Тестировать очистку словаря и обнуление счетчика опечаток
      */
     @Test
-    public void clearTypoTest() {
+    public void clearTypoAndTypoCountTest() {
         String originalText1 = "Random text 1";
-        String userText1 = "Random text 1";
+        String userText1 = "Random text 1 from user";
         String originalText2 = "Random text 2";
-        String userText2 = "Random text 2";
+        String userText2 = "Random text 2 from user";
 
         typo.saveTypo(originalText1, userText1);
         typo.saveTypo(originalText2, userText2);
 
         Map<String, String> typos = typo.getTypos();
+        Assertions.assertEquals("Random text 1 from user", typos.get("Random text 1"));
+        Assertions.assertEquals("Random text 2 from user", typos.get("Random text 2"));
 
-        typo.clearTypo();
+        typo.clearTypoAndTypoCount();
+        Assertions.assertFalse(typos.containsKey("Random text 1"));
+        Assertions.assertFalse(typos.containsValue("Random text 1"));
+        Assertions.assertFalse(typos.containsKey("Random text 2"));
+        Assertions.assertFalse(typos.containsValue("Random text 2"));
 
-        Assert.assertFalse(typos.containsKey("Random text 1"));
-        Assert.assertFalse(typos.containsValue("Random text 1"));
-        Assert.assertFalse(typos.containsKey("Random text 2"));
-        Assert.assertFalse(typos.containsValue("Random text 2"));
+        typo.saveTypo("Typo for this text_0", "Typ for this text_0");
+        typo.saveTypo("Typo for this text_1", "Typa fgr this texd_1");
+
+        int count = typo.countNumberOfTypos();
+        Assertions.assertEquals(4, count);
+
+        typo.clearTypoAndTypoCount();
+        Assertions.assertEquals(0, typo.countNumberOfTypos());
     }
 
     /**
@@ -59,43 +69,30 @@ public class TypoTest {
         typo.saveTypo("Typo for this text_2", "Typo fgr ths texd_2");
         typo.saveTypo("Typo for this text_3", "Tsypo for this text_3");
         typo.saveTypo("Typo for this text_4", "Tsdypo for this text_4");
+        typo.saveTypo("Typo for this text_5", "qrwerqwrqrq 2421");
 
         Map<String, String> actual = typo.markTypo();
         Map<String, String> expected = new LinkedHashMap<>();
         expected.put("Typ for this text_0", "   ^                 ");
-        expected.put("Typa fgr this texd_1", "   ^  ^         ^  ");
+        expected.put("Typa fgr this texd_1", "   ^  ^          ^   ");
         expected.put("Typo fgr ths texd_2", "      ^   ^    ^  ");
         expected.put("Tsypo for this text_3", " ^                   ");
         expected.put("Tsdypo for this text_4", " ^^                 ");
+        expected.put("qrwerqwrqrq 2421", "^^^^^^^^^^^^^^^^");
 
-        Assert.assertEquals(expected, actual);
+        Assertions.assertEquals(expected, actual);
     }
 
     /**
      * Тестирует получение количества ошибок за тренировку
      */
     @Test
-    public void checkGetTypoCountTest() {
+    public void countNumberOfTyposTest() {
         typo.saveTypo("Typo for this text_0", "Typ for this text_0");
         typo.saveTypo("Typo for this text_1", "Typa fgr this texd_1");
 
-        int actual = typo.getTypoCount();
+        int actual = typo.countNumberOfTypos();
 
-        Assert.assertEquals(4, actual);
-    }
-
-    /**
-     * Тестирует обнуление счетчика
-     */
-    @Test
-    public void clearTypoCountTest() {
-        typo.saveTypo("Typo for this text_0", "Typ for this text_0");
-        typo.saveTypo("Typo for this text_1", "Typa fgr this texd_1");
-
-        int count = typo.getTypoCount();
-        typo.clearTypoCount();
-
-
-        Assert.assertEquals(0, typo.getTypoCounts());
+        Assertions.assertEquals(4, actual);
     }
 }

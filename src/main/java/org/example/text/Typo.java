@@ -8,22 +8,12 @@ import java.util.*;
 public class Typo {
 
     private final Map<String, String> typos;
-    private int typoCounts;
 
     /**
      * Конструктор Typo, который инициализирует поле typos и typoCount
      */
     public Typo() {
         this.typos = new LinkedHashMap<>();
-        this.typoCounts = 0;
-    }
-
-    /**
-     * Геттер typoCounts
-     * @return typoCounts
-     */
-    public int getTypoCounts() {
-        return this.typoCounts;
     }
 
     /**
@@ -37,9 +27,9 @@ public class Typo {
     }
 
     /**
-     * Полностью очистить словарь опечаток
+     * Полностью очистить словарь опечаток и обнулить счетчик
      */
-    public void clearTypo() {
+    public void clearTypoAndTypoCount() {
         typos.clear();
     }
 
@@ -76,7 +66,8 @@ public class Typo {
 
     /**
      * Производит процесс создания пометок на словах с опечатками,
-     * сохраняя правильное местоположение
+     * сохраняя правильное местоположение. Проверяет случаи опечаток, когда сделана замена символа,
+     * его пропуск, лишнее написание и несколько подряд идущих опечаток
      * @param splitCorrect массив слов в оригинальном тексте
      * @param splitTypo массив слов с опечатками
      * @param markers строка для сохранения пометок опечаток
@@ -91,42 +82,43 @@ public class Typo {
             int j = 0;
             int k = 0;
 
-            while (j < correctWord.length() || k < typoWord.length()) {
-                if (j < correctWord.length() && k < typoWord.length()) {
+            while (j < correctWord.length()
+                    || k < typoWord.length()) {
+                if (j < correctWord.length()
+                        && k < typoWord.length()) {
                     if (correctWord.charAt(j) == typoWord.charAt(k)) {
                         markers.append(" ");
-                        j++;
-                        k++;
                     } else {
-                        // Проверка на замену
-                        if (k + 1 < typoWord.length() && correctWord.charAt(j) == typoWord.charAt(k + 1)) {
+                        if (k + 1 < typoWord.length()
+                                && correctWord.charAt(j) == typoWord.charAt(k + 1)) {
                             markers.append("^");
                             k++;
                         } else {
-                            // Проверка на пропуск
-                            if (j + 1 < correctWord.length() && correctWord.charAt(j + 1) == typoWord.charAt(k)) {
+                            if (j + 1 < correctWord.length()
+                                    && correctWord.charAt(j + 1) == typoWord.charAt(k)) {
                                 markers.append("^");
                                 j++;
                             } else {
-                                // Проверка на лишний символ
-                                if (k + 1 < typoWord.length() && correctWord.charAt(j) == typoWord.charAt(k + 1)) {
+                                if (k + 1 < typoWord.length()
+                                        && correctWord.charAt(j) == typoWord.charAt(k + 1)) {
                                     markers.append("^");
                                     k++;
                                 } else {
-                                    // Несколько подряд идущих ошибок
                                     markers.append("^");
                                     j++;
                                     k++;
-                                    while (j < correctWord.length() && k < typoWord.length() && correctWord.charAt(j) != typoWord.charAt(k)) {
+                                    while (j < correctWord.length()
+                                            && k < typoWord.length()
+                                            && correctWord.charAt(j) != typoWord.charAt(k)) {
                                         j++;
                                         k++;
                                     }
                                 }
                             }
                         }
-                        j++;
-                        k++;
                     }
+                    j++;
+                    k++;
                 } else if (j < correctWord.length()) {
                     markers.append("^");
                     j++;
@@ -141,17 +133,19 @@ public class Typo {
     }
 
     /**
-     * Получить количество опечаток за тренировку
+     * Подсчитать количество опечаток за тренировку
      * @return количество опечаток
      */
-    public int getTypoCount() {
+    public int countNumberOfTypos() {
+        int typoCount = 0;
+
         Map<String, String> marks = markTypo();
 
         for (String mark : marks.values()) {
-            typoCounts += getTypoCountInOneString(mark);
+            typoCount += countTyposInString(mark);
         }
 
-        return typoCounts;
+        return typoCount;
     }
 
     /**
@@ -159,21 +153,14 @@ public class Typo {
      * @param markedString строка с пометками опечаток
      * @return количество опечаток в строке
      */
-    private int getTypoCountInOneString(String markedString) {
-        int count = 0;
+    private int countTyposInString(String markedString) {
+        int typoCountInString = 0;
 
         for (char c : markedString.toCharArray()) {
             if (c == '^') {
-                count++;
+                typoCountInString++;
             }
         }
-        return count;
-    }
-
-    /**
-     * Обнулить счетчик
-     */
-    public void clearTypoCount() {
-        typoCounts = 0;
+        return typoCountInString;
     }
 }

@@ -30,12 +30,12 @@ public class Result {
      */
     public void printResult() {
         String wordsPerMinute = getWordsPerMinute();
-        int typoCount = typo.getTypoCount();
+        int typoCount = typo.countNumberOfTypos();
+        String typosWithMarks = getTyposWithMarks();
 
         System.out.println(wordsPerMinute);
         System.out.println("Количество ошибок: " + typoCount);
         System.out.println("Ошибки:");
-        getTyposWithMarks();
     }
 
     /**
@@ -50,14 +50,19 @@ public class Result {
     /**
      * Получить все опечатки с пометками их положения
      */
-    private void getTyposWithMarks() {
+    private String getTyposWithMarks() {
         Map<String, String> typos = typo.markTypo();
+        StringBuilder result = new StringBuilder();
 
         for (Map.Entry<String, String> typoWithMarks : typos.entrySet()) {
             String typoKey = typoWithMarks.getKey();
             String marksValue = typoWithMarks.getValue();
 
             System.out.printf("%s\n%s%n", typoKey, marksValue);
+            result.append(typoKey).append("\n");
+            result.append(marksValue).append("\n");
         }
+
+        return result.toString();
     }
 }
