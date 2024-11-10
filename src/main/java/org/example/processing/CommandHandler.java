@@ -1,27 +1,33 @@
 package org.example.processing;
 
+import org.example.interfaces.InputOutput;
 import org.example.training.TrainingProcess;
 import org.example.training.TrainingSession;
 import org.example.training.TrainingSettings;
 
-import java.util.Scanner;
+import java.util.logging.Logger;
 
 /**
  * Класс для обработки команд пользователя.
  */
 public class CommandHandler {
-    private final TrainingSettings trainingSettings;
-    private TrainingSession trainingSession;
+    protected TrainingSettings trainingSettings;
+    protected TrainingSession trainingSession;
+    private final InputOutput inputOutput;
+    private final int secondInMinute = 60;
+    private final int millisecondsInSecond = 1000;
 
     /**
      * Конструктор класса CommandHandler, который инициализирует поле trainingSettings
      */
-    public CommandHandler() {
+    public CommandHandler(InputOutput inputOutput) {
+        this.inputOutput = inputOutput;
         this.trainingSettings = new TrainingSettings();
     }
 
     /**
      * Обрабатывает команды, введенные пользователем.
+     *
      * @param command Команда, введенная пользователем.
      */
     public void handleCommand(String command) {
@@ -30,7 +36,7 @@ public class CommandHandler {
                 sendHelp();
                 break;
             case "/settings":
-                setTrainingTime();
+                askTrainingTime();
                 break;
             case "/stop":
                 stopTraining();
@@ -39,68 +45,72 @@ public class CommandHandler {
                 startTraining();
                 break;
             case "/exit":
-                System.out.println("Выход из приложения.");
+                inputOutput.output("Выход из приложения.");
                 System.exit(0);
                 break;
             default:
-                System.out.println("Неизвестная команда. Введите /help для списка команд.");
+                inputOutput.output("Неизвестная команда. Введите /help для списка команд.");
         }
     }
 
     /**
-     * Список доступных команд
+     * Выводит список доступных команд.
      */
     private void sendHelp() {
-        String helpText = "/help - Все команды\n" +
-                "/settings - Настройки тренировки\n" +
-                "/start - Начать тренировку\n" +
-                "/stop - Прервать тренировку\n" +
-                "/exit - Завершить приложение\n";
-        System.out.println(helpText);
+        String helpText = """
+            /help - Все команды
+            /settings - Настройки тренировки
+            /start - Начать тренировку
+            /stop - Прервать тренировку
+            /exit - Завершить приложение
+            """;
+        inputOutput.output(helpText);
     }
 
     /**
-     * Запрос у пользователя времени тренировки и установки его.
+     * Запрашивает у пользователя время тренировки в минутах и устанавливает его
+     * time - время в минутах
      */
-    private void setTrainingTime() {
-        System.out.println("Укажите время на тренировку (минуты)");
-
-        Scanner scanner = new Scanner(System.in);
+    private void askTrainingTime() {
+        inputOutput.output("Укажите время на тренировку (минуты)");
 
         try {
-            int time = Integer.parseInt(scanner.nextLine());
-            if (time <= 0)
-                throw new NumberFormatException();
-            trainingSettings.setTrainingTime(time); // Устанавливаем время в минутах
-            System.out.println("Время тренировки " + time + " минут");
+            int time = Integer.parseInt(inputOutput.input());
+            if (time <= 0) {
+                inputOutput.output("Время тренировки должно быть положительным числом.");
+                return;
+            }
+            trainingSettings.setTrainingTime(time);
+            inputOutput.output("Время тренировки " + time + " минут");
         } catch (NumberFormatException numberFormatException) {
-            System.out.println("Введите корректное число");
+            inputOutput.output("Некорректный ввод. Введите целое положительное число.");
+            Logger.getLogger(CommandHandler.class.getName()).warning(numberFormatException.getMessage());
         }
     }
 
     /**
-     * Прерывание тренировки, если она активна.
+     * Прерывает тренировку, если она активна.
      */
     private void stopTraining() {
         if (trainingSession != null) {
             trainingSession.stop();
             trainingSession = null;
         } else {
-            System.out.println("Нет активной тренировки.");
+            inputOutput.output("Нет активной тренировки.");
         }
     }
 
     /**
-     * Запуск тренировки на установленное время.
+     * Запускает тренировку на установленное время.
      */
     private void startTraining() {
         if (trainingSettings.getTrainingTime() == 0) {
-            System.out.println("Установите время тренировки с помощью команды /settings.");
+            inputOutput.output("Установите время тренировки с помощью команды /settings.");
             return;
         }
 
-        int durationMinutes = trainingSettings.getTrainingTime() * 60 * 1000;
-        trainingSession = new TrainingSession(durationMinutes);
+        int durationMilliseconds = trainingSettings.getTrainingTime() * secondInMinute * millisecondsInSecond;
+        trainingSession = new TrainingSession(durationMilliseconds, inputOutput);
 
         TrainingProcess trainingProcess = new TrainingProcess(this, trainingSession, trainingSettings);
         trainingProcess.process();

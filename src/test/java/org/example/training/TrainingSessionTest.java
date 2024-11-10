@@ -1,9 +1,10 @@
 package org.example.training;
 
+import org.example.interfaces.InputOutput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import  org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assertions;
 
 
 /**
@@ -11,51 +12,89 @@ import  org.junit.jupiter.api.Assertions;
  */
 public class TrainingSessionTest {
     private TrainingSession trainingSession;
+    private TestInputOutput testInputOutput;
+
+    private static final int TEST_DURATION_MS = 1000;
 
     /**
      * Создаем новый экземпляр TrainingSession для установки времени
      */
     @BeforeEach
     public void setUp() {
-        trainingSession = new TrainingSession(1000);
+        testInputOutput = new TestInputOutput();
+        trainingSession = new TrainingSession(TEST_DURATION_MS, testInputOutput);
     }
 
     /**
-     * Проверяем, что сессия активна в течение заданного времени
+     * Проверяем, что сессия активна после запуска
      */
     @Test
-    public void testStart() throws InterruptedException {
+    public void testStart() {
         trainingSession.start();
         Assertions.assertTrue(trainingSession.isActive());
+    }
 
-
-        Thread.sleep(1100);
+    /**
+     * Проверяем, что сессия становится неактивной по истечении времени
+     */
+    @Test
+    public void testSessionEndsAfterDuration() throws InterruptedException {
+        trainingSession.start();
+        Thread.sleep(TEST_DURATION_MS + 100);
         Assertions.assertFalse(trainingSession.isActive());
     }
 
     /**
-     *Проверяем, что сессия становится неактивной
+     * Проверяем, что сессия останавливается методом stop
      */
     @Test
     public void testStop() {
         trainingSession.start();
-        Assertions.assertTrue(trainingSession.isActive());
-
         trainingSession.stop();
         Assertions.assertFalse(trainingSession.isActive());
     }
 
     /**
-     * Проверяем состояние сессии
+     * Проверяем, что метод isActive возвращает правильное значение
      */
     @Test
-    public void testIsActive() {
+    public void testIsActive() throws InterruptedException {
         Assertions.assertFalse(trainingSession.isActive());
 
         trainingSession.start();
         Assertions.assertTrue(trainingSession.isActive());
 
         trainingSession.stop();
+        Thread.sleep(1010);
         Assertions.assertFalse(trainingSession.isActive());
+    }
+
+    /**
+     * Вспомогательный класс для тестирования
+     * предназначен для имитации ввода и вывода
+     */
+    private static class TestInputOutput implements InputOutput {
+        private String input;
+        private String latestOutput;
+
+        /**
+         * Сохраняет сообщение в переменной
+         * @param message cообщение, которое нужно вывести
+         */
+        @Override
+        public void output(String message) {
+            latestOutput = message;
+        }
+
+        /**
+         * Возвращает строку, представляющую ввод пользователя
+         *
+         * @return cтрока, введенная пользователем
+         */
+        @Override
+        public String input() {
+            return input;
+        }
+
     }
 }

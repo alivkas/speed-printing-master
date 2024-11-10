@@ -1,22 +1,27 @@
 package org.example.training;
 
 /**
- * Класс для хранения настроек тренировки.
+ * Класс для хранения настроек тренировки
  */
 public class TrainingSettings {
+    /**
+     * Время тренировки в минутах
+     */
     private int trainingTime;
 
     /**
-     * Установка времени на тренировку
-     * @param minutes время на тренировку
+     * Устанавливает время тренировки в минутах
+     *
+     * @param minutes Время тренировки
      */
-    public void setTrainingTime(int minutes){
+    public void setTrainingTime(int minutes) {
         this.trainingTime = minutes;
     }
 
     /**
-     * Получение установленного времени на тренировку
-     * @return время на тренеровку
+     * Возвращает установленное время тренировки в минутах
+     *
+     * @return Время тренировки в минутах
      */
     public int getTrainingTime() {
         return trainingTime;
