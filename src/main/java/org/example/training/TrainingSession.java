@@ -11,11 +11,9 @@ import java.util.logging.Logger;
 
 /**
  * Управление сессией тренировки
+ * lasting длительность тренировки в миллисекундах
  */
 public class TrainingSession {
-    /**
-     * Длительность тренировки в миллисекундах
-     */
     private final int lasting;
     private Timer timer;
     private final AtomicBoolean isActive;

@@ -13,15 +13,15 @@ import java.util.logging.Logger;
 public class CommandHandler {
     protected TrainingSettings trainingSettings;
     protected TrainingSession trainingSession;
-    private final InputOutput output;
+    private final InputOutput inputOutput;
     private final int secondInMinute = 60;
     private final int millisecondsInSecond = 1000;
 
     /**
      * Конструктор класса CommandHandler, который инициализирует поле trainingSettings
      */
-    public CommandHandler(InputOutput output) {
-        this.output = output;
+    public CommandHandler(InputOutput inputOutput) {
+        this.inputOutput = inputOutput;
         this.trainingSettings = new TrainingSettings();
     }
 
@@ -45,11 +45,11 @@ public class CommandHandler {
                 startTraining();
                 break;
             case "/exit":
-                output.output("Выход из приложения.");
+                inputOutput.output("Выход из приложения.");
                 System.exit(0);
                 break;
             default:
-                output.output("Неизвестная команда. Введите /help для списка команд.");
+                inputOutput.output("Неизвестная команда. Введите /help для списка команд.");
         }
     }
 
@@ -64,7 +64,7 @@ public class CommandHandler {
             /stop - Прервать тренировку
             /exit - Завершить приложение
             """;
-        output.output(helpText);
+        inputOutput.output(helpText);
     }
 
     /**
@@ -72,18 +72,18 @@ public class CommandHandler {
      * time - время в минутах
      */
     private void askTrainingTime() {
-        output.output("Укажите время на тренировку (минуты)");
+        inputOutput.output("Укажите время на тренировку (минуты)");
 
         try {
-            int time = Integer.parseInt(output.input());
+            int time = Integer.parseInt(inputOutput.input());
             if (time <= 0) {
-                output.output("Время тренировки должно быть положительным числом.");
+                inputOutput.output("Время тренировки должно быть положительным числом.");
                 return;
             }
             trainingSettings.setTrainingTime(time);
-            output.output("Время тренировки " + time + " минут");
+            inputOutput.output("Время тренировки " + time + " минут");
         } catch (NumberFormatException numberFormatException) {
-            output.output("Некорректный ввод. Введите целое положительное число.");
+            inputOutput.output("Некорректный ввод. Введите целое положительное число.");
             Logger.getLogger(CommandHandler.class.getName()).warning(numberFormatException.getMessage());
         }
     }
@@ -96,7 +96,7 @@ public class CommandHandler {
             trainingSession.stop();
             trainingSession = null;
         } else {
-            output.output("Нет активной тренировки.");
+            inputOutput.output("Нет активной тренировки.");
         }
     }
 
@@ -105,12 +105,12 @@ public class CommandHandler {
      */
     private void startTraining() {
         if (trainingSettings.getTrainingTime() == 0) {
-            output.output("Установите время тренировки с помощью команды /settings.");
+            inputOutput.output("Установите время тренировки с помощью команды /settings.");
             return;
         }
 
         int durationMilliseconds = trainingSettings.getTrainingTime() * secondInMinute * millisecondsInSecond;
-        trainingSession = new TrainingSession(durationMilliseconds, output);
+        trainingSession = new TrainingSession(durationMilliseconds, inputOutput);
 
         TrainingProcess trainingProcess = new TrainingProcess(this, trainingSession, trainingSettings);
         trainingProcess.process();

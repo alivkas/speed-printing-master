@@ -1,23 +1,17 @@
 package org.example.processing;
 
 import org.example.interfaces.InputOutput;
-import org.example.training.TrainingProcess;
 import org.example.training.TrainingSession;
 import org.example.training.TrainingSettings;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
 /**
  * Проверяем команды
  */
 public class CommandHandlerTest {
-
-
-
     /**
      * Обработка команды "/help" должна вывести текст справки
      */
@@ -78,28 +72,6 @@ public class CommandHandlerTest {
         verify(mockOutput).output("Укажите время на тренировку (минуты)");
         verify(mockOutput).output("Время тренировки должно быть положительным числом.");
     }
-
-//    /**
-//     * Проверяем что после команды /start ссесия активна
-//     */
-//    @Test
-//    void testStartTrainingWithValidSetting() {
-//        InputOutput mockOutput = Mockito.mock(InputOutput.class);
-//        CommandHandler commandHandler = new CommandHandler(mockOutput);
-//        TrainingSettings mockSettings = Mockito.mock(TrainingSettings.class);
-//        TrainingSession mockSession = Mockito.mock(TrainingSession.class);
-//
-//        when(mockSettings.getTrainingTime()).thenReturn(1);
-//        commandHandler.trainingSettings = mockSettings;
-//        commandHandler.trainingSession = mockSession;
-//
-//        // Act
-//        commandHandler.handleCommand("/start");
-//
-//        // Assert
-//        verify(mockSession).start();
-//        Assumptions.assumeTrue(true);
-//    }
 
     /**
      * Обработка команды "/start" без установленного времени тренировки должна вывести сообщение об ошибке.

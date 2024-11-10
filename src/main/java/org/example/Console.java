@@ -29,6 +29,9 @@ public class Console implements InputOutput {
         processCommands();
     }
 
+    /**
+     * Обработка команд введённых пользователем
+     */
     private void processCommands() {
         while (true) {
             String command = readCommand();

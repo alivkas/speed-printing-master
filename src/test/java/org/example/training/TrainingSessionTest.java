@@ -54,7 +54,7 @@ public class TrainingSessionTest {
         Assertions.assertFalse(trainingSession.isActive());
     }
 
-    /* /**
+    /**
      * Проверяем, что метод isActive возвращает правильное значение
      */
     @Test
@@ -69,19 +69,29 @@ public class TrainingSessionTest {
         Assertions.assertFalse(trainingSession.isActive());
     }
 
+    /**
+     * Вспомогательный класс для тестирования
+     * предназначен для имитации ввода и вывода
+     */
     private static class TestInputOutput implements InputOutput {
         private String input;
         private String latestOutput;
 
-
+        /**
+         * Сохраняет сообщение в переменной
+         * @param message cообщение, которое нужно вывести
+         */
         @Override
         public void output(String message) {
             latestOutput = message;
         }
 
+        /**
+         * Возвращает строку, представляющую ввод пользователя
+         *
+         * @return cтрока, введенная пользователем
+         */
         @Override
-
-
         public String input() {
             return input;
         }
