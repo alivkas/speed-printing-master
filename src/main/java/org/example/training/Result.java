@@ -1,8 +1,9 @@
 package org.example.training;
 
+import org.example.interfaces.InputOutput;
 import org.example.text.Typo;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * Результат тренировки
@@ -12,30 +13,33 @@ public class Result {
     private final int totalWordsTyped;
     private final TrainingSettings settings;
     private final Typo typo;
+    private final InputOutput inputOutput;
 
     /**
-     * Конструктор Result, который передает ссылки на объекты
+     * Конструктор Result, который передает ссылки на объекты totalWordsTyped, settings,
+     * typo и реализацию InputOutput
      * @param totalWordsTyped количество введенных слов
      * @param settings ссылка на обект TrainingSettings
      * @param typo ссылка на объект Typo
      */
-    public Result(int totalWordsTyped, TrainingSettings settings, Typo typo) {
+    public Result(int totalWordsTyped,
+                  TrainingSettings settings,
+                  Typo typo,
+                  InputOutput inputOutput) {
         this.typo = typo;
         this.totalWordsTyped = totalWordsTyped;
         this.settings = settings;
+        this.inputOutput = inputOutput;
     }
 
     /**
      * Вывести результат тренировки
      */
     public void printResult() {
-        String wordsPerMinute = getWordsPerMinute();
-        int typoCount = typo.countNumberOfTypos();
-        String typosWithMarks = getTyposWithMarks();
-
-        System.out.println(wordsPerMinute);
-        System.out.println("Количество ошибок: " + typoCount);
-        System.out.println("Ошибки:");
+        inputOutput.output(getWordsPerMinute());
+        inputOutput.output("Количество ошибок: " + typo.countNumberOfTypos());
+        inputOutput.output("Ошибки:");
+        inputOutput.output(getTyposWithMarks());
     }
 
     /**
@@ -51,16 +55,11 @@ public class Result {
      * Получить все опечатки с пометками их положения
      */
     private String getTyposWithMarks() {
-        Map<String, String> typos = typo.markTypo();
+        List<String> typos = typo.markTypo();
         StringBuilder result = new StringBuilder();
 
-        for (Map.Entry<String, String> typoWithMarks : typos.entrySet()) {
-            String typoKey = typoWithMarks.getKey();
-            String marksValue = typoWithMarks.getValue();
-
-            System.out.printf("%s\n%s%n", typoKey, marksValue);
-            result.append(typoKey).append("\n");
-            result.append(marksValue).append("\n");
+        for (String typoWithMarks : typos) {
+            result.append(typoWithMarks).append("\n");
         }
 
         return result.toString();

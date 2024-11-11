@@ -22,7 +22,7 @@ public class Console implements InputOutput {
     }
 
     /**
-     * Метод для запуска приложения.
+     * Запускать приложение.
      */
     public void run() {
         welcomeMessage();
@@ -42,20 +42,20 @@ public class Console implements InputOutput {
     /**
      * Выводит приветствие
      */
-    private void welcomeMessage(){
-        output("Добро пожаловать в тренировочное приложение! Введите команду /help для просмотра всех команд");
+    private void welcomeMessage() {
+        System.out.println("Добро пожаловать в тренировочное приложение! Введите команду /help для просмотра всех команд");
     }
 
     /**
      * Читает команду пользователя
      */
     private String readCommand() {
-        output("Введите команду: ");
+        System.out.println("Введите команду: ");
         return scanner.nextLine();
     }
 
     /**
-     * Выводит строку в консоль.
+     * Выводит строку
      * @param message Строка для вывода.
      */
     @Override
@@ -64,7 +64,7 @@ public class Console implements InputOutput {
     }
 
     /**
-     * Читает строку из консоли.
+     * Читает строку из входного потока
      * @return Строка, введенная пользователем.
      */
     @Override

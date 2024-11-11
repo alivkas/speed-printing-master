@@ -3,7 +3,8 @@ package org.example.text;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,7 +44,7 @@ public class TypoTest {
         Assertions.assertEquals("Random text 1 from user", typos.get("Random text 1"));
         Assertions.assertEquals("Random text 2 from user", typos.get("Random text 2"));
 
-        typo.clearTypoAndTypoCount();
+        typo.clearTypo();
         Assertions.assertFalse(typos.containsKey("Random text 1"));
         Assertions.assertFalse(typos.containsValue("Random text 1"));
         Assertions.assertFalse(typos.containsKey("Random text 2"));
@@ -55,7 +56,7 @@ public class TypoTest {
         int count = typo.countNumberOfTypos();
         Assertions.assertEquals(4, count);
 
-        typo.clearTypoAndTypoCount();
+        typo.clearTypo();
         Assertions.assertEquals(0, typo.countNumberOfTypos());
     }
 
@@ -69,16 +70,16 @@ public class TypoTest {
         typo.saveTypo("Typo for this text_2", "Typo fgr ths texd_2");
         typo.saveTypo("Typo for this text_3", "Tsypo for this text_3");
         typo.saveTypo("Typo for this text_4", "Tsdypo for this text_4");
-        typo.saveTypo("Typo for this text_5", "qrwerqwrqrq 2421");
+        typo.saveTypo("Typo for this text_5", "hhhhhh ]]");
 
-        Map<String, String> actual = typo.markTypo();
-        Map<String, String> expected = new LinkedHashMap<>();
-        expected.put("Typ for this text_0", "   ^                 ");
-        expected.put("Typa fgr this texd_1", "   ^  ^          ^   ");
-        expected.put("Typo fgr ths texd_2", "      ^   ^    ^  ");
-        expected.put("Tsypo for this text_3", " ^                   ");
-        expected.put("Tsdypo for this text_4", " ^^                 ");
-        expected.put("qrwerqwrqrq 2421", "^^^^^^^^^^^^^^^^");
+        List<String> actual = typo.markTypo();
+        List<String> expected = new ArrayList<>();
+        expected.add("Typ-o-forthistext_0");
+        expected.add("Typ-o-+a+f-o-+g+rthistex-t-+d+_1");
+        expected.add("Typof-o-+g+rth-i-stex-t-+d+_2");
+        expected.add("T+s+ypoforthistext_3");
+        expected.add("T+sd+ypoforthistext_4");
+        expected.add("-Typo-+hhhhhh+-for-+]]+");
 
         Assertions.assertEquals(expected, actual);
     }
@@ -90,9 +91,13 @@ public class TypoTest {
     public void countNumberOfTyposTest() {
         typo.saveTypo("Typo for this text_0", "Typ for this text_0");
         typo.saveTypo("Typo for this text_1", "Typa fgr this texd_1");
+        typo.saveTypo("Typo for this text_2", "Typo fgr ths texd_2");
+        typo.saveTypo("Typo for this text_3", "Tsypo for this text_3");
+        typo.saveTypo("Typo for this text_4", "Tsdypo for this text_4");
+        typo.saveTypo("Typo for this text_5", "hhhhhh ]]");
 
         int actual = typo.countNumberOfTypos();
 
-        Assertions.assertEquals(4, actual);
+        Assertions.assertEquals(13, actual);
     }
 }

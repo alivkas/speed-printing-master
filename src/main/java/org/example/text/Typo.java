@@ -1,5 +1,7 @@
 package org.example.text;
 
+import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch;
+
 import java.util.*;
 
 /**
@@ -8,6 +10,8 @@ import java.util.*;
 public class Typo {
 
     private final Map<String, String> typos;
+
+    private final int operations = 2;
 
     /**
      * Конструктор Typo, который инициализирует поле typos и typoCount
@@ -27,9 +31,9 @@ public class Typo {
     }
 
     /**
-     * Полностью очистить словарь опечаток и обнулить счетчик
+     * Полностью очистить словарь опечаток
      */
-    public void clearTypoAndTypoCount() {
+    public void clearTypo() {
         typos.clear();
     }
 
@@ -45,8 +49,8 @@ public class Typo {
      * Сохранить опечатки в предложениях и пометки на их местах
      * @return список опечаток с пометками местоположения
      */
-    public Map<String, String> markTypo() {
-        Map<String, String> marks = new LinkedHashMap<>(typos.size());
+    public List<String> markTypo() {
+        List<String> marks = new ArrayList<>(typos.size());
 
         for (Map.Entry<String, String> entry : typos.entrySet()) {
             String correct = entry.getKey();
@@ -58,77 +62,32 @@ public class Typo {
             String[] splitTypo = typo.split(" ");
 
             markupsAlgorithm(splitCorrect, splitTypo, markers);
-            marks.put(typo, markers.toString());
+            marks.add(markers.toString());
         }
 
-        return Collections.unmodifiableMap(marks);
+        return Collections.unmodifiableList(marks);
     }
 
     /**
      * Производит процесс создания пометок на словах с опечатками,
-     * сохраняя правильное местоположение. Проверяет случаи опечаток, когда сделана замена символа,
-     * его пропуск, лишнее написание и несколько подряд идущих опечаток
-     * @param splitCorrect массив слов в оригинальном тексте
-     * @param splitTypo массив слов с опечатками
-     * @param markers строка для сохранения пометок опечаток
+     * отмечая плюсами добавленные символы и минусами удаленные
      */
     private void markupsAlgorithm(String[] splitCorrect, String[] splitTypo, StringBuilder markers) {
         int minLength = Math.min(splitCorrect.length, splitTypo.length);
 
         for (int i = 0; i < minLength; i++) {
-            String correctWord = splitCorrect[i];
-            String typoWord = splitTypo[i];
+            DiffMatchPatch diffMatchPatch = new DiffMatchPatch();
+            List<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(splitCorrect[i], splitTypo[i]);
 
-            int j = 0;
-            int k = 0;
-
-            while (j < correctWord.length()
-                    || k < typoWord.length()) {
-                if (j < correctWord.length()
-                        && k < typoWord.length()) {
-                    if (correctWord.charAt(j) == typoWord.charAt(k)) {
-                        markers.append(" ");
-                    } else {
-                        if (k + 1 < typoWord.length()
-                                && correctWord.charAt(j) == typoWord.charAt(k + 1)) {
-                            markers.append("^");
-                            k++;
-                        } else {
-                            if (j + 1 < correctWord.length()
-                                    && correctWord.charAt(j + 1) == typoWord.charAt(k)) {
-                                markers.append("^");
-                                j++;
-                            } else {
-                                if (k + 1 < typoWord.length()
-                                        && correctWord.charAt(j) == typoWord.charAt(k + 1)) {
-                                    markers.append("^");
-                                    k++;
-                                } else {
-                                    markers.append("^");
-                                    j++;
-                                    k++;
-                                    while (j < correctWord.length()
-                                            && k < typoWord.length()
-                                            && correctWord.charAt(j) != typoWord.charAt(k)) {
-                                        j++;
-                                        k++;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    j++;
-                    k++;
-                } else if (j < correctWord.length()) {
-                    markers.append("^");
-                    j++;
-                } else {
-                    markers.append("^");
-                    k++;
+            for (DiffMatchPatch.Diff diff : diffs) {
+                if (diff.operation == DiffMatchPatch.Operation.EQUAL) {
+                    markers.append(diff.text);
+                } else if (diff.operation == DiffMatchPatch.Operation.INSERT) {
+                    markers.append("+").append(diff.text).append("+");
+                } else if (diff.operation == DiffMatchPatch.Operation.DELETE) {
+                    markers.append("-").append(diff.text).append("-");
                 }
             }
-
-            markers.append(" ");
         }
     }
 
@@ -137,30 +96,54 @@ public class Typo {
      * @return количество опечаток
      */
     public int countNumberOfTypos() {
-        int typoCount = 0;
+        StringBuilder textConcatenation = new StringBuilder();
+        List<String> marks = markTypo();
 
-        Map<String, String> marks = markTypo();
-
-        for (String mark : marks.values()) {
-            typoCount += countTyposInString(mark);
+        for (String mark : marks) {
+            textConcatenation.append(mark).append("\n");
         }
-
-        return typoCount;
+        return countOperations(textConcatenation.toString());
     }
 
     /**
-     * Подсчитать количество вхождений символа в строку
-     * @param markedString строка с пометками опечаток
-     * @return количество опечаток в строке
+     * Считать количество операций (добавления, удаления, замены) над символами в тексте
+     * @param text текст
+     * @return количество ошибок
      */
-    private int countTyposInString(String markedString) {
-        int typoCountInString = 0;
+    private int countOperations(String text) {
+        int operationCount = 0;
+        boolean isDeletionSequence = false;
 
-        for (char c : markedString.toCharArray()) {
-            if (c == '^') {
-                typoCountInString++;
+        if (typos.isEmpty()) {
+            return operationCount;
+        }
+
+        for (int i = 0; i < text.length(); i++) {
+            char currentChar = text.charAt(i);
+
+            if (currentChar == '-') {
+                if (i > 0
+                        && text.charAt(i - 1) != '-') {
+                    if (!isDeletionSequence) {
+                        operationCount++;
+                    }
+                    isDeletionSequence = true;
+                }
+            } else if (currentChar == '+') {
+                if (i > 0
+                        && text.charAt(i - 1) != '+') {
+                    if (!isDeletionSequence) {
+                        operationCount++;
+                    }
+                }
+                isDeletionSequence = false;
+            } else {
+                isDeletionSequence = false;
             }
         }
-        return typoCountInString;
+
+        return operationCount == operations
+                ? operationCount / operations
+                : operationCount / operations - 1;
     }
 }

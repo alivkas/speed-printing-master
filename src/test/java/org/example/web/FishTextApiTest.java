@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 public class FishTextApiTest {
 
     /**
-     * Тестировать получение сгенерированного преддожения
+     * Тестировать получение сгенерированного предложения
      * из FishTextApi
      */
     @Test

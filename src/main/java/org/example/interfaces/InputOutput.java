@@ -10,7 +10,7 @@ public interface InputOutput {
     void output(String message);
     /**
      * Читает строку из входного потока.
+     * @return строка, введенная пользователем.
      */
     String input();
-
 }

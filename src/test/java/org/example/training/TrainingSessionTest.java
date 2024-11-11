@@ -1,6 +1,6 @@
 package org.example.training;
 
-import org.example.interfaces.InputOutput;
+import org.example.TestInputOutput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -38,7 +38,8 @@ public class TrainingSessionTest {
      * Проверяем, что сессия становится неактивной по истечении времени
      */
     @Test
-    public void testSessionEndsAfterDuration() throws InterruptedException {
+    public void
+    testSessionEndsAfterDuration() throws InterruptedException {
         trainingSession.start();
         Thread.sleep(TEST_DURATION_MS + 100);
         Assertions.assertFalse(trainingSession.isActive());
@@ -67,34 +68,5 @@ public class TrainingSessionTest {
         trainingSession.stop();
         Thread.sleep(1010);
         Assertions.assertFalse(trainingSession.isActive());
-    }
-
-    /**
-     * Вспомогательный класс для тестирования
-     * предназначен для имитации ввода и вывода
-     */
-    private static class TestInputOutput implements InputOutput {
-        private String input;
-        private String latestOutput;
-
-        /**
-         * Сохраняет сообщение в переменной
-         * @param message cообщение, которое нужно вывести
-         */
-        @Override
-        public void output(String message) {
-            latestOutput = message;
-        }
-
-        /**
-         * Возвращает строку, представляющую ввод пользователя
-         *
-         * @return cтрока, введенная пользователем
-         */
-        @Override
-        public String input() {
-            return input;
-        }
-
     }
 }

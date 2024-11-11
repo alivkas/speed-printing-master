@@ -5,6 +5,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * Взаимодействие с внешним апи FishTextApi
@@ -23,11 +24,16 @@ public class FishTextApi {
                 .url(url)
                 .build();
         try (Response response = client.newCall(request).execute()) {
-            if (response.body() != null) {
-                return response.body().string();
+            if (response.isSuccessful()) {
+                if (response.body() != null) {
+                    return response.body().string();
+                }
+            } else {
+                return "Ошибка получения данных из API";
             }
         } catch (IOException e) {
-            throw new RuntimeException("Ошибка вывода генерации предложения", e);
+            e.printStackTrace();
+            return "Нет подключения к интернету";
         }
         return null;
     }

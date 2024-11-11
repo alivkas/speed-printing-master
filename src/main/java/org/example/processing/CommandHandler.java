@@ -13,12 +13,15 @@ import java.util.logging.Logger;
 public class CommandHandler {
     protected TrainingSettings trainingSettings;
     protected TrainingSession trainingSession;
+    private TrainingProcess trainingProcess;
     private final InputOutput inputOutput;
+
     private final int secondInMinute = 60;
     private final int millisecondsInSecond = 1000;
 
     /**
      * Конструктор класса CommandHandler, который инициализирует поле trainingSettings
+     * и принимает класс, который реализует интерфейс ввода и вывода
      */
     public CommandHandler(InputOutput inputOutput) {
         this.inputOutput = inputOutput;
@@ -27,7 +30,6 @@ public class CommandHandler {
 
     /**
      * Обрабатывает команды, введенные пользователем.
-     *
      * @param command Команда, введенная пользователем.
      */
     public void handleCommand(String command) {
@@ -112,7 +114,7 @@ public class CommandHandler {
         int durationMilliseconds = trainingSettings.getTrainingTime() * secondInMinute * millisecondsInSecond;
         trainingSession = new TrainingSession(durationMilliseconds, inputOutput);
 
-        TrainingProcess trainingProcess = new TrainingProcess(this, trainingSession, trainingSettings);
+        trainingProcess = new TrainingProcess(trainingSession, trainingSettings, inputOutput);
         trainingProcess.process();
     }
 }

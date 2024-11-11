@@ -1,13 +1,11 @@
 package org.example.training;
 
 import org.example.animation.Animation;
+import org.example.interfaces.InputOutput;
 import org.example.text.utils.TextInteractionUtils;
-import org.example.processing.CommandHandler;
 import org.example.processing.utils.ResponseProcessingUtils;
 import org.example.text.Typo;
 import org.example.web.FishTextApi;
-
-import java.util.Scanner;
 
 /**
  * Процесс тренировки
@@ -18,24 +16,26 @@ public class TrainingProcess {
     private final TextInteractionUtils textInteractionUtils = new TextInteractionUtils();
     private final FishTextApi fishTextApi = new FishTextApi();
     private final Typo typo = new Typo();
-    private final Animation animation = new Animation();
-    private final Scanner scanner;
-    private final CommandHandler commandHandler;
+
+    private final Animation animation;
     private final TrainingSession session;
     private final TrainingSettings settings;
+    private final InputOutput inputOutput;
 
     /**
-     * Конструктор TrainingProcess, который передает ссылки на объекты commandHandler, session, settings
-     * @param commandHandler ссылка на объект CommandHandler
+     * Конструктор TrainingProcess, который передает ссылки на объекты session,
+     * settings и реализацию InputOutput
      * @param session ссылка на объект TrainingSession
      * @param settings ссылка на объек TrainingSettings
      */
-    public TrainingProcess(CommandHandler commandHandler, TrainingSession session, TrainingSettings settings) {
-        this.scanner = new Scanner(System.in);
-
-        this.commandHandler = commandHandler;
+    public TrainingProcess(TrainingSession session,
+                           TrainingSettings settings,
+                           InputOutput inputOutput) {
         this.session = session;
         this.settings = settings;
+        this.inputOutput = inputOutput;
+
+        this.animation = new Animation(inputOutput);
     }
 
     /**
@@ -51,11 +51,11 @@ public class TrainingProcess {
             String apiText = fishTextApi.getTextFromFishTextApi();
             String processedText = responseProcessingUtils.sanitize(apiText);
 
-            System.out.println(processedText);
-            String input = scanner.nextLine();
+            inputOutput.output(processedText);
+            String input = inputOutput.input();
 
             if (input.equals("/stop")) {
-                commandHandler.handleCommand("/stop");
+                session.stop();
                 break;
             }
             wordsCount += textInteractionUtils.getWordsCount(input);
@@ -64,7 +64,7 @@ public class TrainingProcess {
             }
         }
 
-        new Result(wordsCount, settings, typo).printResult();
-        typo.clearTypoAndTypoCount();
+        new Result(wordsCount, settings, typo, inputOutput).printResult();
+        typo.clearTypo();
     }
 }
