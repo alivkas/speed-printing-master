@@ -1,9 +1,7 @@
 package org.example;
 
-import org.example.processing.CommandHandler;
-
 /**
- *Запускает тренировочное приложение.
+ * Запускает тренировочное приложение.
  */
 public class Main {
     public static void main(String[] args) {

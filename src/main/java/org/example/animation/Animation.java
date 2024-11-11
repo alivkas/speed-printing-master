@@ -1,20 +1,34 @@
 package org.example.animation;
 
+import org.example.interfaces.InputOutput;
+
 /**
  * Анимация в консоли
  */
 public class Animation {
 
+    private final InputOutput inputOutput;
+
+    private final int count = 3;
+
+    /**
+     * Конструктор, который передает ссылку на реализацию InputOutput
+     * @param inputOutput реализация InputOutput
+     */
+    public Animation(InputOutput inputOutput) {
+        this.inputOutput = inputOutput;
+    }
+
     /**
      * Обратный отсчет до начала тренировки
      */
     public void countingDown() {
-        for (int i = 3; i >= 1; i--) {
-            System.out.println(i + "...");
+        for (int i = count; i >= 1; i--) {
+            inputOutput.output(i + "...");
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Поток занят", e);
             }
         }
     }

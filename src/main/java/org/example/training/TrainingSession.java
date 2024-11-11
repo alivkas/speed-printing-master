@@ -40,7 +40,6 @@ public class TrainingSession {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                stop();
                 try {
                     Robot robot = new Robot();
                     robot.keyPress(KeyEvent.VK_ENTER);
@@ -49,6 +48,7 @@ public class TrainingSession {
                     Logger.getLogger(TrainingSession.class.getName()).warning(e.getMessage());
                     output.output("Ошибка при работе с роботом.");
                 }
+                stop();
             }
         }, lasting);
         output.output ("Новая тренировка на " + lasting / 60000 + " минут");
