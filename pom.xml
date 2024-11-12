@@ -17,6 +17,8 @@
         <juint-jupiter.version>5.11.3</juint-jupiter.version>
         <mockito-core.version>5.14.2</mockito-core.version>
         <diff-match-patch.version>1.2</diff-match-patch.version>
+        <hibernate-core.version>6.6.2.Final</hibernate-core.version>
+        <h2.version>2.3.232</h2.version>
     </properties>
 
     <dependencies>
@@ -37,6 +39,14 @@
         <dependency>
             <groupId>org.bitbucket.cowwoc</groupId>
             <artifactId>diff-match-patch</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
         </dependency>
     </dependencies>
 
@@ -63,6 +73,16 @@
                 <groupId>org.bitbucket.cowwoc</groupId>
                 <artifactId>diff-match-patch</artifactId>
                 <version>${diff-match-patch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-core</artifactId>
+                <version>${hibernate-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
