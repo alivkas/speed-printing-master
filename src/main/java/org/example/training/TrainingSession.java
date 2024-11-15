@@ -1,6 +1,7 @@
 package org.example.training;
 
 import org.example.interfaces.InputOutput;
+import org.example.utils.log.LogsWriterUtils;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -11,24 +12,25 @@ import java.util.logging.Logger;
 
 /**
  * Управление сессией тренировки
- * lasting длительность тренировки в миллисекундах
  */
 public class TrainingSession {
-    private final int lasting;
+    private final LogsWriterUtils logsWriter = new LogsWriterUtils();
+    private final AtomicBoolean isActive = new AtomicBoolean(false);
+
+    private final int duration;
     private Timer timer;
-    private final AtomicBoolean isActive;
-    private final InputOutput output;
+    private final InputOutput inputOutput;
 
     /**
-     * Конструктор, который инициализирует длительность тренировки и устанавливает статус сессии как неактивную
+     * Конструктор, который инициализирует длительность тренировки
+     * и получает ссылку на реализацию InputOutput
      *
-     * @param lasting Длительность тренировки в миллисекундах
-     * @param output  вывода информации
+     * @param duration длительность тренировки в миллисекундах
+     * @param inputOutput вывода информации
      */
-    public TrainingSession(int lasting, InputOutput output) {
-        this.lasting = lasting;
-        this.output = output;
-        this.isActive = new AtomicBoolean(false);
+    public TrainingSession(int duration, InputOutput inputOutput) {
+        this.duration = duration;
+        this.inputOutput = inputOutput;
     }
 
     /**
@@ -45,13 +47,13 @@ public class TrainingSession {
                     robot.keyPress(KeyEvent.VK_ENTER);
                     robot.keyRelease(KeyEvent.VK_ENTER);
                 } catch (AWTException e) {
-                    Logger.getLogger(TrainingSession.class.getName()).warning(e.getMessage());
-                    output.output("Ошибка при работе с роботом.");
+                    logsWriter.writeStackTraceToFile(e);
+                    inputOutput.output("Ошибка при работе с роботом.");
                 }
                 stop();
             }
-        }, lasting);
-        output.output ("Новая тренировка на " + lasting / 60000 + " минут");
+        }, duration);
+        inputOutput.output ("Новая тренировка на " + duration / 60000 + " минут");
     }
 
     /**
@@ -61,7 +63,7 @@ public class TrainingSession {
         if (timer != null) {
             timer.cancel();
             isActive.set(false);
-            output.output("Тренировка Завершена!");
+            inputOutput.output("Тренировка Завершена!");
         }
     }
 

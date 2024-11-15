@@ -11,8 +11,8 @@ public class TestInputOutput implements InputOutput {
     private String latestOutput;
 
     /**
-     * Сохраняет сообщение в переменной
-     * @param message cообщение, которое нужно вывести
+     * Выводить строку
+     * @param message строка ввода
      */
     @Override
     public void output(String message) {
@@ -20,13 +20,11 @@ public class TestInputOutput implements InputOutput {
     }
 
     /**
-     * Возвращает строку, представляющую ввод пользователя
-     *
-     * @return cтрока, введенная пользователем
+     * Читать строку из входного потока.
+     * @return строка, введенная пользователем.
      */
     @Override
     public String input() {
         return input;
     }
-
 }
