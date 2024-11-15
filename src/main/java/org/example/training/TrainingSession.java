@@ -14,20 +14,24 @@ import java.util.logging.Logger;
  * lasting длительность тренировки в миллисекундах
  */
 public class TrainingSession {
-    private final int lasting;
+    private final TrainingSettings settings;
     private Timer timer;
     private final AtomicBoolean isActive;
     private final InputOutput output;
+    private final int secondInMinute = 60;
+    private final int millisecondsInSecond = 1000;
 
     /**
-     * Конструктор, который инициализирует длительность тренировки и устанавливает статус сессии как неактивную
+     * Создает сессию тренировки
+     * Инициализирует параметры тренировки и устанавливает
+     * статус сессии как неактивную
      *
-     * @param lasting Длительность тренировки в миллисекундах
-     * @param output  вывода информации
+     * @param settings Параметры тренировки
+     * @param inputOutput  Объект для вывода информации.
      */
-    public TrainingSession(int lasting, InputOutput output) {
-        this.lasting = lasting;
-        this.output = output;
+    public TrainingSession(TrainingSettings settings, InputOutput inputOutput) {
+        this.settings = settings;
+        this.output = inputOutput;
         this.isActive = new AtomicBoolean(false);
     }
 
@@ -37,6 +41,9 @@ public class TrainingSession {
     public void start() {
         isActive.set(true);
         timer = new Timer();
+
+        int durationMilliseconds = settings.getTrainingTime() * secondInMinute * millisecondsInSecond;
+
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -50,8 +57,8 @@ public class TrainingSession {
                 }
                 stop();
             }
-        }, lasting);
-        output.output ("Новая тренировка на " + lasting / 60000 + " минут");
+        }, durationMilliseconds);
+        output.output ("Новая тренировка на " + settings.getTrainingTime() + " минут");
     }
 
     /**
