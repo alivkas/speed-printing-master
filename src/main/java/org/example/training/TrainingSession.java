@@ -22,17 +22,18 @@ public class TrainingSession {
     private final int millisecondsInSecond = 1000;
 
     /**
-     * Конструктор, который инициализирует длительность тренировки и устанавливает статус сессии как неактивную
+     * Создает сессию тренировки
+     * Инициализирует параметры тренировки и устанавливает
+     * статус сессии как неактивную
      *
-     * @param output  вывода информации
+     * @param settings Параметры тренировки
+     * @param inputOutput  Объект для вывода информации.
      */
-    public TrainingSession(TrainingSettings settings, InputOutput output) {
+    public TrainingSession(TrainingSettings settings, InputOutput inputOutput) {
         this.settings = settings;
-        this.output = output;
+        this.output = inputOutput;
         this.isActive = new AtomicBoolean(false);
     }
-
-
 
     /**
      * Запускает сессию тренировки с установленным временем
