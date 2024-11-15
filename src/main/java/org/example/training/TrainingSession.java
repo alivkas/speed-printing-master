@@ -1,6 +1,7 @@
 package org.example.training;
 
 import org.example.interfaces.InputOutput;
+import org.example.utils.log.LogsWriterUtils;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -11,15 +12,16 @@ import java.util.logging.Logger;
 
 /**
  * Управление сессией тренировки
- * lasting длительность тренировки в миллисекундах
  */
 public class TrainingSession {
-    private final TrainingSettings settings;
-    private Timer timer;
-    private final AtomicBoolean isActive;
-    private final InputOutput output;
+    private final LogsWriterUtils logsWriter = new LogsWriterUtils();
+    private final AtomicBoolean isActive = new AtomicBoolean(false);
     private final int secondInMinute = 60;
     private final int millisecondsInSecond = 1000;
+
+    private final int duration;
+    private Timer timer;
+    private final InputOutput inputOutput;
 
     /**
      * Создает сессию тренировки
@@ -32,7 +34,6 @@ public class TrainingSession {
     public TrainingSession(TrainingSettings settings, InputOutput inputOutput) {
         this.settings = settings;
         this.output = inputOutput;
-        this.isActive = new AtomicBoolean(false);
     }
 
     /**
@@ -52,13 +53,13 @@ public class TrainingSession {
                     robot.keyPress(KeyEvent.VK_ENTER);
                     robot.keyRelease(KeyEvent.VK_ENTER);
                 } catch (AWTException e) {
-                    Logger.getLogger(TrainingSession.class.getName()).warning(e.getMessage());
-                    output.output("Ошибка при работе с роботом.");
+                    logsWriter.writeStackTraceToFile(e);
+                    inputOutput.output("Ошибка при работе с роботом.");
                 }
                 stop();
             }
         }, durationMilliseconds);
-        output.output ("Новая тренировка на " + settings.getTrainingTime() + " минут");
+        inputOutput.output ("Новая тренировка на " + settings.getTrainingTime() + " минут");
     }
 
     /**
@@ -68,7 +69,7 @@ public class TrainingSession {
         if (timer != null) {
             timer.cancel();
             isActive.set(false);
-            output.output("Тренировка Завершена!");
+            inputOutput.output("Тренировка Завершена!");
         }
     }
 

@@ -4,14 +4,15 @@ import org.example.interfaces.InputOutput;
 import org.example.training.TrainingProcess;
 import org.example.training.TrainingSession;
 import org.example.training.TrainingSettings;
-
-import java.util.logging.Logger;
+import org.example.utils.log.LogsWriterUtils;
 
 /**
  * Класс для обработки команд пользователя.
  */
 public class CommandHandler {
-    protected TrainingSettings trainingSettings;
+    protected TrainingSettings trainingSettings = new TrainingSettings();
+    private final LogsWriterUtils logsWriter = new LogsWriterUtils();
+
     protected TrainingSession trainingSession;
     private TrainingProcess trainingProcess;
     private final InputOutput inputOutput;
@@ -22,7 +23,6 @@ public class CommandHandler {
      */
     public CommandHandler(InputOutput inputOutput) {
         this.inputOutput = inputOutput;
-        this.trainingSettings = new TrainingSettings();
     }
 
     /**
@@ -31,24 +31,15 @@ public class CommandHandler {
      */
     public void handleCommand(String command) {
         switch (command) {
-            case "/help":
-                sendHelp();
-                break;
-            case "/settings":
-                askTrainingTime();
-                break;
-            case "/stop":
-                stopTraining();
-                break;
-            case "/start":
-                startTraining();
-                break;
-            case "/exit":
+            case "/help" -> sendHelp();
+            case "/settings" -> askTrainingTime();
+            case "/stop" -> stopTraining();
+            case "/start" -> startTraining();
+            case "/exit" -> {
                 inputOutput.output("Выход из приложения.");
                 System.exit(0);
-                break;
-            default:
-                inputOutput.output("Неизвестная команда. Введите /help для списка команд.");
+            }
+            default -> inputOutput.output("Неизвестная команда. Введите /help для списка команд.");
         }
     }
 
@@ -67,12 +58,11 @@ public class CommandHandler {
     }
 
     /**
-     * Запрашивает у пользователя время тренировки в минутах и устанавливает его
+     * Запрашивает у пользователя время тренировки в минутах и устанавливает его.
      * time - время в минутах
      */
     private void askTrainingTime() {
         inputOutput.output("Укажите время на тренировку (минуты)");
-
         try {
             int time = Integer.parseInt(inputOutput.input());
             if (time <= 0) {
@@ -81,9 +71,9 @@ public class CommandHandler {
             }
             trainingSettings.setTrainingTime(time);
             inputOutput.output("Время тренировки " + time + " минут");
-        } catch (NumberFormatException numberFormatException) {
+        } catch (NumberFormatException e) {
             inputOutput.output("Некорректный ввод. Введите целое положительное число.");
-            Logger.getLogger(CommandHandler.class.getName()).warning(numberFormatException.getMessage());
+            logsWriter.writeStackTraceToFile(e);
         }
     }
 
@@ -109,7 +99,6 @@ public class CommandHandler {
         }
 
         trainingSession = new TrainingSession(trainingSettings, inputOutput);
-
         trainingProcess = new TrainingProcess(trainingSession, trainingSettings, inputOutput);
         trainingProcess.process();
     }

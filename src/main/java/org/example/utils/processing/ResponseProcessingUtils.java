@@ -1,4 +1,4 @@
-package org.example.processing.utils;
+package org.example.utils.processing;
 
 /**
  * Обработка ответа

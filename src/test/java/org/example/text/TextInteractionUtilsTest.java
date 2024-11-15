@@ -1,6 +1,6 @@
 package org.example.text;
 
-import org.example.text.utils.TextInteractionUtils;
+import org.example.utils.text.TextInteractionUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
