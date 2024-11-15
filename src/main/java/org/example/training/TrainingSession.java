@@ -16,21 +16,24 @@ import java.util.logging.Logger;
 public class TrainingSession {
     private final LogsWriterUtils logsWriter = new LogsWriterUtils();
     private final AtomicBoolean isActive = new AtomicBoolean(false);
+    private final int secondInMinute = 60;
+    private final int millisecondsInSecond = 1000;
 
     private final int duration;
     private Timer timer;
     private final InputOutput inputOutput;
 
     /**
-     * Конструктор, который инициализирует длительность тренировки
-     * и получает ссылку на реализацию InputOutput
+     * Создает сессию тренировки
+     * Инициализирует параметры тренировки и устанавливает
+     * статус сессии как неактивную
      *
-     * @param duration длительность тренировки в миллисекундах
-     * @param inputOutput вывода информации
+     * @param settings Параметры тренировки
+     * @param inputOutput  Объект для вывода информации.
      */
-    public TrainingSession(int duration, InputOutput inputOutput) {
-        this.duration = duration;
-        this.inputOutput = inputOutput;
+    public TrainingSession(TrainingSettings settings, InputOutput inputOutput) {
+        this.settings = settings;
+        this.output = inputOutput;
     }
 
     /**
@@ -39,6 +42,9 @@ public class TrainingSession {
     public void start() {
         isActive.set(true);
         timer = new Timer();
+
+        int durationMilliseconds = settings.getTrainingTime() * secondInMinute * millisecondsInSecond;
+
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -52,8 +58,8 @@ public class TrainingSession {
                 }
                 stop();
             }
-        }, duration);
-        inputOutput.output ("Новая тренировка на " + duration / 60000 + " минут");
+        }, durationMilliseconds);
+        inputOutput.output ("Новая тренировка на " + settings.getTrainingTime() + " минут");
     }
 
     /**

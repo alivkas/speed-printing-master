@@ -17,9 +17,6 @@ public class CommandHandler {
     private TrainingProcess trainingProcess;
     private final InputOutput inputOutput;
 
-    private final int SECOND_IN_MINUTE = 60;
-    private final int MILLISECONDS_IN_MINUTE = 1000;
-
     /**
      * Конструктор класса CommandHandler, который инициализирует поле trainingSettings
      * и принимает класс, который реализует интерфейс ввода и вывода
@@ -101,8 +98,7 @@ public class CommandHandler {
             return;
         }
 
-        int durationMilliseconds = trainingSettings.getTrainingTime() * SECOND_IN_MINUTE * MILLISECONDS_IN_MINUTE;
-        trainingSession = new TrainingSession(durationMilliseconds, inputOutput);
+        trainingSession = new TrainingSession(trainingSettings, inputOutput);
         trainingProcess = new TrainingProcess(trainingSession, trainingSettings, inputOutput);
         trainingProcess.process();
     }
