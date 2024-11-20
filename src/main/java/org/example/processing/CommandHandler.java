@@ -1,31 +1,35 @@
 package org.example.processing;
 
+import org.example.database.DatabaseManager;
 import org.example.interfaces.InputOutput;
+import org.example.service.UserAuth;
 import org.example.training.TrainingProcess;
 import org.example.training.TrainingSession;
 import org.example.training.TrainingSettings;
-
-import java.util.logging.Logger;
+import org.example.utils.log.LogsWriterUtils;
 
 /**
  * Класс для обработки команд пользователя.
  */
 public class CommandHandler {
-    protected TrainingSettings trainingSettings;
+    protected TrainingSettings trainingSettings = new TrainingSettings();
+    private final LogsWriterUtils logsWriter = new LogsWriterUtils();
+
     protected TrainingSession trainingSession;
     private TrainingProcess trainingProcess;
     private final InputOutput inputOutput;
-
-    private final int secondInMinute = 60;
-    private final int millisecondsInSecond = 1000;
+    private final DatabaseManager databaseManager;
+    protected UserAuth userAuth;
+    protected String currentUsername = null;
 
     /**
      * Конструктор класса CommandHandler, который инициализирует поле trainingSettings
      * и принимает класс, который реализует интерфейс ввода и вывода
      */
-    public CommandHandler(InputOutput inputOutput) {
+    public CommandHandler(InputOutput inputOutput, DatabaseManager databaseManager) {
         this.inputOutput = inputOutput;
-        this.trainingSettings = new TrainingSettings();
+        this.databaseManager = databaseManager;
+        this.userAuth = new UserAuth(inputOutput);
     }
 
     /**
@@ -34,24 +38,17 @@ public class CommandHandler {
      */
     public void handleCommand(String command) {
         switch (command) {
-            case "/help":
-                sendHelp();
-                break;
-            case "/settings":
-                askTrainingTime();
-                break;
-            case "/stop":
-                stopTraining();
-                break;
-            case "/start":
-                startTraining();
-                break;
-            case "/exit":
+            case "/help" -> sendHelp();
+            case "/settings" -> askTrainingTime();
+            case "/stop" -> stopTraining();
+            case "/start" -> startTraining();
+            case "/register" -> register();
+            case "/login" -> login();
+            case "/exit" -> {
                 inputOutput.output("Выход из приложения.");
                 System.exit(0);
-                break;
-            default:
-                inputOutput.output("Неизвестная команда. Введите /help для списка команд.");
+            }
+            default -> inputOutput.output("Неизвестная команда. Введите /help для списка команд.");
         }
     }
 
@@ -61,6 +58,8 @@ public class CommandHandler {
     private void sendHelp() {
         String helpText = """
             /help - Все команды
+            /register - зарегистрироваться
+            /login - войти в систему
             /settings - Настройки тренировки
             /start - Начать тренировку
             /stop - Прервать тренировку
@@ -70,12 +69,38 @@ public class CommandHandler {
     }
 
     /**
-     * Запрашивает у пользователя время тренировки в минутах и устанавливает его
+     * Регистрирует нового пользователя в системе
+     */
+    private void register() {
+        boolean success = userAuth.registerUser(databaseManager);
+
+        if (success) {
+            inputOutput.output("Регистрация прошла успешно! Войдите в аккаунт.");
+        } else {
+            inputOutput.output("Пользователь с таким именем уже существует.");
+        }
+    }
+
+    /**
+     * Выполняет вход пользователя в систему
+     */
+    private void login() {
+        boolean success = userAuth.loginUser(databaseManager);
+
+        if (success) {
+            inputOutput.output("Вход выполнен!");
+            currentUsername = userAuth.getUsername();
+        } else {
+            inputOutput.output("Неверный логин или пароль.");
+        }
+    }
+
+    /**
+     * Запрашивает у пользователя время тренировки в минутах и устанавливает его.
      * time - время в минутах
      */
     private void askTrainingTime() {
         inputOutput.output("Укажите время на тренировку (минуты)");
-
         try {
             int time = Integer.parseInt(inputOutput.input());
             if (time <= 0) {
@@ -84,9 +109,9 @@ public class CommandHandler {
             }
             trainingSettings.setTrainingTime(time);
             inputOutput.output("Время тренировки " + time + " минут");
-        } catch (NumberFormatException numberFormatException) {
+        } catch (NumberFormatException e) {
             inputOutput.output("Некорректный ввод. Введите целое положительное число.");
-            Logger.getLogger(CommandHandler.class.getName()).warning(numberFormatException.getMessage());
+            logsWriter.writeStackTraceToFile(e);
         }
     }
 
@@ -111,10 +136,8 @@ public class CommandHandler {
             return;
         }
 
-        int durationMilliseconds = trainingSettings.getTrainingTime() * secondInMinute * millisecondsInSecond;
-        trainingSession = new TrainingSession(durationMilliseconds, inputOutput);
-
-        trainingProcess = new TrainingProcess(trainingSession, trainingSettings, inputOutput);
+        trainingSession = new TrainingSession(trainingSettings, inputOutput);
+        trainingProcess = new TrainingProcess(trainingSession, trainingSettings, inputOutput, currentUsername);
         trainingProcess.process();
     }
 }

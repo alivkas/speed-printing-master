@@ -21,11 +21,9 @@ public class Result {
      * @param totalWordsTyped количество введенных слов
      * @param settings ссылка на обект TrainingSettings
      * @param typo ссылка на объект Typo
+     * @param inputOutput ссылка на реализацию InputOutput
      */
-    public Result(int totalWordsTyped,
-                  TrainingSettings settings,
-                  Typo typo,
-                  InputOutput inputOutput) {
+    public Result(int totalWordsTyped, TrainingSettings settings, Typo typo, InputOutput inputOutput) {
         this.typo = typo;
         this.totalWordsTyped = totalWordsTyped;
         this.settings = settings;
@@ -46,9 +44,9 @@ public class Result {
      * Получить количество слов в минуту
      * @return количество слов в минуту с припиской "Итоговая скорость печати: "
      */
-    private String getWordsPerMinute() {
+    public String getWordsPerMinute() {
         double wordsPerMinute = ((double) totalWordsTyped / (settings.getTrainingTime()));
-        return String.format("Итоговая скорость печати: %.2f слов/мин.", wordsPerMinute);
+        return String.format("Итоговая скорость печати: %s слов/мин.", wordsPerMinute);
     }
 
     /**
