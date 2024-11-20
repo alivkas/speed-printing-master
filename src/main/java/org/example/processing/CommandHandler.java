@@ -1,6 +1,8 @@
 package org.example.processing;
 
+import org.example.database.DatabaseManager;
 import org.example.interfaces.InputOutput;
+import org.example.service.UserAuth;
 import org.example.training.TrainingProcess;
 import org.example.training.TrainingSession;
 import org.example.training.TrainingSettings;
@@ -16,13 +18,18 @@ public class CommandHandler {
     protected TrainingSession trainingSession;
     private TrainingProcess trainingProcess;
     private final InputOutput inputOutput;
+    private final DatabaseManager databaseManager;
+    protected UserAuth userAuth;
+    protected String currentUsername = null;
 
     /**
      * Конструктор класса CommandHandler, который инициализирует поле trainingSettings
      * и принимает класс, который реализует интерфейс ввода и вывода
      */
-    public CommandHandler(InputOutput inputOutput) {
+    public CommandHandler(InputOutput inputOutput, DatabaseManager databaseManager) {
         this.inputOutput = inputOutput;
+        this.databaseManager = databaseManager;
+        this.userAuth = new UserAuth(inputOutput);
     }
 
     /**
@@ -35,6 +42,8 @@ public class CommandHandler {
             case "/settings" -> askTrainingTime();
             case "/stop" -> stopTraining();
             case "/start" -> startTraining();
+            case "/register" -> register();
+            case "/login" -> login();
             case "/exit" -> {
                 inputOutput.output("Выход из приложения.");
                 System.exit(0);
@@ -49,12 +58,41 @@ public class CommandHandler {
     private void sendHelp() {
         String helpText = """
             /help - Все команды
+            /register - зарегистрироваться
+            /login - войти в систему
             /settings - Настройки тренировки
             /start - Начать тренировку
             /stop - Прервать тренировку
             /exit - Завершить приложение
             """;
         inputOutput.output(helpText);
+    }
+
+    /**
+     * Регистрирует нового пользователя в системе
+     */
+    private void register() {
+        boolean success = userAuth.registerUser(databaseManager);
+
+        if (success) {
+            inputOutput.output("Регистрация прошла успешно! Войдите в аккаунт.");
+        } else {
+            inputOutput.output("Пользователь с таким именем уже существует.");
+        }
+    }
+
+    /**
+     * Выполняет вход пользователя в систему
+     */
+    private void login() {
+        boolean success = userAuth.loginUser(databaseManager);
+
+        if (success) {
+            inputOutput.output("Вход выполнен!");
+            currentUsername = userAuth.getUsername();
+        } else {
+            inputOutput.output("Неверный логин или пароль.");
+        }
     }
 
     /**
@@ -99,7 +137,7 @@ public class CommandHandler {
         }
 
         trainingSession = new TrainingSession(trainingSettings, inputOutput);
-        trainingProcess = new TrainingProcess(trainingSession, trainingSettings, inputOutput);
+        trainingProcess = new TrainingProcess(trainingSession, trainingSettings, inputOutput, currentUsername);
         trainingProcess.process();
     }
 }

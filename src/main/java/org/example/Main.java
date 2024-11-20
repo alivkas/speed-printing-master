@@ -1,6 +1,7 @@
 package org.example;
 
 import org.example.animation.Animation;
+import org.example.database.DatabaseManager;
 import org.example.processing.CommandHandler;
 
 /**
@@ -9,7 +10,7 @@ import org.example.processing.CommandHandler;
 public class Main {
     public static void main(String[] args) {
         Console app = new Console();
-        CommandHandler commandHandler = new CommandHandler(app);
+        CommandHandler commandHandler = new CommandHandler(app, new DatabaseManager());
         String info = """
                 Добро пожаловать в тренировочное приложение! Введите команду /help для просмотра всех команд
                 """;

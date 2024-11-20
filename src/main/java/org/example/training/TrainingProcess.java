@@ -1,5 +1,6 @@
 package org.example.training;
 
+import org.example.database.ResultSave;
 import org.example.interfaces.InputOutput;
 import org.example.utils.text.TextInteractionUtils;
 import org.example.text.Typo;
@@ -17,6 +18,8 @@ public class TrainingProcess {
     private final TrainingSession session;
     private final TrainingSettings settings;
     private final InputOutput inputOutput;
+    private final ResultSave resultSave = new ResultSave();
+    private final String username;
 
     /**
      * Конструктор TrainingProcess, который передает ссылки на объекты session,
@@ -25,10 +28,11 @@ public class TrainingProcess {
      * @param settings ссылка на объек TrainingSettings
      * @param inputOutput ссылка на реализацию InputOutput
      */
-    public TrainingProcess(TrainingSession session, TrainingSettings settings, InputOutput inputOutput) {
+    public TrainingProcess(TrainingSession session, TrainingSettings settings, InputOutput inputOutput, String username) {
         this.session = session;
         this.settings = settings;
         this.inputOutput = inputOutput;
+        this.username = username;
     }
 
     /**
@@ -54,7 +58,16 @@ public class TrainingProcess {
             }
         }
 
-        new Result(wordsCount, settings, typo, inputOutput).printResult();
+        Result result = new Result(wordsCount, settings, typo, inputOutput);
+        result.printResult();
+        updateDatabase(result.getWordsPerMinute());
         typo.clearTypo();
+    }
+
+    public void updateDatabase(String wordsPerMinute) {
+        String[] splitWord = wordsPerMinute.split(" ");
+        double average = Double.parseDouble(splitWord[splitWord.length - 2]);
+
+        resultSave.updateTrainingData(username, settings.getTrainingTime(), average);
     }
 }

@@ -1,11 +1,18 @@
 package org.example.processing;
 
+import org.example.database.DatabaseManager;
 import org.example.interfaces.InputOutput;
+import org.example.service.UserAuth;
 import org.example.training.TrainingSession;
 import org.example.training.TrainingSettings;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 /**
@@ -15,17 +22,31 @@ public class CommandHandlerTest {
     /**
      * Обработка команды "/help" должна вывести текст справки
      */
+    InputOutput mockOutput = mock(InputOutput.class);
+    DatabaseManager mockDatabaseManager = mock(DatabaseManager.class);
+
+    @Mock
+    private UserAuth userAuthMock;
+    private CommandHandler commandHandler;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        commandHandler = new CommandHandler(mockOutput, mockDatabaseManager);
+        commandHandler.userAuth = userAuthMock;
+    }
     @Test
     void handleCommand_Help_ShouldOutputHelpText() {
-        InputOutput mockOutput = mock(InputOutput.class);
-        CommandHandler commandHandler = new CommandHandler(mockOutput);
+        CommandHandler commandHandler = new CommandHandler(mockOutput, mockDatabaseManager);
         String helpText = """
-                /help - Все команды
-                /settings - Настройки тренировки
-                /start - Начать тренировку
-                /stop - Прервать тренировку
-                /exit - Завершить приложение
-                """;
+            /help - Все команды
+            /register - зарегистрироваться
+            /login - войти в систему
+            /settings - Настройки тренировки
+            /start - Начать тренировку
+            /stop - Прервать тренировку
+            /exit - Завершить приложение
+            """;
 
         commandHandler.handleCommand("/help");
         verify(mockOutput).output(helpText);
@@ -35,8 +56,7 @@ public class CommandHandlerTest {
      */
     @Test
     void correct_Time_Test() {
-        InputOutput mockOutput = mock(InputOutput.class);
-        CommandHandler commandHandler = new CommandHandler(mockOutput);
+        CommandHandler commandHandler = new CommandHandler(mockOutput, mockDatabaseManager);
         when(mockOutput.input()).thenReturn("30");
         commandHandler.handleCommand("/settings");
         verify(mockOutput).output("Укажите время на тренировку (минуты)");
@@ -48,8 +68,7 @@ public class CommandHandlerTest {
      */
     @Test
     void not_correct_Time_Test() {
-        InputOutput mockOutput = mock(InputOutput.class);
-        CommandHandler commandHandler = new CommandHandler(mockOutput);
+        CommandHandler commandHandler = new CommandHandler(mockOutput, mockDatabaseManager);
         when(mockOutput.input()).thenReturn("abc");
 
         commandHandler.handleCommand("/settings");
@@ -63,8 +82,7 @@ public class CommandHandlerTest {
      */
     @Test
     void negative_Time_Test() {
-        InputOutput mockOutput = mock(InputOutput.class);
-        CommandHandler commandHandler = new CommandHandler(mockOutput);
+        CommandHandler commandHandler = new CommandHandler(mockOutput, mockDatabaseManager);
         when(mockOutput.input()).thenReturn("-5");
 
         commandHandler.handleCommand("/settings");
@@ -78,8 +96,7 @@ public class CommandHandlerTest {
      */
     @Test
     void handleCommand_Start_WithoutTrainingTime_OutputsError() {
-        InputOutput mockOutput = mock(InputOutput.class);
-        CommandHandler commandHandler = new CommandHandler(mockOutput);
+        CommandHandler commandHandler = new CommandHandler(mockOutput, mockDatabaseManager);
         TrainingSettings mockSettings = mock(TrainingSettings.class);
         when(mockSettings.getTrainingTime()).thenReturn(0);
 
@@ -93,8 +110,7 @@ public class CommandHandlerTest {
      */
     @Test
     void testStopTrainingWithActiveSession() {
-        InputOutput mockOutput = Mockito.mock(InputOutput.class);
-        CommandHandler commandHandler = new CommandHandler(mockOutput);
+        CommandHandler commandHandler = new CommandHandler(mockOutput, mockDatabaseManager);
         TrainingSettings mockSettings = Mockito.mock(TrainingSettings.class);
         TrainingSession mockSession = Mockito.mock(TrainingSession.class);
 
@@ -113,8 +129,7 @@ public class CommandHandlerTest {
      */
     @Test
     void testStopTrainingWithoutActiveSession() {
-        InputOutput mockOutput = Mockito.mock(InputOutput.class);
-        CommandHandler commandHandler = new CommandHandler(mockOutput);
+        CommandHandler commandHandler = new CommandHandler(mockOutput, mockDatabaseManager);
         TrainingSettings mockSettings = Mockito.mock(TrainingSettings.class);
         TrainingSession mockSession = Mockito.mock(TrainingSession.class);
 
@@ -133,12 +148,50 @@ public class CommandHandlerTest {
      */
     @Test
     void testHandleUnknownCommand() {
-        InputOutput mockOutput = Mockito.mock(InputOutput.class);
-        CommandHandler commandHandler = new CommandHandler(mockOutput);
+        CommandHandler commandHandler = new CommandHandler(mockOutput, mockDatabaseManager);
         String unknownCommand = "unknown_command";
 
         commandHandler.handleCommand(unknownCommand);
 
         verify(mockOutput).output("Неизвестная команда. Введите /help для списка команд.");
     }
+    @Test
+    void handleCommand_register_success() {
+        when(userAuthMock.registerUser(mockDatabaseManager)).thenReturn(true);
+        commandHandler.handleCommand("/register");
+        verify(userAuthMock).registerUser(mockDatabaseManager);
+        verify(mockOutput).output("Регистрация прошла успешно! Войдите в аккаунт.");
+    }
+
+
+    @Test
+    void handleCommand_register_failure() {
+        when(userAuthMock.registerUser(mockDatabaseManager)).thenReturn(false);
+        commandHandler.handleCommand("/register");
+        verify(userAuthMock).registerUser(mockDatabaseManager);
+        verify(mockOutput).output("Пользователь с таким именем уже существует.");
+    }
+
+
+    @Test
+    void handleCommand_login_success() {
+        when(userAuthMock.loginUser(mockDatabaseManager)).thenReturn(true);
+        when(userAuthMock.getUsername()).thenReturn("testuser");
+        commandHandler.handleCommand("/login");
+        verify(userAuthMock).loginUser(mockDatabaseManager);
+        verify(mockOutput).output("Вход выполнен!");
+        assertEquals("testuser", commandHandler.currentUsername);
+    }
+
+
+    @Test
+    void handleCommand_login_failure() {
+        when(userAuthMock.loginUser(mockDatabaseManager)).thenReturn(false);
+        commandHandler.handleCommand("/login");
+        verify(userAuthMock).loginUser(mockDatabaseManager);
+        verify(mockOutput).output("Неверный логин или пароль.");
+        assertNull(commandHandler.currentUsername);
+    }
+
+
 }
