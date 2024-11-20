@@ -1,28 +1,29 @@
 package org.example.training;
 
 import org.example.interfaces.InputOutput;
+import org.example.utils.log.LogsWriterUtils;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Logger;
 
 /**
  * Управление сессией тренировки
- * lasting длительность тренировки в миллисекундах
  */
 public class TrainingSession {
-    private final TrainingSettings settings;
+    private final LogsWriterUtils logsWriter = new LogsWriterUtils();
+    private final AtomicBoolean isActive = new AtomicBoolean(false);
+    private final int SECINDS_IN_MINUTE = 60;
+    private final int MILLISECONDS_IN_SECOND = 1000;
+
     private Timer timer;
-    private final AtomicBoolean isActive;
-    private final InputOutput output;
-    private final int secondInMinute = 60;
-    private final int millisecondsInSecond = 1000;
+    private final InputOutput inputOutput;
+    private final TrainingSettings settings;
 
     /**
-     * Создает сессию тренировки
+     * Создает сессию тренировки.
      * Инициализирует параметры тренировки и устанавливает
      * статус сессии как неактивную
      *
@@ -31,8 +32,7 @@ public class TrainingSession {
      */
     public TrainingSession(TrainingSettings settings, InputOutput inputOutput) {
         this.settings = settings;
-        this.output = inputOutput;
-        this.isActive = new AtomicBoolean(false);
+        this.inputOutput = inputOutput;
     }
 
     /**
@@ -42,7 +42,7 @@ public class TrainingSession {
         isActive.set(true);
         timer = new Timer();
 
-        int durationMilliseconds = settings.getTrainingTime() * secondInMinute * millisecondsInSecond;
+        int durationMilliseconds = settings.getTrainingTime() * SECINDS_IN_MINUTE * MILLISECONDS_IN_SECOND;
 
         timer.schedule(new TimerTask() {
             @Override
@@ -52,13 +52,13 @@ public class TrainingSession {
                     robot.keyPress(KeyEvent.VK_ENTER);
                     robot.keyRelease(KeyEvent.VK_ENTER);
                 } catch (AWTException e) {
-                    Logger.getLogger(TrainingSession.class.getName()).warning(e.getMessage());
-                    output.output("Ошибка при работе с роботом.");
+                    logsWriter.writeStackTraceToFile(e);
+                    inputOutput.output("Ошибка при работе с роботом.");
                 }
                 stop();
             }
         }, durationMilliseconds);
-        output.output ("Новая тренировка на " + settings.getTrainingTime() + " минут");
+        inputOutput.output ("Новая тренировка на " + settings.getTrainingTime() + " минут");
     }
 
     /**
@@ -68,7 +68,7 @@ public class TrainingSession {
         if (timer != null) {
             timer.cancel();
             isActive.set(false);
-            output.output("Тренировка Завершена!");
+            inputOutput.output("Тренировка Завершена!");
         }
     }
 

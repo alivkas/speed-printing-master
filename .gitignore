@@ -5,6 +5,8 @@ target/
 
 *.db
 
+*.log
+
 ### IntelliJ IDEA ###
 .idea/
 *.iws
