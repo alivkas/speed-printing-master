@@ -1,5 +1,6 @@
 package org.example.processing;
 
+import org.example.animation.Animation;
 import org.example.interfaces.InputOutput;
 import org.example.training.TrainingProcess;
 import org.example.training.TrainingSession;
@@ -12,11 +13,9 @@ import org.example.utils.log.LogsWriterUtils;
 public class CommandHandler {
     protected TrainingSettings trainingSettings = new TrainingSettings();
     private final LogsWriterUtils logsWriter = new LogsWriterUtils();
-
     protected TrainingSession trainingSession;
-    private TrainingProcess trainingProcess;
-    private final InputOutput inputOutput;
-
+    protected TrainingProcess trainingProcess;
+    private InputOutput inputOutput;
     /**
      * Конструктор класса CommandHandler, который инициализирует поле trainingSettings
      * и принимает класс, который реализует интерфейс ввода и вывода
@@ -97,6 +96,9 @@ public class CommandHandler {
             inputOutput.output("Установите время тренировки с помощью команды /settings.");
             return;
         }
+
+        Animation animation = new Animation(inputOutput);
+        animation.countingDown();
 
         trainingSession = new TrainingSession(trainingSettings, inputOutput);
         trainingProcess = new TrainingProcess(trainingSession, trainingSettings, inputOutput);

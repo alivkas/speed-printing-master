@@ -8,7 +8,7 @@ import java.io.PrintWriter;
  * Запись логов в файл
  */
 public class LogsWriterUtils {
-    private final String FILE_NAME = "trace.log";
+    private static final String FILE_NAME = "trace.log";
 
     /**
      * Записывать стек трейс в отдельный файл

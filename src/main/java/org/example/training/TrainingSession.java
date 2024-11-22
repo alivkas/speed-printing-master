@@ -15,8 +15,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class TrainingSession {
     private final LogsWriterUtils logsWriter = new LogsWriterUtils();
     private final AtomicBoolean isActive = new AtomicBoolean(false);
-    private final int SECINDS_IN_MINUTE = 60;
-    private final int MILLISECONDS_IN_SECOND = 1000;
+    private static final int SECINDS_IN_MINUTE = 60;
+    private static final int MILLISECONDS_IN_SECOND = 1000;
 
     private Timer timer;
     private final InputOutput inputOutput;
