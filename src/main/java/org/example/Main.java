@@ -1,6 +1,5 @@
 package org.example;
 
-import org.example.animation.Animation;
 import org.example.processing.CommandHandler;
 
 /**
@@ -17,9 +16,6 @@ public class Main {
         while (true) {
             app.output("Введите команду: ");
             String command = app.input();
-            if (command.equals("/start")) {
-                new Animation(app).countingDown();
-            }
             commandHandler.handleCommand(command);
         }
     }

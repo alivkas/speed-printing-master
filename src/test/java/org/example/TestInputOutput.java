@@ -7,7 +7,7 @@ import org.example.interfaces.InputOutput;
  * предназначен для имитации ввода и вывода
  */
 public class TestInputOutput implements InputOutput {
-    private String input;
+
     private String latestOutput;
 
     /**
@@ -16,7 +16,7 @@ public class TestInputOutput implements InputOutput {
      */
     @Override
     public void output(String message) {
-        latestOutput = message;
+        this.latestOutput = message;
     }
 
     /**
@@ -25,6 +25,17 @@ public class TestInputOutput implements InputOutput {
      */
     @Override
     public String input() {
-        return input;
+        return "";
     }
+
+    /**
+     * Возвращает последнее выведенное сообщение.
+     * @return последнее выведенное сообщение
+     */
+    public String getLatestOutput() {
+        return latestOutput;
+    }
+
+
+
 }

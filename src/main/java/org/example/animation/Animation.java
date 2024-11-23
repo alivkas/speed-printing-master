@@ -7,7 +7,7 @@ import org.example.interfaces.InputOutput;
  */
 public class Animation {
     private final InputOutput inputOutput;
-    private final int COUNT = 3;
+    private static final int COUNT = 3;
 
     /**
      * Конструктор, который передает ссылку на реализацию InputOutput
