@@ -6,28 +6,31 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Тест класса LogsWriterUtils
  */
 class LogsWriterUtilsTest {
-    private final String fileName = "trace.log";
+    private static final String FILE_NAME = "testTrace.log";
     private LogsWriterUtils logsWriterUtils;
 
     /**
-     * Установить значения для тестов
+     * Установить значения для тестов и удалить логи, появившиеся в результате работы других тестов
+     *
      */
     @BeforeEach
     public void setUp() {
-        logsWriterUtils = new LogsWriterUtils();
+        logsWriterUtils = new LogsWriterUtils(FILE_NAME);
     }
 
     /**
-     * Удалить файл после окончания тестов
+     * Удалить файл после окончания теста
      */
     @AfterEach
     public void tearDown() {
-        File file = new File(fileName);
+        File file = new File(FILE_NAME);
         if (file.exists()) {
             file.delete();
         }
@@ -41,17 +44,17 @@ class LogsWriterUtilsTest {
         Exception testException = new Exception("Это тестовое исключение");
         logsWriterUtils.writeStackTraceToFile(testException);
 
-        File file = new File(fileName);
-
         StringBuilder fileContent = new StringBuilder();
-        BufferedReader reader = new BufferedReader(new FileReader(file));
         String line;
-        while ((line = reader.readLine()) != null) {
-            fileContent.append(line).append("\n");
+        try(BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME));) {
+            while ((line = reader.readLine()) != null) {
+                fileContent.append(line).append("\n");
+            }
         }
-        reader.close();
+        Pattern pattern = Pattern.compile("Произошло исключение\\s+java\\.lang\\.Exception: Это тестовое исключение",
+                Pattern.MULTILINE);
+        Matcher matcher = pattern.matcher(fileContent.toString());
 
-        Assertions.assertTrue(fileContent.toString().contains("Произошло исключение"));
-        Assertions.assertTrue(fileContent.toString().contains("Это тестовое исключение"));
+        Assertions.assertTrue(matcher.find(), "Ожидаемый шаблон не найден в файле");
     }
 }

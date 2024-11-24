@@ -1,5 +1,6 @@
 package org.example.training;
 
+import org.example.commons.Commands;
 import org.example.interfaces.InputOutput;
 import org.example.utils.text.TextInteractionUtils;
 import org.example.text.Typo;
@@ -11,24 +12,29 @@ import org.example.web.FishTextApi;
 public class TrainingProcess {
 
     private final TextInteractionUtils textInteractionUtils = new TextInteractionUtils();
-    private final FishTextApi fishTextApi = new FishTextApi();
     private final Typo typo = new Typo();
 
-    private final TrainingSession session;
+    private TrainingSession session;
     private final TrainingSettings settings;
+    private final FishTextApi fishTextApi;
     private final InputOutput inputOutput;
 
     /**
      * Конструктор TrainingProcess, который передает ссылки на объекты session,
-     * settings и реализацию InputOutput
+     * settings, fishTextApi и реализацию InputOutput
      * @param session ссылка на объект TrainingSession
      * @param settings ссылка на объек TrainingSettings
      * @param inputOutput ссылка на реализацию InputOutput
+     * @param fishTextApi ссылка на объект FishTextApi
      */
-    public TrainingProcess(TrainingSession session, TrainingSettings settings, InputOutput inputOutput) {
+    public TrainingProcess(TrainingSession session,
+                           TrainingSettings settings,
+                           InputOutput inputOutput,
+                           FishTextApi fishTextApi) {
         this.session = session;
         this.settings = settings;
         this.inputOutput = inputOutput;
+        this.fishTextApi = fishTextApi;
     }
 
     /**
@@ -40,12 +46,16 @@ public class TrainingProcess {
 
         while (session.isActive()) {
             String processedText = fishTextApi.getProcessedText();
+            if (processedText == null) {
+                stopTraining();
+                break;
+            }
 
             inputOutput.output(processedText);
             String input = inputOutput.input();
 
-            if (input.equals("/stop")) {
-                session.stop();
+            if (input.equals(Commands.STOP)) {
+                stopTraining();
                 break;
             }
             wordsCount += textInteractionUtils.getWordsCount(input);
@@ -56,5 +66,16 @@ public class TrainingProcess {
 
         new Result(wordsCount, settings, typo, inputOutput).printResult();
         typo.clearTypo();
+    }
+
+
+    /**
+     * Прерывает тренировку, если она активна.
+     */
+    private void stopTraining() {
+        if (session != null) {
+            session.stop();
+            session = null;
+        }
     }
 }

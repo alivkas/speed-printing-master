@@ -1,21 +1,26 @@
 package org.example.training;
 
+import org.example.commons.LogsFile;
 import org.example.interfaces.InputOutput;
 import org.example.utils.log.LogsWriterUtils;
+import org.example.web.FishTextApi;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Управление сессией тренировки
  */
 public class TrainingSession {
-    private final LogsWriterUtils logsWriter = new LogsWriterUtils();
+    private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
     private final AtomicBoolean isActive = new AtomicBoolean(false);
-    private static final int SECINDS_IN_MINUTE = 60;
+    private final Logger logger = Logger.getLogger(TrainingSession.class.getName());
+    private static final int SECONDS_IN_MINUTE = 60;
     private static final int MILLISECONDS_IN_SECOND = 1000;
 
     private Timer timer;
@@ -37,12 +42,13 @@ public class TrainingSession {
 
     /**
      * Запускает сессию тренировки с установленным временем
+     *
      */
     public void start() {
         isActive.set(true);
         timer = new Timer();
 
-        int durationMilliseconds = settings.getTrainingTime() * SECINDS_IN_MINUTE * MILLISECONDS_IN_SECOND;
+        int durationMilliseconds = settings.getTrainingTime() * SECONDS_IN_MINUTE * MILLISECONDS_IN_SECOND;
 
         timer.schedule(new TimerTask() {
             @Override
@@ -53,7 +59,7 @@ public class TrainingSession {
                     robot.keyRelease(KeyEvent.VK_ENTER);
                 } catch (AWTException e) {
                     logsWriter.writeStackTraceToFile(e);
-                    inputOutput.output("Ошибка при работе с роботом.");
+                    logger.log(Level.SEVERE, "Ошибка при работе с роботом");
                 }
                 stop();
             }
