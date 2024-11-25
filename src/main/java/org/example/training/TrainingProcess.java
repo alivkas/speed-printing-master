@@ -1,8 +1,8 @@
 package org.example.training;
 
 import org.example.commons.Commands;
-import org.example.database.ResultSave;
 import org.example.interfaces.InputOutput;
+import org.example.service.UserTraining;
 import org.example.utils.text.TextInteractionUtils;
 import org.example.text.Typo;
 import org.example.web.FishTextApi;
@@ -14,12 +14,11 @@ public class TrainingProcess {
 
     private final TextInteractionUtils textInteractionUtils = new TextInteractionUtils();
     private final Typo typo = new Typo();
-
+    private final UserTraining userTraining = new UserTraining();
     private TrainingSession session;
     private final TrainingSettings settings;
     private final FishTextApi fishTextApi;
     private final InputOutput inputOutput;
-    private final ResultSave resultSave = new ResultSave();
     private final String username;
 
     /**
@@ -68,13 +67,12 @@ public class TrainingProcess {
                 typo.saveTypo(processedText, input);
             }
         }
+        userTraining.updateTrainingData(username, settings.getTrainingTime(), wordsCount);
 
         Result result = new Result(wordsCount, settings, typo, inputOutput);
         result.printResult();
-        updateDatabase(result.getWordsPerMinute());
         typo.clearTypo();
     }
-
 
     /**
      * Прерывает тренировку, если она активна.
@@ -84,12 +82,5 @@ public class TrainingProcess {
             session.stop();
             session = null;
         }
-    }
-
-    public void updateDatabase(String wordsPerMinute) {
-        String[] splitWord = wordsPerMinute.split(" ");
-        double average = Double.parseDouble(splitWord[splitWord.length - 2]);
-
-        resultSave.updateTrainingData(username, settings.getTrainingTime(), average);
     }
 }

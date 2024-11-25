@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.database.DatabaseManager;
+import org.example.database.dao.UserDao;
 import org.example.database.entity.UserEntity;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -20,7 +21,7 @@ import static org.mockito.Mockito.*;
 /**
  *Тестируем работоспособность класса UserRepository
  */
-class UserRepositoryTest {
+class UserDaoTest {
 
     @Mock
     private DatabaseManager databaseManager;
@@ -43,7 +44,7 @@ class UserRepositoryTest {
     @Mock
     private Root<UserEntity> root;
 
-    private UserRepository userRepository;
+    private UserDao userDao;
 
     /**
      * Настройка мока перед каждым тестом
@@ -52,7 +53,7 @@ class UserRepositoryTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         when(databaseManager.getSession()).thenReturn(session);
-        userRepository = new UserRepository(databaseManager);
+        userDao = new UserDao(databaseManager);
     }
 
     /**
@@ -74,7 +75,7 @@ class UserRepositoryTest {
         when(session.createQuery(criteriaQuery)).thenReturn(query);
         when(query.uniqueResult()).thenReturn(expectedUser);
 
-        UserEntity actualUser = userRepository.getUserByUsername(username);
+        UserEntity actualUser = userDao.getUserByUsername(username);
 
         assertNotNull(actualUser);
         assertEquals(expectedUser.getUsername(), actualUser.getUsername());
@@ -97,7 +98,7 @@ class UserRepositoryTest {
         when(session.createQuery(criteriaQuery)).thenReturn(query);
         when(query.uniqueResult()).thenReturn(null);
 
-        UserEntity actualUser = userRepository.getUserByUsername(username);
+        UserEntity actualUser = userDao.getUserByUsername(username);
 
         assertNull(actualUser);
     }
@@ -109,7 +110,7 @@ class UserRepositoryTest {
     @Test
     void testGetUserByUsernameThrowsExceptionForNullUsername() {
         assertThrows(IllegalArgumentException.class, () -> {
-            userRepository.getUserByUsername(null);
+            userDao.getUserByUsername(null);
         });
     }
 
@@ -120,7 +121,7 @@ class UserRepositoryTest {
     @Test
     void testGetUserByUsernameThrowsExceptionForEmptyUsername() {
         assertThrows(IllegalArgumentException.class, () -> {
-            userRepository.getUserByUsername("");
+            userDao.getUserByUsername("");
         });
     }
 }

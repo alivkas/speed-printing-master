@@ -1,5 +1,8 @@
 package org.example.processing;
 
+import org.example.animation.Animation;
+import org.example.commons.Commands;
+import org.example.commons.LogsFile;
 import org.example.database.DatabaseManager;
 import org.example.interfaces.InputOutput;
 import org.example.service.UserAuth;
@@ -15,12 +18,12 @@ import org.example.web.FishTextApi;
 public class CommandHandler {
     protected TrainingSettings trainingSettings = new TrainingSettings();
     private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
+    private final DatabaseManager databaseManager = new DatabaseManager();
+    protected final UserAuth userAuth = new UserAuth();
     protected TrainingSession trainingSession;
     protected TrainingProcess trainingProcess;
     private final InputOutput inputOutput;
     private final FishTextApi fishTextApi;
-    private final DatabaseManager databaseManager;
-    protected UserAuth userAuth;
     protected String currentUsername = null;
 
     /**
@@ -28,11 +31,8 @@ public class CommandHandler {
      * и реализацию интерфейса InputOutput
      */
     public CommandHandler(InputOutput inputOutput, FishTextApi fishTextApi) {
-    public CommandHandler(InputOutput inputOutput, DatabaseManager databaseManager) {
         this.inputOutput = inputOutput;
         this.fishTextApi = fishTextApi;
-        this.databaseManager = databaseManager;
-        this.userAuth = new UserAuth(inputOutput);
     }
 
     /**
@@ -44,6 +44,8 @@ public class CommandHandler {
             case Commands.HELP -> sendHelp();
             case Commands.SETTINGS -> askTrainingTime();
             case Commands.START -> startTraining();
+            case Commands.REGISTRATION -> register();
+            case Commands.LOGIN -> login();
             case Commands.STOP -> {
                 inputOutput.output("Нет активной тренировки.");
             }
@@ -61,7 +63,7 @@ public class CommandHandler {
     private void sendHelp() {
         String helpText = """
             /help - Все команды
-            /register - зарегистрироваться
+            /registration - зарегистрироваться
             /login - войти в систему
             /settings - Настройки тренировки
             /start - Начать тренировку
@@ -75,9 +77,14 @@ public class CommandHandler {
      * Регистрирует нового пользователя в системе
      */
     private void register() {
-        boolean success = userAuth.registerUser(databaseManager);
+        inputOutput.output("Введите имя пользователя: ");
+        String username = inputOutput.input();
+        inputOutput.output("Введите пароль: ");
+        String password = inputOutput.input();
 
-        if (success) {
+        boolean isSuccess = userAuth.registerUser(databaseManager, username, password);
+
+        if (isSuccess) {
             inputOutput.output("Регистрация прошла успешно! Войдите в аккаунт.");
         } else {
             inputOutput.output("Пользователь с таким именем уже существует.");
@@ -88,11 +95,17 @@ public class CommandHandler {
      * Выполняет вход пользователя в систему
      */
     private void login() {
-        boolean success = userAuth.loginUser(databaseManager);
+        inputOutput.output("Введите имя пользователя: ");
+        String username = inputOutput.input();
+        inputOutput.output("Введите пароль: ");
+        String password = inputOutput.input();
 
-        if (success) {
+        boolean isSuccess = userAuth.loginUser(databaseManager, username, password);
+
+        if (isSuccess) {
             inputOutput.output("Вход выполнен!");
-            currentUsername = userAuth.getUsername();
+            currentUsername = username;
+            trainingSettings.setTrainingTime(0);
         } else {
             inputOutput.output("Неверный логин или пароль.");
         }
@@ -131,7 +144,11 @@ public class CommandHandler {
         animation.countingDown();
 
         trainingSession = new TrainingSession(trainingSettings, inputOutput);
-        trainingProcess = new TrainingProcess(trainingSession, trainingSettings, inputOutput, currentUsername, fishTextApi);
+        trainingProcess = new TrainingProcess(trainingSession,
+                trainingSettings,
+                inputOutput,
+                fishTextApi,
+                currentUsername);
         trainingProcess.process();
     }
 }
