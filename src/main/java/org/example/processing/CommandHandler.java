@@ -19,7 +19,7 @@ public class CommandHandler {
     protected TrainingSettings trainingSettings = new TrainingSettings();
     private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
     private final DatabaseManager databaseManager = new DatabaseManager();
-    protected final UserAuth userAuth = new UserAuth();
+    protected final UserAuth userAuth;
     protected TrainingSession trainingSession;
     protected TrainingProcess trainingProcess;
     private final InputOutput inputOutput;
@@ -28,11 +28,13 @@ public class CommandHandler {
 
     /**
      * Конструктор класса CommandHandler, который получает ссылку на объект fishTextApi
-     * и реализацию интерфейса InputOutput
+     * и реализацию интерфейса InputOutput. Инициализирует UserAuth
      */
     public CommandHandler(InputOutput inputOutput, FishTextApi fishTextApi) {
         this.inputOutput = inputOutput;
         this.fishTextApi = fishTextApi;
+
+        this.userAuth = new UserAuth(databaseManager);
     }
 
     /**
@@ -82,7 +84,7 @@ public class CommandHandler {
         inputOutput.output("Введите пароль: ");
         String password = inputOutput.input();
 
-        boolean isSuccess = userAuth.registerUser(databaseManager, username, password);
+        boolean isSuccess = userAuth.registerUser(username, password);
 
         if (isSuccess) {
             inputOutput.output("Регистрация прошла успешно! Войдите в аккаунт.");
@@ -100,7 +102,7 @@ public class CommandHandler {
         inputOutput.output("Введите пароль: ");
         String password = inputOutput.input();
 
-        boolean isSuccess = userAuth.loginUser(databaseManager, username, password);
+        boolean isSuccess = userAuth.loginUser(username, password);
 
         if (isSuccess) {
             inputOutput.output("Вход выполнен!");
@@ -148,7 +150,8 @@ public class CommandHandler {
                 trainingSettings,
                 inputOutput,
                 fishTextApi,
-                currentUsername);
+                currentUsername,
+                databaseManager);
         trainingProcess.process();
     }
 }

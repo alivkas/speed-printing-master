@@ -17,10 +17,15 @@ import java.util.logging.Logger;
 public class UserTraining {
     private final Logger logger = Logger.getLogger(UserDao.class.getName());
     private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
-    DatabaseManager databaseManager = new DatabaseManager();
+    private final DatabaseManager databaseManager;
     public UserDao userDao;
 
-    public UserTraining() {
+    /**
+     * Конструктор UserTraining, который создает объект UserDao и получает ссылку на databaseManager
+     * @param databaseManager ссылка на управление бд
+     */
+    public UserTraining(DatabaseManager databaseManager) {
+        this.databaseManager = databaseManager;
         this.userDao = new UserDao(databaseManager);
     }
 
