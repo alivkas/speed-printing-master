@@ -16,6 +16,10 @@ public class UserDao {
     private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
     private final DatabaseManager databaseManager;
 
+    /**
+     * Конструктор UserDao, который получает ссылку на databaseManager
+     * @param databaseManager ссылка на управление бд
+     */
     public UserDao(DatabaseManager databaseManager) {
         this.databaseManager = databaseManager;
     }

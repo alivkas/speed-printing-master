@@ -5,7 +5,6 @@ import org.example.database.DatabaseManager;
 import org.example.database.dao.UserDao;
 import org.example.database.entity.UserEntity;
 import org.example.utils.log.LogsWriterUtils;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.TransactionException;
 
@@ -18,14 +17,18 @@ import java.util.logging.Logger;
 public class UserAuth {
     private final Logger logger = Logger.getLogger(UserDao.class.getName());
     private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
-    private final DatabaseManager databaseManager = new DatabaseManager();
-    private UserDao userDao;
+
+    private final DatabaseManager databaseManager;
+    private final UserDao userDao;
+
     private String username;
 
     /**
-     * Конструктор UserAuth, который создает объект UserDao
+     * Конструктор UserAuth, который создает объект UserDao и получает ссылку на databaseManager
+     * @param databaseManager ссылка на управление бд
      */
-    public UserAuth() {
+    public UserAuth(DatabaseManager databaseManager) {
+        this.databaseManager = databaseManager;
         this.userDao = new UserDao(databaseManager);
     }
 
@@ -35,7 +38,7 @@ public class UserAuth {
      * @param password пароль
      * @return true - пользователь зарегистрирован успешно, false - ошибка регистрации
      */
-    public boolean registerUser(DatabaseManager databaseManager, String username, String password) {
+    public boolean registerUser(String username, String password) {
         try (Session session = databaseManager.getSession()) {
             session.beginTransaction();
 
@@ -66,7 +69,7 @@ public class UserAuth {
      * @param password пароль
      * @return true - пользователь авторизован успешно, false - ошибка авторизации
      */
-    public boolean loginUser(DatabaseManager databaseManager, String username, String password) {
+    public boolean loginUser(String username, String password) {
         try (Session session = databaseManager.getSession()) {
             session.beginTransaction();
             UserEntity user = userDao.getUserByUsername(username);
