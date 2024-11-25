@@ -3,8 +3,7 @@ package org.example.training;
 /**
  * Класс для хранения настроек тренировки
  */
-public class
-TrainingSettings {
+public class TrainingSettings {
 
     /**
      * Время тренировки в минутах

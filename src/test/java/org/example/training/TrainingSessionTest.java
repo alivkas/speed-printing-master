@@ -17,11 +17,9 @@ import java.util.concurrent.TimeUnit;
 public class TrainingSessionTest {
     private TrainingSession trainingSession;
     private TestInputOutput testInputOutput;
-    private TrainingSettings trainingSettings;
-
     private InputOutput mockInputOutput;
-    private final int TEST_DURATION_MINUTES = 1;
-
+    private final TrainingSettings trainingSettings = new TrainingSettings();
+    private static final int TEST_DURATION_MINUTES = 1;
 
     /**
      * Настройка тестовой среды перед каждым тестом
@@ -30,7 +28,6 @@ public class TrainingSessionTest {
     @BeforeEach
     public void setUp() {
         testInputOutput = new TestInputOutput();
-        trainingSettings = new TrainingSettings();
         trainingSettings.setTrainingTime(TEST_DURATION_MINUTES/60);
         trainingSession = new TrainingSession(trainingSettings, testInputOutput);
     }
@@ -45,7 +42,7 @@ public class TrainingSessionTest {
         mockInputOutput = Mockito.mock(InputOutput.class);
         trainingSession = new TrainingSession( trainingSettings, mockInputOutput);
         CountDownLatch latch = new CountDownLatch(1);
-        trainingSettings.setTrainingTime(1);
+        trainingSettings.setTrainingTime(TEST_DURATION_MINUTES);
         trainingSession.start();
 
         try {
@@ -82,19 +79,19 @@ public class TrainingSessionTest {
 
         Thread.sleep(1000 + 100);
         Assertions.assertFalse(trainingSession.isActive());
-        Assertions.assertTrue(testInputOutput.getLatestOutput().contains("Тренировка Завершена!"));
+        Assertions.assertEquals("Тренировка Завершена!", testInputOutput.getLatestOutput());
+        trainingSession.stop();
     }
 
     /**
      * Проверяем, что сессия становится неактивной по истечении времени и выводятся сообщение
      */
     @Test
-    public void
-    testSessionEndsAfterDuration() throws InterruptedException {
+    public void testSessionEndsAfterDuration() throws InterruptedException {
         trainingSession.start();
         Thread.sleep((TEST_DURATION_MINUTES/60 + 100));
         Assertions.assertFalse(trainingSession.isActive());
-        Assertions.assertTrue(testInputOutput.getLatestOutput().contains("Тренировка Завершена!"));
+        Assertions.assertEquals("Тренировка Завершена!", testInputOutput.getLatestOutput());
     }
 
     /**
@@ -105,7 +102,7 @@ public class TrainingSessionTest {
         trainingSession.start();
         trainingSession.stop();
         Assertions.assertFalse(trainingSession.isActive());
-        Assertions.assertTrue(testInputOutput.getLatestOutput().contains("Тренировка Завершена!"));
+        Assertions.assertEquals("Тренировка Завершена!", testInputOutput.getLatestOutput());
     }
 
 }
