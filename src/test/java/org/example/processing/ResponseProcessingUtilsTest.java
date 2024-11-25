@@ -1,6 +1,6 @@
 package org.example.processing;
 
-import org.example.processing.utils.ResponseProcessingUtils;
+import org.example.utils.processing.ResponseProcessingUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +16,6 @@ public class ResponseProcessingUtilsTest {
     public void sanitizeTest() {
         ResponseProcessingUtils processing = new ResponseProcessingUtils();
         String text = "<h1>Random text</h1>";
-
         String actual = processing.sanitize(text);
 
         Assertions.assertEquals("Random text", actual);

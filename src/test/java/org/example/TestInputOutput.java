@@ -7,26 +7,35 @@ import org.example.interfaces.InputOutput;
  * предназначен для имитации ввода и вывода
  */
 public class TestInputOutput implements InputOutput {
-    private String input;
+
     private String latestOutput;
 
     /**
-     * Сохраняет сообщение в переменной
-     * @param message cообщение, которое нужно вывести
+     * Выводить строку
+     * @param message строка ввода
      */
     @Override
     public void output(String message) {
-        latestOutput = message;
+        this.latestOutput = message;
     }
 
     /**
-     * Возвращает строку, представляющую ввод пользователя
-     *
-     * @return cтрока, введенная пользователем
+     * Читать строку из входного потока.
+     * @return строка, введенная пользователем.
      */
     @Override
     public String input() {
-        return input;
+        return "";
     }
+
+    /**
+     * Возвращает последнее выведенное сообщение.
+     * @return последнее выведенное сообщение
+     */
+    public String getLatestOutput() {
+        return latestOutput;
+    }
+
+
 
 }

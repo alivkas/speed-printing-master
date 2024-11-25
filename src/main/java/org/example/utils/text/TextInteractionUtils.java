@@ -1,4 +1,4 @@
-package org.example.text.utils;
+package org.example.utils.text;
 
 /**
  * Взаимодействие с текстом

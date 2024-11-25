@@ -21,11 +21,9 @@ public class Result {
      * @param totalWordsTyped количество введенных слов
      * @param settings ссылка на обект TrainingSettings
      * @param typo ссылка на объект Typo
+     * @param inputOutput ссылка на реализацию InputOutput
      */
-    public Result(int totalWordsTyped,
-                  TrainingSettings settings,
-                  Typo typo,
-                  InputOutput inputOutput) {
+    public Result(int totalWordsTyped, TrainingSettings settings, Typo typo, InputOutput inputOutput) {
         this.typo = typo;
         this.totalWordsTyped = totalWordsTyped;
         this.settings = settings;

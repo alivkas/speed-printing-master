@@ -8,13 +8,11 @@ import java.util.*;
  * Взаимодействие с опечатками в тексте
  */
 public class Typo {
-
     private final Map<String, String> typos;
-
-    private final int operations = 2;
+    private static final int OPERATIONS = 2;
 
     /**
-     * Конструктор Typo, который инициализирует поле typos и typoCount
+     * Конструктор Typo, который инициализирует поле typos
      */
     public Typo() {
         this.typos = new LinkedHashMap<>();
@@ -80,12 +78,10 @@ public class Typo {
             List<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(splitCorrect[i], splitTypo[i]);
 
             for (DiffMatchPatch.Diff diff : diffs) {
-                if (diff.operation == DiffMatchPatch.Operation.EQUAL) {
-                    markers.append(diff.text);
-                } else if (diff.operation == DiffMatchPatch.Operation.INSERT) {
-                    markers.append("+").append(diff.text).append("+");
-                } else if (diff.operation == DiffMatchPatch.Operation.DELETE) {
-                    markers.append("-").append(diff.text).append("-");
+                switch (diff.operation) {
+                    case EQUAL -> markers.append(diff.text);
+                    case INSERT -> markers.append("+").append(diff.text).append("+");
+                    case DELETE ->  markers.append("-").append(diff.text).append("-");
                 }
             }
         }
@@ -122,16 +118,14 @@ public class Typo {
             char currentChar = text.charAt(i);
 
             if (currentChar == '-') {
-                if (i > 0
-                        && text.charAt(i - 1) != '-') {
+                if (i > 0 && text.charAt(i - 1) != '-') {
                     if (!isDeletionSequence) {
                         operationCount++;
                     }
                     isDeletionSequence = true;
                 }
             } else if (currentChar == '+') {
-                if (i > 0
-                        && text.charAt(i - 1) != '+') {
+                if (i > 0 && text.charAt(i - 1) != '+') {
                     if (!isDeletionSequence) {
                         operationCount++;
                     }
@@ -142,8 +136,8 @@ public class Typo {
             }
         }
 
-        return operationCount == operations
-                ? operationCount / operations
-                : operationCount / operations - 1;
+        return operationCount == OPERATIONS
+                ? operationCount / OPERATIONS
+                : operationCount / OPERATIONS - 1;
     }
 }

@@ -6,10 +6,8 @@ import org.example.interfaces.InputOutput;
  * Анимация в консоли
  */
 public class Animation {
-
     private final InputOutput inputOutput;
-
-    private final int count = 3;
+    private static final int COUNT = 3;
 
     /**
      * Конструктор, который передает ссылку на реализацию InputOutput
@@ -23,7 +21,7 @@ public class Animation {
      * Обратный отсчет до начала тренировки
      */
     public void countingDown() {
-        for (int i = count; i >= 1; i--) {
+        for (int i = COUNT; i >= 1; i--) {
             inputOutput.output(i + "...");
             try {
                 Thread.sleep(1000);
