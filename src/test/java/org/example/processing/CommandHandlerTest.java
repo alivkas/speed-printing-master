@@ -70,10 +70,10 @@ public class CommandHandlerTest {
 
         verify(inputOutputMock, atLeastOnce()).output(anyString());
     }
+
     /**
      * Обработка команды "/settings" с правельным вводом, должна установить время тренировки
      */
-
     @Test
     public void testNoInternetConnection() {
         trainingSettings.setTrainingTime(1);

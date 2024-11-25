@@ -19,7 +19,7 @@ public class UserAuth {
     private final Logger logger = Logger.getLogger(UserDao.class.getName());
     private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
     private final DatabaseManager databaseManager = new DatabaseManager();
-    private final UserDao userDao;
+    private UserDao userDao;
     private String username;
 
     /**

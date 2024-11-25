@@ -9,14 +9,10 @@ import org.example.database.entity.UserEntity;
 import org.example.utils.log.LogsWriterUtils;
 import org.hibernate.Session;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  * Класс для работы с пользователями.
  */
 public class UserDao {
-    private final Logger logger = Logger.getLogger(UserDao.class.getName());
     private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
     private final DatabaseManager databaseManager;
 
@@ -32,8 +28,8 @@ public class UserDao {
      */
     public UserEntity getUserByUsername(String username) {
         if (username == null || username.isEmpty()) {
-            logger.log(Level.SEVERE, "Имя пользователя не может быть пустым");
             logsWriter.writeStackTraceToFile(new IllegalArgumentException());
+            throw new IllegalArgumentException("Имя пользователя не может быть пустым");
         }
 
         try (Session session = databaseManager.getSession()) {
