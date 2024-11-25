@@ -8,18 +8,26 @@ import java.io.PrintWriter;
  * Запись логов в файл
  */
 public class LogsWriterUtils {
-    private final String FILE_NAME = "trace.log";
+    private final String fileName;
+
+    /**
+     * Конструктор, принимающий название файла, в котором будет храниться стек трейс
+     * @param fileName название файла
+     */
+    public LogsWriterUtils(String fileName) {
+        this.fileName = fileName;
+    }
 
     /**
      * Записывать стек трейс в отдельный файл
      * @param e отловленная ошибка
      */
     public void writeStackTraceToFile(Exception e) {
-        try(PrintWriter writer = new PrintWriter(new FileWriter(FILE_NAME, true))) {
+        try(PrintWriter writer = new PrintWriter(new FileWriter(fileName, true))) {
             writer.println("Произошло исключение");
             e.printStackTrace(writer);
         } catch (IOException ex) {
-            throw new RuntimeException("Ошибка записи логов в файл trace.log");
+            throw new RuntimeException("Ошибка записи логов в файл trace.log", ex);
         }
     }
 }

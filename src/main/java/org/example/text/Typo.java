@@ -9,7 +9,7 @@ import java.util.*;
  */
 public class Typo {
     private final Map<String, String> typos;
-    private final int OPERATIONS = 2;
+    private static final int OPERATIONS = 2;
 
     /**
      * Конструктор Typo, который инициализирует поле typos

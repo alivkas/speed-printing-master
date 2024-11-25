@@ -1,16 +1,16 @@
 package org.example;
 
-import org.example.animation.Animation;
-import org.example.database.DatabaseManager;
 import org.example.processing.CommandHandler;
+import org.example.web.FishTextApi;
 
 /**
  * Запускает тренировочное приложение.
  */
 public class Main {
     public static void main(String[] args) {
+        FishTextApi fishTextApi = new FishTextApi();
         Console app = new Console();
-        CommandHandler commandHandler = new CommandHandler(app, new DatabaseManager());
+        CommandHandler commandHandler = new CommandHandler(app, fishTextApi);
         String info = """
                 Добро пожаловать в тренировочное приложение! Введите команду /help для просмотра всех команд
                 """;
@@ -18,9 +18,6 @@ public class Main {
         while (true) {
             app.output("Введите команду: ");
             String command = app.input();
-            if (command.equals("/start")) {
-                new Animation(app).countingDown();
-            }
             commandHandler.handleCommand(command);
         }
     }

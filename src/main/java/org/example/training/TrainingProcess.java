@@ -1,7 +1,8 @@
 package org.example.training;
 
-import org.example.database.ResultSave;
+import org.example.commons.Commands;
 import org.example.interfaces.InputOutput;
+import org.example.service.UserTraining;
 import org.example.utils.text.TextInteractionUtils;
 import org.example.text.Typo;
 import org.example.web.FishTextApi;
@@ -12,26 +13,31 @@ import org.example.web.FishTextApi;
 public class TrainingProcess {
 
     private final TextInteractionUtils textInteractionUtils = new TextInteractionUtils();
-    private final FishTextApi fishTextApi = new FishTextApi();
     private final Typo typo = new Typo();
-
-    private final TrainingSession session;
+    private final UserTraining userTraining = new UserTraining();
+    private TrainingSession session;
     private final TrainingSettings settings;
+    private final FishTextApi fishTextApi;
     private final InputOutput inputOutput;
-    private final ResultSave resultSave = new ResultSave();
     private final String username;
 
     /**
      * Конструктор TrainingProcess, который передает ссылки на объекты session,
-     * settings и реализацию InputOutput
+     * settings, fishTextApi и реализацию InputOutput
      * @param session ссылка на объект TrainingSession
      * @param settings ссылка на объек TrainingSettings
      * @param inputOutput ссылка на реализацию InputOutput
+     * @param fishTextApi ссылка на объект FishTextApi
      */
-    public TrainingProcess(TrainingSession session, TrainingSettings settings, InputOutput inputOutput, String username) {
+    public TrainingProcess(TrainingSession session,
+                           TrainingSettings settings,
+                           InputOutput inputOutput,
+                           FishTextApi fishTextApi,
+                           String username) {
         this.session = session;
         this.settings = settings;
         this.inputOutput = inputOutput;
+        this.fishTextApi = fishTextApi;
         this.username = username;
     }
 
@@ -44,12 +50,16 @@ public class TrainingProcess {
 
         while (session.isActive()) {
             String processedText = fishTextApi.getProcessedText();
+            if (processedText == null) {
+                stopTraining();
+                break;
+            }
 
             inputOutput.output(processedText);
             String input = inputOutput.input();
 
-            if (input.equals("/stop")) {
-                session.stop();
+            if (input.equals(Commands.STOP)) {
+                stopTraining();
                 break;
             }
             wordsCount += textInteractionUtils.getWordsCount(input);
@@ -57,17 +67,20 @@ public class TrainingProcess {
                 typo.saveTypo(processedText, input);
             }
         }
+        userTraining.updateTrainingData(username, settings.getTrainingTime(), wordsCount);
 
         Result result = new Result(wordsCount, settings, typo, inputOutput);
         result.printResult();
-        updateDatabase(result.getWordsPerMinute());
         typo.clearTypo();
     }
 
-    public void updateDatabase(String wordsPerMinute) {
-        String[] splitWord = wordsPerMinute.split(" ");
-        double average = Double.parseDouble(splitWord[splitWord.length - 2]);
-
-        resultSave.updateTrainingData(username, settings.getTrainingTime(), average);
+    /**
+     * Прерывает тренировку, если она активна.
+     */
+    private void stopTraining() {
+        if (session != null) {
+            session.stop();
+            session = null;
+        }
     }
 }
