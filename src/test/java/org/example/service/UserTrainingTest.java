@@ -41,7 +41,7 @@ class UserTrainingTest {
         when(sessionMock.getTransaction()).thenReturn(transactionMock);
         when(sessionMock.merge(any(UserEntity.class))).thenReturn(new UserEntity());
 
-        userTraining = new UserTraining();
+        userTraining = new UserTraining(databaseManagerMock);
         Field databaseManagerField = UserTraining.class.getDeclaredField("databaseManager");
         databaseManagerField.setAccessible(true);
         databaseManagerField.set(userTraining, databaseManagerMock);
