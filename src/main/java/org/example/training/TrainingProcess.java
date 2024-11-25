@@ -1,6 +1,7 @@
 package org.example.training;
 
 import org.example.commons.Commands;
+import org.example.database.ResultSave;
 import org.example.interfaces.InputOutput;
 import org.example.utils.text.TextInteractionUtils;
 import org.example.text.Typo;
@@ -18,6 +19,8 @@ public class TrainingProcess {
     private final TrainingSettings settings;
     private final FishTextApi fishTextApi;
     private final InputOutput inputOutput;
+    private final ResultSave resultSave = new ResultSave();
+    private final String username;
 
     /**
      * Конструктор TrainingProcess, который передает ссылки на объекты session,
@@ -30,11 +33,13 @@ public class TrainingProcess {
     public TrainingProcess(TrainingSession session,
                            TrainingSettings settings,
                            InputOutput inputOutput,
-                           FishTextApi fishTextApi) {
+                           FishTextApi fishTextApi,
+                           String username) {
         this.session = session;
         this.settings = settings;
         this.inputOutput = inputOutput;
         this.fishTextApi = fishTextApi;
+        this.username = username;
     }
 
     /**
@@ -64,7 +69,9 @@ public class TrainingProcess {
             }
         }
 
-        new Result(wordsCount, settings, typo, inputOutput).printResult();
+        Result result = new Result(wordsCount, settings, typo, inputOutput);
+        result.printResult();
+        updateDatabase(result.getWordsPerMinute());
         typo.clearTypo();
     }
 
@@ -77,5 +84,12 @@ public class TrainingProcess {
             session.stop();
             session = null;
         }
+    }
+
+    public void updateDatabase(String wordsPerMinute) {
+        String[] splitWord = wordsPerMinute.split(" ");
+        double average = Double.parseDouble(splitWord[splitWord.length - 2]);
+
+        resultSave.updateTrainingData(username, settings.getTrainingTime(), average);
     }
 }

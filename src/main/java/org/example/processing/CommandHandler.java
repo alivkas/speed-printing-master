@@ -1,9 +1,8 @@
 package org.example.processing;
 
-import org.example.animation.Animation;
-import org.example.commons.Commands;
-import org.example.commons.LogsFile;
+import org.example.database.DatabaseManager;
 import org.example.interfaces.InputOutput;
+import org.example.service.UserAuth;
 import org.example.training.TrainingProcess;
 import org.example.training.TrainingSession;
 import org.example.training.TrainingSettings;
@@ -20,14 +19,20 @@ public class CommandHandler {
     protected TrainingProcess trainingProcess;
     private final InputOutput inputOutput;
     private final FishTextApi fishTextApi;
+    private final DatabaseManager databaseManager;
+    protected UserAuth userAuth;
+    protected String currentUsername = null;
 
     /**
      * Конструктор класса CommandHandler, который получает ссылку на объект fishTextApi
      * и реализацию интерфейса InputOutput
      */
     public CommandHandler(InputOutput inputOutput, FishTextApi fishTextApi) {
+    public CommandHandler(InputOutput inputOutput, DatabaseManager databaseManager) {
         this.inputOutput = inputOutput;
         this.fishTextApi = fishTextApi;
+        this.databaseManager = databaseManager;
+        this.userAuth = new UserAuth(inputOutput);
     }
 
     /**
@@ -56,12 +61,41 @@ public class CommandHandler {
     private void sendHelp() {
         String helpText = """
             /help - Все команды
+            /register - зарегистрироваться
+            /login - войти в систему
             /settings - Настройки тренировки
             /start - Начать тренировку
             /stop - Прервать тренировку
             /exit - Завершить приложение
             """;
         inputOutput.output(helpText);
+    }
+
+    /**
+     * Регистрирует нового пользователя в системе
+     */
+    private void register() {
+        boolean success = userAuth.registerUser(databaseManager);
+
+        if (success) {
+            inputOutput.output("Регистрация прошла успешно! Войдите в аккаунт.");
+        } else {
+            inputOutput.output("Пользователь с таким именем уже существует.");
+        }
+    }
+
+    /**
+     * Выполняет вход пользователя в систему
+     */
+    private void login() {
+        boolean success = userAuth.loginUser(databaseManager);
+
+        if (success) {
+            inputOutput.output("Вход выполнен!");
+            currentUsername = userAuth.getUsername();
+        } else {
+            inputOutput.output("Неверный логин или пароль.");
+        }
     }
 
     /**
@@ -97,7 +131,7 @@ public class CommandHandler {
         animation.countingDown();
 
         trainingSession = new TrainingSession(trainingSettings, inputOutput);
-        trainingProcess = new TrainingProcess(trainingSession, trainingSettings, inputOutput, fishTextApi);
+        trainingProcess = new TrainingProcess(trainingSession, trainingSettings, inputOutput, currentUsername, fishTextApi);
         trainingProcess.process();
     }
 }
