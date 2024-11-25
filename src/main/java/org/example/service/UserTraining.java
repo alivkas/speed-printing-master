@@ -59,10 +59,6 @@ public class UserTraining {
                     session.merge(user);
                     session.getTransaction().commit();
 
-                    System.out.println("Количество тренировок: " + user.getTrainingCount());
-                    System.out.println("Время: " + user.getTime());
-                    System.out.println("Среднее время: " + user.getAverageTime());
-
                     return true;
                 }
             }

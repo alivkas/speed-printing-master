@@ -34,7 +34,7 @@ public class UserAuthTest {
 
         when(databaseManagerMock.getSession()).thenReturn(sessionMock);
 
-        userAuth = new UserAuth();
+        userAuth = new UserAuth(databaseManagerMock);
         Field userDaoField = UserAuth.class.getDeclaredField("userDao");
         userDaoField.setAccessible(true);
         userDaoField.set(userAuth, userDaoMock);
@@ -53,7 +53,7 @@ public class UserAuthTest {
         Transaction transactionMock = mock(Transaction.class);
         when(sessionMock.getTransaction()).thenReturn(transactionMock);
 
-        boolean result = userAuth.registerUser(databaseManagerMock, "testUser", "password123");
+        boolean result = userAuth.registerUser("testUser", "password123");
 
         assertTrue(result, "User should be successfully registered.");
         verify(sessionMock).save(any(UserEntity.class));
@@ -76,7 +76,7 @@ public class UserAuthTest {
         Transaction transactionMock = mock(Transaction.class);
         when(sessionMock.getTransaction()).thenReturn(transactionMock);
 
-        boolean result = userAuth.registerUser(databaseManagerMock, "existingUser", "password123");
+        boolean result = userAuth.registerUser("existingUser", "password123");
 
         assertFalse(result);
         verify(sessionMock, never()).save(any(UserEntity.class));
@@ -99,7 +99,7 @@ public class UserAuthTest {
         Transaction transactionMock = mock(Transaction.class);
         when(sessionMock.getTransaction()).thenReturn(transactionMock);
 
-        boolean result = userAuth.loginUser(databaseManagerMock, "existingUser", "password123");
+        boolean result = userAuth.loginUser("existingUser", "password123");
 
         assertTrue(result);
         verify(transactionMock).commit();
@@ -121,7 +121,7 @@ public class UserAuthTest {
         Transaction transactionMock = mock(Transaction.class);
         when(sessionMock.getTransaction()).thenReturn(transactionMock);
 
-        boolean result = userAuth.loginUser(databaseManagerMock, "existingUser", "wrongPassword");
+        boolean result = userAuth.loginUser("existingUser", "wrongPassword");
 
         assertFalse(result);
         verify(transactionMock, never()).commit();
