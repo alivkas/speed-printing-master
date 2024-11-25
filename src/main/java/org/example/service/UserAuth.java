@@ -17,8 +17,10 @@ import java.util.logging.Logger;
 public class UserAuth {
     private final Logger logger = Logger.getLogger(UserDao.class.getName());
     private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
+
     private final DatabaseManager databaseManager;
     private final UserDao userDao;
+
     private String username;
 
     /**

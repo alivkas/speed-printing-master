@@ -70,7 +70,7 @@ class UserDaoTest {
         when(entityManagerFactory.getCriteriaBuilder()).thenReturn(criteriaBuilder);
         when(criteriaBuilder.createQuery(UserEntity.class)).thenReturn(criteriaQuery);
         when(criteriaQuery.from(UserEntity.class)).thenReturn(root);
-        when(criteriaBuilder.equal(root.get("username"), username)).thenReturn(null); // Настройка условия
+        when(criteriaBuilder.equal(root.get("username"), username)).thenReturn(null);
         when(criteriaQuery.select(root)).thenReturn(criteriaQuery);
         when(session.createQuery(criteriaQuery)).thenReturn(query);
         when(query.uniqueResult()).thenReturn(expectedUser);
@@ -93,7 +93,7 @@ class UserDaoTest {
         when(entityManagerFactory.getCriteriaBuilder()).thenReturn(criteriaBuilder);
         when(criteriaBuilder.createQuery(UserEntity.class)).thenReturn(criteriaQuery);
         when(criteriaQuery.from(UserEntity.class)).thenReturn(root);
-        when(criteriaBuilder.equal(root.get("username"), username)).thenReturn(null); // Настройка условия
+        when(criteriaBuilder.equal(root.get("username"), username)).thenReturn(null);
         when(criteriaQuery.select(root)).thenReturn(criteriaQuery);
         when(session.createQuery(criteriaQuery)).thenReturn(query);
         when(query.uniqueResult()).thenReturn(null);
