@@ -7,11 +7,13 @@ import org.example.database.DatabaseManager;
 import org.example.interfaces.InputOutput;
 import org.example.service.UserAuth;
 import org.example.training.TrainingProcess;
-import org.example.training.TrainingSession;
 import org.example.training.TrainingSettings;
 import org.example.utils.log.LogsWriterUtils;
-import org.example.utils.processing.TimeProcessUtils;
+import org.example.utils.processing.TimeProcessingUtils;
 import org.example.web.FishTextApi;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.TransactionException;
 
 /**
  * Класс для обработки команд пользователя.
@@ -20,9 +22,8 @@ public class CommandHandler {
     protected TrainingSettings trainingSettings = new TrainingSettings();
     private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
     private final DatabaseManager databaseManager = new DatabaseManager();
-    private final TimeProcessUtils timeProcess = new TimeProcessUtils();
+    private final TimeProcessingUtils timeProcess = new TimeProcessingUtils();
     protected final UserAuth userAuth;
-    protected TrainingSession trainingSession;
     protected TrainingProcess trainingProcess;
     private final InputOutput inputOutput;
     private final FishTextApi fishTextApi;
@@ -81,17 +82,25 @@ public class CommandHandler {
      * Регистрирует нового пользователя в системе
      */
     private void register() {
-        inputOutput.output("Введите имя пользователя: ");
-        String username = inputOutput.input();
-        inputOutput.output("Введите пароль: ");
-        String password = inputOutput.input();
+        try (Session session = databaseManager.getSession()) {
+            Transaction transaction = session.beginTransaction();
+            inputOutput.output("Введите имя пользователя: ");
+            String username = inputOutput.input();
+            inputOutput.output("Введите пароль: ");
+            String password = inputOutput.input();
 
-        boolean isSuccess = userAuth.registerUser(username, password);
+            boolean isSuccess = userAuth.registerUser(username, password);
 
-        if (isSuccess) {
-            inputOutput.output("Регистрация прошла успешно! Войдите в аккаунт.");
-        } else {
-            inputOutput.output("Пользователь с таким именем уже существует.");
+            if (isSuccess) {
+                transaction.commit();
+                inputOutput.output("Регистрация прошла успешно! Войдите в аккаунт.");
+            } else {
+                transaction.rollback();
+                inputOutput.output("Пользователь с таким именем уже существует.");
+            }
+        } catch (TransactionException e) {
+            logsWriter.writeStackTraceToFile(e);
+            throw new TransactionException("Ошибка транзакции");
         }
     }
 
@@ -99,19 +108,27 @@ public class CommandHandler {
      * Выполняет вход пользователя в систему
      */
     private void login() {
-        inputOutput.output("Введите имя пользователя: ");
-        String username = inputOutput.input();
-        inputOutput.output("Введите пароль: ");
-        String password = inputOutput.input();
+        try (Session session = databaseManager.getSession()) {
+            Transaction transaction = session.beginTransaction();
+            inputOutput.output("Введите имя пользователя: ");
+            String username = inputOutput.input();
+            inputOutput.output("Введите пароль: ");
+            String password = inputOutput.input();
 
-        boolean isSuccess = userAuth.loginUser(username, password);
+            boolean isSuccess = userAuth.loginUser(username, password);
 
-        if (isSuccess) {
-            inputOutput.output("Вход выполнен!");
-            currentUsername = username;
-            trainingSettings.setTrainingTime(0);
-        } else {
-            inputOutput.output("Неверный логин или пароль.");
+            if (isSuccess) {
+                transaction.commit();
+                inputOutput.output("Вход выполнен!");
+                currentUsername = username;
+                trainingSettings.setTrainingTime(0);
+            } else {
+                transaction.rollback();
+                inputOutput.output("Неверный логин или пароль.");
+            }
+        } catch (TransactionException e) {
+            logsWriter.writeStackTraceToFile(e);
+            throw new TransactionException("Ошибка транзакции");
         }
     }
 
@@ -148,13 +165,20 @@ public class CommandHandler {
         Animation animation = new Animation(inputOutput);
         animation.countingDown();
 
-        trainingSession = new TrainingSession(trainingSettings, inputOutput);
-        trainingProcess = new TrainingProcess(trainingSession,
+        trainingProcess = new TrainingProcess(
                 trainingSettings,
                 inputOutput,
                 fishTextApi,
                 currentUsername,
                 databaseManager);
-        trainingProcess.process();
+
+        try (Session session = databaseManager.getSession()) {
+            Transaction transaction = session.beginTransaction();
+            trainingProcess.process(session);
+            transaction.commit();
+        } catch (TransactionException e) {
+            logsWriter.writeStackTraceToFile(e);
+            throw new TransactionException("Ошибка транзакции");
+        }
     }
 }

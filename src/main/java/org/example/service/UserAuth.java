@@ -6,16 +6,12 @@ import org.example.database.dao.UserDao;
 import org.example.database.entity.UserEntity;
 import org.example.utils.log.LogsWriterUtils;
 import org.hibernate.Session;
-import org.hibernate.TransactionException;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.hibernate.SessionException;
 
 /**
  * Аутентификация пользователя
  */
 public class UserAuth {
-    private final Logger logger = Logger.getLogger(UserDao.class.getName());
     private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
 
     private final DatabaseManager databaseManager;
@@ -40,8 +36,6 @@ public class UserAuth {
      */
     public boolean registerUser(String username, String password) {
         try (Session session = databaseManager.getSession()) {
-            session.beginTransaction();
-
             if (userDao.getUserByUsername(username) != null) {
                 return false;
             } else {
@@ -53,13 +47,11 @@ public class UserAuth {
                 newUser.setTime(0.0);
 
                 session.save(newUser);
-                session.getTransaction().commit();
                 return true;
             }
-        } catch (TransactionException e) {
-            logger.log(Level.SEVERE, "Ошибка транзакции");
+        } catch (Exception e) {
             logsWriter.writeStackTraceToFile(e);
-            return false;
+            throw new SessionException("Ошибка сохранения");
         }
     }
 
@@ -82,14 +74,9 @@ public class UserAuth {
             } else {
                 return false;
             }
-        } catch (TransactionException e) {
-            logger.log(Level.SEVERE, "Ошибка транзакции");
+        } catch (Exception e) {
             logsWriter.writeStackTraceToFile(e);
-            return false;
+            throw new SessionException("Ошибка сохранения");
         }
-    }
-
-    public String getUsername() {
-        return username;
     }
 }

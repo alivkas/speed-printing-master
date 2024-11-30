@@ -7,6 +7,7 @@ import org.example.service.UserTraining;
 import org.example.utils.text.TextInteractionUtils;
 import org.example.text.Typo;
 import org.example.web.FishTextApi;
+import org.hibernate.Session;
 
 /**
  * Процесс тренировки
@@ -16,29 +17,27 @@ public class TrainingProcess {
     private final TextInteractionUtils textInteractionUtils = new TextInteractionUtils();
     private final Typo typo = new Typo();
     private final UserTraining userTraining;
-    private TrainingSession session;
     private final TrainingSettings settings;
     private final FishTextApi fishTextApi;
     private final InputOutput inputOutput;
     private final String username;
     private final DatabaseManager databaseManager;
 
+    private TrainingSession session;
+
     /**
      * Конструктор TrainingProcess, который передает ссылки на объекты session,
      * settings, fishTextApi и реализацию InputOutput
-     * @param session ссылка на объект TrainingSession
      * @param settings ссылка на объек TrainingSettings
      * @param inputOutput ссылка на реализацию InputOutput
      * @param fishTextApi ссылка на объект FishTextApi
      * @param databaseManager ссылка на управление бд
      */
-    public TrainingProcess(TrainingSession session,
-                           TrainingSettings settings,
+    public TrainingProcess(TrainingSettings settings,
                            InputOutput inputOutput,
                            FishTextApi fishTextApi,
                            String username,
                            DatabaseManager databaseManager) {
-        this.session = session;
         this.settings = settings;
         this.inputOutput = inputOutput;
         this.fishTextApi = fishTextApi;
@@ -46,12 +45,14 @@ public class TrainingProcess {
         this.databaseManager = databaseManager;
 
         this.userTraining = new UserTraining(databaseManager);
+        session = new TrainingSession(settings, inputOutput);
     }
 
     /**
      * Производит процесс тренировки
+     * @param dbSession сессия базы данных
      */
-    public void process() {
+    public void process(Session dbSession) {
         int wordsCount = 0;
         session.start();
 
@@ -75,7 +76,11 @@ public class TrainingProcess {
             }
         }
 
-        userTraining.updateTrainingData(username, settings.getTrainingTime(), wordsCount);
+        userTraining.updateTrainingData(
+                username,
+                settings.getTrainingTime(),
+                wordsCount,
+                dbSession);
 
         Result result = new Result(wordsCount, settings, typo, inputOutput);
         result.printResult();
