@@ -1,14 +1,10 @@
 package org.example.database;
 
 import org.example.commons.LogsFile;
-import org.example.database.dao.UserDao;
 import org.example.utils.log.LogsWriterUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Управление сессиями

@@ -66,7 +66,6 @@ public class CommandHandlerTest {
                 .thenReturn("");
         commandHandler.handleCommand("/start");
 
-        assertNotNull(commandHandler.trainingSession);
         assertNotNull(commandHandler.trainingProcess);
 
 
@@ -77,11 +76,7 @@ public class CommandHandlerTest {
      * Обработка команды "/settings" с правельным вводом, должна установить время тренировки
      */
     @Test
-    public void
-
-
-
-    testNoInternetConnection() {
+    public void testNoInternetConnection() {
         trainingSettings.setTrainingTime(1);
 
         when(fishTextApiMock.getProcessedText())

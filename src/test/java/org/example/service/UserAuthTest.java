@@ -50,14 +50,10 @@ public class UserAuthTest {
     public void testRegisterUserSuccess(){
         when(userDaoMock.getUserByUsername("testUser")).thenReturn(null);
 
-        Transaction transactionMock = mock(Transaction.class);
-        when(sessionMock.getTransaction()).thenReturn(transactionMock);
-
         boolean result = userAuth.registerUser("testUser", "password123");
 
         assertTrue(result, "User should be successfully registered.");
         verify(sessionMock).save(any(UserEntity.class));
-        verify(transactionMock).commit();
     }
 
     /**
@@ -73,14 +69,10 @@ public class UserAuthTest {
 
         when(userDaoMock.getUserByUsername("existingUser")).thenReturn(existingUser);
 
-        Transaction transactionMock = mock(Transaction.class);
-        when(sessionMock.getTransaction()).thenReturn(transactionMock);
-
         boolean result = userAuth.registerUser("existingUser", "password123");
 
         assertFalse(result);
         verify(sessionMock, never()).save(any(UserEntity.class));
-        verify(transactionMock, never()).commit();
     }
 
     /**

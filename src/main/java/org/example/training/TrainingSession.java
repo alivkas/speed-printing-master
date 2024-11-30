@@ -4,7 +4,6 @@ import org.example.commons.LogsFile;
 import org.example.commons.Time;
 import org.example.interfaces.InputOutput;
 import org.example.utils.log.LogsWriterUtils;
-import org.example.web.FishTextApi;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;

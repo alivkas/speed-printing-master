@@ -6,21 +6,21 @@ package org.example.training;
 public class TrainingSettings {
 
     /**
-     * Время тренировки в минутах
+     * Время тренировки
      */
     private int trainingTime;
 
     /**
-     * Устанавливает время тренировки в минутах
-     * @param minutes Время тренировки
+     * Устанавливает время тренировки в миллисекундах
+     * @param milliseconds время тренировки
      */
-    public void setTrainingTime(int minutes) {
-        this.trainingTime = minutes;
+    public void setTrainingTime(int milliseconds) {
+        this.trainingTime = milliseconds;
     }
 
     /**
-     * Возвращает установленное время тренировки в минутах
-     * @return Время тренировки в минутах
+     * Возвращает установленное время тренировки в миллисекундах
+     * @return время тренировки в миллисекундах
      */
     public int getTrainingTime() {
         return trainingTime;
