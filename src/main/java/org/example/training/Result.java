@@ -1,5 +1,6 @@
 package org.example.training;
 
+import org.example.commons.Time;
 import org.example.interfaces.InputOutput;
 import org.example.text.Typo;
 
@@ -45,7 +46,8 @@ public class Result {
      * @return количество слов в минуту с припиской "Итоговая скорость печати: "
      */
     private String getWordsPerMinute() {
-        double wordsPerMinute = ((double) totalWordsTyped / (settings.getTrainingTime()));
+        double wordsPerMinute = ((double) totalWordsTyped
+                / (settings.getTrainingTime() / Time.MILLISECONDS));
         return String.format("Итоговая скорость печати: %.2f слов/мин.", wordsPerMinute);
     }
 

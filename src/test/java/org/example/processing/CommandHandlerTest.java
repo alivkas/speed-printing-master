@@ -1,6 +1,5 @@
 package org.example.processing;
 
-
 import org.example.interfaces.InputOutput;
 import org.example.training.TrainingSettings;
 import org.example.web.FishTextApi;
@@ -8,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 /**
@@ -31,18 +31,18 @@ public class CommandHandlerTest {
         commandHandler.trainingSettings = trainingSettings;
     }
 
-    /**
-     * Обработка команды "/help" должна вывести текст справки
-     */
     @Test
     void handleCommand_Help_ShouldOutputHelpText() {
+        CommandHandler commandHandler = new CommandHandler(inputOutputMock ,fishTextApiMock);
         String helpText = """
-                /help - Все команды
-                /settings - Настройки тренировки
-                /start - Начать тренировку
-                /stop - Прервать тренировку
-                /exit - Завершить приложение
-                """;
+            /help - Все команды
+            /registration - зарегистрироваться
+            /login - войти в систему
+            /settings - Настройки тренировки
+            /start - Начать тренировку
+            /stop - Прервать тренировку
+            /exit - Завершить приложение
+            """;
 
         commandHandler.handleCommand("/help");
         verify(inputOutputMock).output(helpText);
@@ -54,27 +54,34 @@ public class CommandHandlerTest {
      * api отдает ответ без исключения
      * и метод output вызывается хотя бы 1 раз.
      */
+
     @Test
     public void testStartTrainingWithSettingTime() {
-        trainingSettings.setTrainingTime(1);
+        trainingSettings.setTrainingTime(1000);
 
         when(fishTextApiMock.getProcessedText())
                 .thenReturn("Some text");
 
-        when(inputOutputMock.input()).thenReturn("");
+        when(inputOutputMock.input())
+                .thenReturn("");
         commandHandler.handleCommand("/start");
 
         assertNotNull(commandHandler.trainingSession);
         assertNotNull(commandHandler.trainingProcess);
 
+
         verify(inputOutputMock, atLeastOnce()).output(anyString());
     }
 
     /**
-     * Тестировать получение текста из запроса без интернета
+     * Обработка команды "/settings" с правельным вводом, должна установить время тренировки
      */
     @Test
-    public void testNoInternetConnection() {
+    public void
+
+
+
+    testNoInternetConnection() {
         trainingSettings.setTrainingTime(1);
 
         when(fishTextApiMock.getProcessedText())
@@ -97,9 +104,6 @@ public class CommandHandlerTest {
         verify(inputOutputMock).output("Время тренировки 30 минут");
     }
 
-    /**
-     * Обработка команды "/settings" с неправильным вводом, должна вывести сообщение об ошибке.
-     */
     @Test
     public void not_correct_Time_Test() {
         when(inputOutputMock.input()).thenReturn("abc");
@@ -114,6 +118,7 @@ public class CommandHandlerTest {
     @Test
     public void negative_Time_Test() {
         when(inputOutputMock.input()).thenReturn("-5");
+
         commandHandler.handleCommand("/settings");
         verify(inputOutputMock).output("Укажите время на тренировку (минуты)");
         verify(inputOutputMock).output("Время тренировки должно быть положительным числом.");
@@ -139,3 +144,4 @@ public class CommandHandlerTest {
         verify(inputOutputMock).output("Неизвестная команда. Введите /help для списка команд.");
     }
 }
+
