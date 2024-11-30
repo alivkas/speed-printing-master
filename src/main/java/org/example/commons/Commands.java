@@ -9,6 +9,8 @@ public class Commands {
     public final static String STOP = "/stop";
     public final static String START = "/start";
     public final static String EXIT = "/exit";
+    public final static String REGISTRATION = "/registration";
+    public final static String LOGIN = "/login";
 
     private Commands() {
     }
