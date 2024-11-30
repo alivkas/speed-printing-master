@@ -46,7 +46,7 @@ public class Result {
      */
     private String getWordsPerMinute() {
         double wordsPerMinute = ((double) totalWordsTyped / (settings.getTrainingTime()));
-        return String.format("Итоговая скорость печати: %.2f слов/мин.", wordsPerMinute);
+        return String.format("Итоговая скорость печати: %s слов/мин.", wordsPerMinute);
     }
 
     /**

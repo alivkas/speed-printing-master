@@ -3,7 +3,9 @@ package org.example.processing;
 import org.example.animation.Animation;
 import org.example.commons.Commands;
 import org.example.commons.LogsFile;
+import org.example.database.DatabaseManager;
 import org.example.interfaces.InputOutput;
+import org.example.service.UserAuth;
 import org.example.training.TrainingProcess;
 import org.example.training.TrainingSession;
 import org.example.training.TrainingSettings;
@@ -16,18 +18,23 @@ import org.example.web.FishTextApi;
 public class CommandHandler {
     protected TrainingSettings trainingSettings = new TrainingSettings();
     private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
+    private final DatabaseManager databaseManager = new DatabaseManager();
+    protected final UserAuth userAuth;
     protected TrainingSession trainingSession;
     protected TrainingProcess trainingProcess;
     private final InputOutput inputOutput;
     private final FishTextApi fishTextApi;
+    protected String currentUsername = null;
 
     /**
      * Конструктор класса CommandHandler, который получает ссылку на объект fishTextApi
-     * и реализацию интерфейса InputOutput
+     * и реализацию интерфейса InputOutput. Инициализирует UserAuth
      */
     public CommandHandler(InputOutput inputOutput, FishTextApi fishTextApi) {
         this.inputOutput = inputOutput;
         this.fishTextApi = fishTextApi;
+
+        this.userAuth = new UserAuth(databaseManager);
     }
 
     /**
@@ -39,6 +46,8 @@ public class CommandHandler {
             case Commands.HELP -> sendHelp();
             case Commands.SETTINGS -> askTrainingTime();
             case Commands.START -> startTraining();
+            case Commands.REGISTRATION -> register();
+            case Commands.LOGIN -> login();
             case Commands.STOP -> {
                 inputOutput.output("Нет активной тренировки.");
             }
@@ -56,12 +65,52 @@ public class CommandHandler {
     private void sendHelp() {
         String helpText = """
             /help - Все команды
+            /registration - зарегистрироваться
+            /login - войти в систему
             /settings - Настройки тренировки
             /start - Начать тренировку
             /stop - Прервать тренировку
             /exit - Завершить приложение
             """;
         inputOutput.output(helpText);
+    }
+
+    /**
+     * Регистрирует нового пользователя в системе
+     */
+    private void register() {
+        inputOutput.output("Введите имя пользователя: ");
+        String username = inputOutput.input();
+        inputOutput.output("Введите пароль: ");
+        String password = inputOutput.input();
+
+        boolean isSuccess = userAuth.registerUser(username, password);
+
+        if (isSuccess) {
+            inputOutput.output("Регистрация прошла успешно! Войдите в аккаунт.");
+        } else {
+            inputOutput.output("Пользователь с таким именем уже существует.");
+        }
+    }
+
+    /**
+     * Выполняет вход пользователя в систему
+     */
+    private void login() {
+        inputOutput.output("Введите имя пользователя: ");
+        String username = inputOutput.input();
+        inputOutput.output("Введите пароль: ");
+        String password = inputOutput.input();
+
+        boolean isSuccess = userAuth.loginUser(username, password);
+
+        if (isSuccess) {
+            inputOutput.output("Вход выполнен!");
+            currentUsername = username;
+            trainingSettings.setTrainingTime(0);
+        } else {
+            inputOutput.output("Неверный логин или пароль.");
+        }
     }
 
     /**
@@ -97,7 +146,12 @@ public class CommandHandler {
         animation.countingDown();
 
         trainingSession = new TrainingSession(trainingSettings, inputOutput);
-        trainingProcess = new TrainingProcess(trainingSession, trainingSettings, inputOutput, fishTextApi);
+        trainingProcess = new TrainingProcess(trainingSession,
+                trainingSettings,
+                inputOutput,
+                fishTextApi,
+                currentUsername,
+                databaseManager);
         trainingProcess.process();
     }
 }
