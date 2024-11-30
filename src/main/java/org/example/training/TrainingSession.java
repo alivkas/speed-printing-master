@@ -1,6 +1,7 @@
 package org.example.training;
 
 import org.example.commons.LogsFile;
+import org.example.commons.Time;
 import org.example.interfaces.InputOutput;
 import org.example.utils.log.LogsWriterUtils;
 import org.example.web.FishTextApi;
@@ -20,8 +21,6 @@ public class TrainingSession {
     private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
     private final AtomicBoolean isActive = new AtomicBoolean(false);
     private final Logger logger = Logger.getLogger(TrainingSession.class.getName());
-    private static final int SECONDS_IN_MINUTE = 60;
-    private static final int MILLISECONDS_IN_SECOND = 1000;
 
     private Timer timer;
     private final InputOutput inputOutput;
@@ -48,7 +47,7 @@ public class TrainingSession {
         isActive.set(true);
         timer = new Timer();
 
-        int durationMilliseconds = settings.getTrainingTime() * SECONDS_IN_MINUTE * MILLISECONDS_IN_SECOND;
+        int durationMilliseconds = settings.getTrainingTime();
 
         timer.schedule(new TimerTask() {
             @Override
@@ -64,7 +63,8 @@ public class TrainingSession {
                 stop();
             }
         }, durationMilliseconds);
-        inputOutput.output ("Новая тренировка на " + settings.getTrainingTime() + " минут");
+        inputOutput.output ("Новая тренировка на " + settings.getTrainingTime() / Time.MILLISECONDS
+                + " минут");
     }
 
     /**

@@ -42,7 +42,7 @@ public class TrainingSessionTest {
         mockInputOutput = Mockito.mock(InputOutput.class);
         trainingSession = new TrainingSession( trainingSettings, mockInputOutput);
         CountDownLatch latch = new CountDownLatch(1);
-        trainingSettings.setTrainingTime(TEST_DURATION_MINUTES);
+        trainingSettings.setTrainingTime(TEST_DURATION_MINUTES * 60000);
         trainingSession.start();
 
         try {
