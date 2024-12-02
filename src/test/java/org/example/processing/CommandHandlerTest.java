@@ -73,7 +73,7 @@ public class CommandHandlerTest {
     }
 
     /**
-     * Обработка команды "/settings" с правельным вводом, должна установить время тренировки
+     * Обработка команды "/settings" с правильным вводом, должна установить время тренировки
      */
     @Test
     public void testNoInternetConnection() {

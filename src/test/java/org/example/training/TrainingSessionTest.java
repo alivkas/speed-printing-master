@@ -1,6 +1,7 @@
 package org.example.training;
 
 import org.example.TestInputOutput;
+import org.example.commons.Time;
 import org.example.interfaces.InputOutput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ public class TrainingSessionTest {
     private InputOutput mockInputOutput;
     private final TrainingSettings trainingSettings = new TrainingSettings();
     private static final int TEST_DURATION_MINUTES = 1;
+    private static final int SECONDS = 60;
 
     /**
      * Настройка тестовой среды перед каждым тестом
@@ -28,7 +30,7 @@ public class TrainingSessionTest {
     @BeforeEach
     public void setUp() {
         testInputOutput = new TestInputOutput();
-        trainingSettings.setTrainingTime(TEST_DURATION_MINUTES/60);
+        trainingSettings.setTrainingTime(TEST_DURATION_MINUTES / SECONDS);
         trainingSession = new TrainingSession(trainingSettings, testInputOutput);
     }
 
@@ -42,7 +44,7 @@ public class TrainingSessionTest {
         mockInputOutput = Mockito.mock(InputOutput.class);
         trainingSession = new TrainingSession( trainingSettings, mockInputOutput);
         CountDownLatch latch = new CountDownLatch(1);
-        trainingSettings.setTrainingTime(TEST_DURATION_MINUTES * 60000);
+        trainingSettings.setTrainingTime(TEST_DURATION_MINUTES * Time.MILLISECONDS);
         trainingSession.start();
 
         try {
@@ -70,7 +72,7 @@ public class TrainingSessionTest {
      */
     @Test
     public void testSessionIsActiveAfterStart() throws InterruptedException {
-        trainingSettings.setTrainingTime(TEST_DURATION_MINUTES/60);
+        trainingSettings.setTrainingTime(TEST_DURATION_MINUTES / SECONDS);
         trainingSession.start();
 
         Assertions.assertTrue(trainingSession.isActive());

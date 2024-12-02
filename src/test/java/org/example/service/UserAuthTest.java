@@ -15,6 +15,9 @@ import java.lang.reflect.Field;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Тестирование класса UserAuth
+ */
 public class UserAuthTest {
     private DatabaseManager databaseManagerMock;
     private Session sessionMock;
