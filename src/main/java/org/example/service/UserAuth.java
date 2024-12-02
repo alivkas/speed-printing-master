@@ -17,8 +17,6 @@ public class UserAuth {
     private final DatabaseManager databaseManager;
     private final UserDao userDao;
 
-    private String username;
-
     /**
      * Конструктор UserAuth, который создает объект UserDao и получает ссылку на databaseManager
      * @param databaseManager ссылка на управление бд
@@ -56,7 +54,7 @@ public class UserAuth {
     }
 
     /**
-     * Проверить наличие пользователя в базе данных из текущей сессии
+     * Авторизовать пользователя в системе
      * @param username имя пользователя
      * @param password пароль
      * @return true - пользователь авторизован успешно, false - ошибка авторизации
@@ -68,7 +66,6 @@ public class UserAuth {
 
             if (user != null
                     && user.getPassword().equals(password)) {
-                this.username = username;
                 session.getTransaction().commit();
                 return true;
             } else {

@@ -43,9 +43,8 @@ public class UserTraining {
      * @param username Имя пользователя
      * @param time     Время тренировки
      * @param session сессия базы данных
-     * @return true, если запись добавлена успешно, иначе false
      */
-    private boolean addNewTrainingSession(String username,
+    private void addNewTrainingSession(String username,
                                           double time,
                                           double averageTime,
                                           Session session) {
@@ -56,10 +55,7 @@ public class UserTraining {
                 user.setTime(user.getTime() + time);
                 user.setAverageTime(user.getAverageTime() + averageTime);
                 session.merge(user);
-
-                return true;
             }
         }
-        return false;
     }
 }

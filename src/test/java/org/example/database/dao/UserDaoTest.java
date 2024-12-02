@@ -1,7 +1,6 @@
-package org.example.service;
+package org.example.database.dao;
 
 import org.example.database.DatabaseManager;
-import org.example.database.dao.UserDao;
 import org.example.database.entity.UserEntity;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -109,9 +108,10 @@ class UserDaoTest {
      */
     @Test
     void testGetUserByUsernameThrowsExceptionForNullUsername() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            userDao.getUserByUsername(null);
-        });
+        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+                userDao.getUserByUsername(null));
+
+        assertEquals("Имя пользователя не может быть пустым", exception.getMessage());
     }
 
     /**
@@ -120,8 +120,9 @@ class UserDaoTest {
      */
     @Test
     void testGetUserByUsernameThrowsExceptionForEmptyUsername() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            userDao.getUserByUsername("");
-        });
+        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+            userDao.getUserByUsername(""));
+
+        assertEquals("Имя пользователя не может быть пустым", exception.getMessage());
     }
 }

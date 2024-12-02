@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Assertions;
 
 /**
  *
- * Тестовый класс для првоерки методов установки и получения времени тренировки.
+ * Тестовый класс для проверки методов установки и получения времени тренировки.
  */
 class TrainingSettingsTest {
     private TrainingSettings trainingSettings;
