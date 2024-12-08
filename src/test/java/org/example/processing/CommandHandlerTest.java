@@ -1,12 +1,17 @@
 package org.example.processing;
 
+import org.example.database.DatabaseManager;
+import org.example.database.entity.UserEntity;
 import org.example.interfaces.InputOutput;
 import org.example.web.FishTextApi;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 /**
@@ -16,16 +21,45 @@ public class CommandHandlerTest {
     private InputOutput inputOutputMock;
     private CommandHandler commandHandler;
     private FishTextApi fishTextApiMock;
+    private DatabaseManager databaseManager;
 
+    /**
+     * Инициализируем тестовую среду
+     */
     @BeforeEach
     void setUp() {
+        databaseManager = new DatabaseManager();
         inputOutputMock = mock(InputOutput.class);
         fishTextApiMock = mock(FishTextApi.class);
         when(inputOutputMock.input()).thenReturn("");
 
         commandHandler = new CommandHandler(inputOutputMock, fishTextApiMock);
+
+        try (Session session = databaseManager.getSession()) {
+            Transaction transaction = session.beginTransaction();
+            UserEntity testUser = new UserEntity();
+            testUser.setUsername("testUser");
+            testUser.setPassword("testPassword");
+            session.save(testUser);
+            transaction.commit();
+        }
     }
 
+    /**
+     * Очищает тестовую среду после каждого теста, удаляя тестового пользователя
+     */
+    @AfterEach
+    void tearDown() {
+        try (Session session = databaseManager.getSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.createQuery("DELETE FROM UserEntity WHERE username = 'testUser'").executeUpdate();
+            transaction.commit();
+        }
+    }
+
+    /**
+     * Проверяет, что команда "/help" выводит корректный текст справки
+     */
     @Test
     void handleCommand_Help_ShouldOutputHelpText() {
         CommandHandler commandHandler = new CommandHandler(inputOutputMock ,fishTextApiMock);
@@ -37,6 +71,7 @@ public class CommandHandlerTest {
             /start - Начать тренировку
             /stop - Прервать тренировку
             /exit - Завершить приложение
+            /info - Информация о пользователе
             """;
 
         commandHandler.handleCommand("/help");
@@ -67,20 +102,23 @@ public class CommandHandlerTest {
     /**
      * Тестировать тренировку без интернета
      */
-//    @Test
-//    public void testNoInternetConnection() {
-//        when(inputOutputMock.input())
-//                .thenReturn("5000");
-//        commandHandler.handleCommand("/settings");
-//
-//        when(fishTextApiMock.getProcessedText())
-//                .thenThrow(new RuntimeException("Нет подключения к интернету"));
-//
-//        Exception exception = assertThrows(RuntimeException.class, () ->
-//                commandHandler.handleCommand("/start"));
-//
-//        assertEquals("Ошибка транзакции", exception.getMessage());
-//    }
+    @Test
+    public void testNoInternetConnection() {
+        when(inputOutputMock.input())
+                .thenReturn("testUser", "testPassword");
+        commandHandler.handleCommand("/login");
+        when(inputOutputMock.input())
+                .thenReturn("5000");
+        commandHandler.handleCommand("/settings");
+
+        when(fishTextApiMock.getProcessedText())
+                .thenThrow(new RuntimeException("Нет подключения к интернету"));
+
+        Exception exception = assertThrows(RuntimeException.class, () ->
+                commandHandler.handleCommand("/start"));
+
+        assertEquals("Ошибка транзакции", exception.getMessage());
+    }
 
     /**
      * Обработка команды "/settings" с правильным вводом, должна установить время тренировки.
@@ -93,6 +131,10 @@ public class CommandHandlerTest {
         verify(inputOutputMock).output("Время тренировки 30 минут");
     }
 
+    /**
+     * Проверяет обработку некорректного ввода времени в команде "/settings"
+     * Ожидается вывод сообщения об ошибке
+     */
     @Test
     public void not_correct_Time_Test() {
         when(inputOutputMock.input()).thenReturn("abc");

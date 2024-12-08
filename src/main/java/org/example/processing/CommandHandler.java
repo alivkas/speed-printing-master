@@ -7,6 +7,7 @@ import org.example.commons.Time;
 import org.example.database.DatabaseManager;
 import org.example.interfaces.InputOutput;
 import org.example.service.UserAuth;
+import org.example.service.UserStatistics;
 import org.example.service.UserTraining;
 import org.example.training.TrainingProcess;
 import org.example.utils.log.LogsWriterUtils;
@@ -22,9 +23,11 @@ public class CommandHandler {
     private final DatabaseManager databaseManager = new DatabaseManager();
     protected final UserAuth userAuth = new UserAuth();
     private final UserTraining userTraining = new UserTraining();
+    private  final UserStatistics userStatistics = new UserStatistics();
     protected TrainingProcess trainingProcess;
     private final InputOutput inputOutput;
     private final FishTextApi fishTextApi;
+
     protected String currentUsername = null;
 
     /**
@@ -62,6 +65,11 @@ public class CommandHandler {
                         login(session);
                         transaction.commit();
                     }
+                    case  Commands.INFO   -> {
+                        String userInfo = userStatistics.getUserInfo(currentUsername, session);
+                        inputOutput.output(userInfo);
+                        transaction.commit();
+                    }
                     case Commands.STOP -> inputOutput.output("Нет активной тренировки.");
                     case Commands.EXIT -> {
                         inputOutput.output("Выход из приложения.");
@@ -88,6 +96,7 @@ public class CommandHandler {
             /start - Начать тренировку
             /stop - Прервать тренировку
             /exit - Завершить приложение
+            /info - Информация о пользователе
             """;
         inputOutput.output(helpText);
     }

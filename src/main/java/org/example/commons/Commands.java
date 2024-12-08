@@ -12,6 +12,9 @@ public class Commands {
     public final static String REGISTRATION = "/registration";
     public final static String LOGIN = "/login";
 
+    public final static String INFO = "/info";
+
+
     private Commands() {
     }
 }
