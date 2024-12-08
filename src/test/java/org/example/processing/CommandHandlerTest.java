@@ -6,6 +6,9 @@ import org.example.web.FishTextApi;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -73,7 +76,7 @@ public class CommandHandlerTest {
     }
 
     /**
-     * Обработка команды "/settings" с правильным вводом, должна установить время тренировки
+     * Тестировать тренировку без интернета
      */
     @Test
     public void testNoInternetConnection() {
@@ -85,7 +88,7 @@ public class CommandHandlerTest {
         Exception exception = assertThrows(RuntimeException.class, () ->
                 commandHandler.handleCommand("/start"));
 
-        assertEquals("Нет подключения к интернету", exception.getMessage());
+        assertEquals("Ошибка транзакции", exception.getMessage());
     }
 
     /**

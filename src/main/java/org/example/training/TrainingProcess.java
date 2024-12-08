@@ -1,13 +1,15 @@
 package org.example.training;
 
 import org.example.commons.Commands;
-import org.example.database.DatabaseManager;
 import org.example.interfaces.InputOutput;
 import org.example.service.UserTraining;
 import org.example.utils.text.TextInteractionUtils;
 import org.example.text.Typo;
 import org.example.web.FishTextApi;
 import org.hibernate.Session;
+
+import java.io.IOException;
+import java.net.UnknownHostException;
 
 /**
  * Процесс тренировки
@@ -21,38 +23,35 @@ public class TrainingProcess {
     private final FishTextApi fishTextApi;
     private final InputOutput inputOutput;
     private final String username;
-    private final DatabaseManager databaseManager;
 
     private TrainingSession session;
 
     /**
      * Конструктор TrainingProcess, который передает ссылки на объекты session,
      * settings, fishTextApi и реализацию InputOutput
-     * @param settings ссылка на объек TrainingSettings
+     * @param settings ссылка на объект TrainingSettings
      * @param inputOutput ссылка на реализацию InputOutput
      * @param fishTextApi ссылка на объект FishTextApi
-     * @param databaseManager ссылка на управление бд
+     * @param username имя текущего пользователя
      */
     public TrainingProcess(TrainingSettings settings,
                            InputOutput inputOutput,
                            FishTextApi fishTextApi,
-                           String username,
-                           DatabaseManager databaseManager) {
+                           String username) {
         this.settings = settings;
         this.inputOutput = inputOutput;
         this.fishTextApi = fishTextApi;
         this.username = username;
-        this.databaseManager = databaseManager;
 
-        this.userTraining = new UserTraining(databaseManager);
+        this.userTraining = new UserTraining();
         session = new TrainingSession(settings, inputOutput);
     }
 
     /**
      * Производит процесс тренировки
-     * @param dbSession сессия базы данных
+     * @param sessionDb текущая сессия
      */
-    public void process(Session dbSession) {
+    public void process(Session sessionDb) {
         int wordsCount = 0;
         session.start();
 
@@ -80,7 +79,7 @@ public class TrainingProcess {
                 username,
                 settings.getTrainingTime(),
                 wordsCount,
-                dbSession);
+                sessionDb);
 
         Result result = new Result(wordsCount, settings, typo, inputOutput);
         result.printResult();

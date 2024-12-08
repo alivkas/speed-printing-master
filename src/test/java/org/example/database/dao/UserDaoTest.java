@@ -52,7 +52,7 @@ class UserDaoTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         when(databaseManager.getSession()).thenReturn(session);
-        userDao = new UserDao(databaseManager);
+        userDao = new UserDao();
     }
 
     /**
@@ -74,7 +74,7 @@ class UserDaoTest {
         when(session.createQuery(criteriaQuery)).thenReturn(query);
         when(query.uniqueResult()).thenReturn(expectedUser);
 
-        UserEntity actualUser = userDao.getUserByUsername(username);
+        UserEntity actualUser = userDao.getUserByUsername(username, session);
 
         assertNotNull(actualUser);
         assertEquals(expectedUser.getUsername(), actualUser.getUsername());
@@ -97,7 +97,7 @@ class UserDaoTest {
         when(session.createQuery(criteriaQuery)).thenReturn(query);
         when(query.uniqueResult()).thenReturn(null);
 
-        UserEntity actualUser = userDao.getUserByUsername(username);
+        UserEntity actualUser = userDao.getUserByUsername(username, session);
 
         assertNull(actualUser);
     }
@@ -109,7 +109,7 @@ class UserDaoTest {
     @Test
     void testGetUserByUsernameThrowsExceptionForNullUsername() {
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
-                userDao.getUserByUsername(null));
+                userDao.getUserByUsername(null, session));
 
         assertEquals("Имя пользователя не может быть пустым", exception.getMessage());
     }
@@ -121,7 +121,7 @@ class UserDaoTest {
     @Test
     void testGetUserByUsernameThrowsExceptionForEmptyUsername() {
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
-            userDao.getUserByUsername(""));
+            userDao.getUserByUsername("", session));
 
         assertEquals("Имя пользователя не может быть пустым", exception.getMessage());
     }

@@ -1,7 +1,6 @@
 package org.example.service;
 
 import org.example.commons.Time;
-import org.example.database.DatabaseManager;
 import org.example.database.dao.UserDao;
 import org.example.database.entity.UserEntity;
 import org.hibernate.Session;
@@ -10,16 +9,13 @@ import org.hibernate.Session;
  * Класс для управления данными о тренировках пользователей
  */
 public class UserTraining {
-    private final DatabaseManager databaseManager;
     public UserDao userDao;
 
     /**
-     * Конструктор UserTraining, который создает объект UserDao и получает ссылку на databaseManager
-     * @param databaseManager ссылка на управление бд
+     * Конструктор UserTraining, который создает объект UserDao
      */
-    public UserTraining(DatabaseManager databaseManager) {
-        this.databaseManager = databaseManager;
-        this.userDao = new UserDao(databaseManager);
+    public UserTraining() {
+        this.userDao = new UserDao();
     }
 
     /**
@@ -42,6 +38,7 @@ public class UserTraining {
      *
      * @param username Имя пользователя
      * @param time     Время тренировки
+     * @param averageTime среднее время тренировки
      * @param session сессия базы данных
      */
     private void addNewTrainingSession(String username,
@@ -49,12 +46,17 @@ public class UserTraining {
                                           double averageTime,
                                           Session session) {
         if (username != null) {
-            UserEntity user = userDao.getUserByUsername(username);
+            UserEntity user = userDao.getUserByUsername(username, session);
             if (user != null) {
                 user.setTrainingCount(user.getTrainingCount() + 1);
                 user.setTime(user.getTime() + time);
                 user.setAverageTime(user.getAverageTime() + averageTime);
                 session.merge(user);
+
+                System.out.println(user.getUsername());
+                System.out.println(user.getTime());
+                System.out.println(user.getAverageTime());
+                System.out.println(user.getTrainingCount());
             }
         }
     }
