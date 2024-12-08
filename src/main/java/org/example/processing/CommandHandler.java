@@ -1,15 +1,14 @@
 package org.example.processing;
 
+import org.apache.log4j.Logger;
 import org.example.animation.Animation;
 import org.example.commons.Commands;
-import org.example.commons.LogsFile;
 import org.example.commons.Time;
 import org.example.database.DatabaseManager;
 import org.example.interfaces.InputOutput;
 import org.example.service.UserAuth;
 import org.example.service.UserTraining;
 import org.example.training.TrainingProcess;
-import org.example.utils.log.LogsWriterUtils;
 import org.example.web.FishTextApi;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -18,7 +17,7 @@ import org.hibernate.Transaction;
  * Класс для обработки команд пользователя.
  */
 public class CommandHandler {
-    private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
+    private final Logger logger = Logger.getLogger(CommandHandler.class);
     private final DatabaseManager databaseManager = new DatabaseManager();
     protected final UserAuth userAuth = new UserAuth();
     private final UserTraining userTraining = new UserTraining();
@@ -148,8 +147,8 @@ public class CommandHandler {
             userTraining.saveUsersTrainingTime(millisecondsTime, currentUsername, session);
             inputOutput.output("Время тренировки " + time + " минут");
         } catch (NumberFormatException e) {
+            logger.error("Некорректный ввод. Введите целое положительное число.", e);
             inputOutput.output("Некорректный ввод. Введите целое положительное число.");
-            logsWriter.writeStackTraceToFile(e);
         }
     }
 

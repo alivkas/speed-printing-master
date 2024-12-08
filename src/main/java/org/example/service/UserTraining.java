@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.apache.log4j.Logger;
 import org.example.commons.Time;
 import org.example.database.dao.UserDao;
 import org.example.database.entity.UserEntity;
@@ -9,6 +10,8 @@ import org.hibernate.Session;
  * Класс для управления данными о тренировках пользователей
  */
 public class UserTraining {
+
+    private final Logger logger = Logger.getLogger(UserTraining.class);
     public UserDao userDao;
 
     /**
@@ -42,13 +45,18 @@ public class UserTraining {
     private void addNewTrainingSession(String username,
                                        double averageTime,
                                        Session session) {
-        if (username != null) {
-            UserEntity user = userDao.getUserByUsername(username, session);
-            if (user != null) {
-                user.setTrainingCount(user.getTrainingCount() + 1);
-                user.setAverageTime(user.getAverageTime() + averageTime);
-                session.merge(user);
+        try {
+            if (username != null) {
+                UserEntity user = userDao.getUserByUsername(username, session);
+                if (user != null) {
+                    user.setTrainingCount(user.getTrainingCount() + 1);
+                    user.setAverageTime(user.getAverageTime() + averageTime);
+                    session.merge(user);
+                }
             }
+        } catch (IllegalArgumentException e) {
+            logger.error(e.getMessage(), e);
+            logger.info(e.getMessage());
         }
     }
 
@@ -59,12 +67,17 @@ public class UserTraining {
      * @param session текущая сессия
      */
     public void saveUsersTrainingTime(double time, String username, Session session) {
-        if (username != null) {
-            UserEntity user = userDao.getUserByUsername(username, session);
-            if (user != null) {
-                user.setTime(time);
-                session.merge(user);
+        try {
+            if (username != null) {
+                UserEntity user = userDao.getUserByUsername(username, session);
+                if (user != null) {
+                    user.setTime(time);
+                    session.merge(user);
+                }
             }
+        } catch (IllegalArgumentException e) {
+            logger.error(e.getMessage(), e);
+            logger.info(e.getMessage());
         }
     }
 
@@ -75,9 +88,14 @@ public class UserTraining {
      * @return время тренировки
      */
     public double getUserTrainingTime(String username, Session session) {
-        if (username != null) {
-            UserEntity user = userDao.getUserByUsername(username, session);
-            return user.getTime();
+        try {
+            if (username != null) {
+                UserEntity user = userDao.getUserByUsername(username, session);
+                return user.getTime();
+            }
+        } catch (IllegalArgumentException e) {
+            logger.error(e.getMessage(), e);
+            logger.info(e.getMessage());
         }
         return 0.0;
     }

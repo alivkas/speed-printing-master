@@ -1,6 +1,6 @@
 package org.example.database;
 
-import org.example.database.logger.HibernateLoggingConfigurator;
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.cfg.Configuration;
 
@@ -9,24 +9,30 @@ import org.hibernate.cfg.Configuration;
  */
 public class DatabaseManager {
 
+    private final Logger logger = Logger.getLogger(DatabaseManager.class);
     private final SessionManager sessionManager = new SessionManager();
-
-    /**
-     * Получить текущую сессию
-     * @return сессия
-     */
-    public Session getSession() {
-        return sessionManager.getSession();
-    }
 
     /**
      * Конструктор DatabaseManager, который отключает логи Hibernate
      * и инициализирует запуск базы данных
      */
     public DatabaseManager() {
-        HibernateLoggingConfigurator configurator = new HibernateLoggingConfigurator();
-        configurator.disableHibernateLogging();
         startDb();
+    }
+
+    /**
+     * Получить текущую сессию
+     * @return сессия
+     */
+    public Session getSession() {
+        Session session = null;
+        try {
+            session = sessionManager.getSession();
+        } catch (IllegalStateException e) {
+            logger.error(e.getMessage(), e);
+            logger.info(e.getMessage());
+        }
+        return session;
     }
 
     /**
@@ -34,6 +40,6 @@ public class DatabaseManager {
      */
     private void startDb() {
         Configuration configuration = new Configuration().configure();
-        sessionManager.startSession(configuration);
+        sessionManager.buildSessionFactory(configuration);
     }
 }
