@@ -3,7 +3,9 @@ package org.example.training;
 import org.example.commons.LogsFile;
 import org.example.commons.Time;
 import org.example.interfaces.InputOutput;
+import org.example.service.UserTraining;
 import org.example.utils.log.LogsWriterUtils;
+import org.hibernate.Session;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -20,21 +22,19 @@ public class TrainingSession {
     private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
     private final AtomicBoolean isActive = new AtomicBoolean(false);
     private final Logger logger = Logger.getLogger(TrainingSession.class.getName());
+    private final UserTraining userTraining = new UserTraining();
 
     private Timer timer;
     private final InputOutput inputOutput;
-    private final TrainingSettings settings;
 
     /**
      * Создает сессию тренировки.
      * Инициализирует параметры тренировки и устанавливает
      * статус сессии как неактивную
      *
-     * @param settings Параметры тренировки
      * @param inputOutput  Объект для вывода информации.
      */
-    public TrainingSession(TrainingSettings settings, InputOutput inputOutput) {
-        this.settings = settings;
+    public TrainingSession(InputOutput inputOutput) {
         this.inputOutput = inputOutput;
     }
 
@@ -42,11 +42,11 @@ public class TrainingSession {
      * Запускает сессию тренировки с установленным временем
      *
      */
-    public void start() {
+    public void start(Session session, String username) {
         isActive.set(true);
         timer = new Timer();
 
-        int durationMilliseconds = settings.getTrainingTime();
+        int durationMilliseconds = (int) userTraining.getUserTrainingTime(username, session);
 
         timer.schedule(new TimerTask() {
             @Override
@@ -62,7 +62,7 @@ public class TrainingSession {
                 stop();
             }
         }, durationMilliseconds);
-        inputOutput.output ("Новая тренировка на " + settings.getTrainingTime() / Time.MILLISECONDS
+        inputOutput.output ("Новая тренировка на " + durationMilliseconds / Time.MINUTES_IN_MILLISECONDS
                 + " минут");
     }
 

@@ -8,9 +8,6 @@ import org.example.text.Typo;
 import org.example.web.FishTextApi;
 import org.hibernate.Session;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
-
 /**
  * Процесс тренировки
  */
@@ -18,8 +15,7 @@ public class TrainingProcess {
 
     private final TextInteractionUtils textInteractionUtils = new TextInteractionUtils();
     private final Typo typo = new Typo();
-    private final UserTraining userTraining;
-    private final TrainingSettings settings;
+    private final UserTraining userTraining = new UserTraining();
     private final FishTextApi fishTextApi;
     private final InputOutput inputOutput;
     private final String username;
@@ -27,24 +23,20 @@ public class TrainingProcess {
     private TrainingSession session;
 
     /**
-     * Конструктор TrainingProcess, который передает ссылки на объекты session,
-     * settings, fishTextApi и реализацию InputOutput
-     * @param settings ссылка на объект TrainingSettings
+     * Конструктор TrainingProcess, который передает ссылки на объект fishTextApi,
+     * строку username, реализацию интерфейса InputOutput и инициализирует TrainingSession
      * @param inputOutput ссылка на реализацию InputOutput
      * @param fishTextApi ссылка на объект FishTextApi
      * @param username имя текущего пользователя
      */
-    public TrainingProcess(TrainingSettings settings,
-                           InputOutput inputOutput,
+    public TrainingProcess(InputOutput inputOutput,
                            FishTextApi fishTextApi,
                            String username) {
-        this.settings = settings;
         this.inputOutput = inputOutput;
         this.fishTextApi = fishTextApi;
         this.username = username;
 
-        this.userTraining = new UserTraining();
-        session = new TrainingSession(settings, inputOutput);
+        this.session = new TrainingSession(inputOutput);
     }
 
     /**
@@ -53,7 +45,7 @@ public class TrainingProcess {
      */
     public void process(Session sessionDb) {
         int wordsCount = 0;
-        session.start();
+        session.start(sessionDb, username);
 
         while (session.isActive()) {
             String processedText = fishTextApi.getProcessedText();
@@ -77,11 +69,14 @@ public class TrainingProcess {
 
         userTraining.updateTrainingData(
                 username,
-                settings.getTrainingTime(),
                 wordsCount,
                 sessionDb);
 
-        Result result = new Result(wordsCount, settings, typo, inputOutput);
+        Result result = new Result(wordsCount,
+                typo,
+                inputOutput,
+                username,
+                sessionDb);
         result.printResult();
         typo.clearTypo();
     }

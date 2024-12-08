@@ -3,30 +3,25 @@ package org.example.processing;
 import org.example.animation.Animation;
 import org.example.commons.Commands;
 import org.example.commons.LogsFile;
+import org.example.commons.Time;
 import org.example.database.DatabaseManager;
 import org.example.interfaces.InputOutput;
 import org.example.service.UserAuth;
+import org.example.service.UserTraining;
 import org.example.training.TrainingProcess;
-import org.example.training.TrainingSettings;
 import org.example.utils.log.LogsWriterUtils;
-import org.example.utils.processing.TimeProcessingUtils;
 import org.example.web.FishTextApi;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.TransactionException;
-
-import java.io.IOException;
-import java.net.UnknownHostException;
 
 /**
  * Класс для обработки команд пользователя.
  */
 public class CommandHandler {
-    protected TrainingSettings trainingSettings = new TrainingSettings();
     private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
     private final DatabaseManager databaseManager = new DatabaseManager();
-    private final TimeProcessingUtils timeProcess = new TimeProcessingUtils();
-    protected final UserAuth userAuth;
+    protected final UserAuth userAuth = new UserAuth();
+    private final UserTraining userTraining = new UserTraining();
     protected TrainingProcess trainingProcess;
     private final InputOutput inputOutput;
     private final FishTextApi fishTextApi;
@@ -34,13 +29,11 @@ public class CommandHandler {
 
     /**
      * Конструктор класса CommandHandler, который получает ссылку на объект fishTextApi
-     * и реализацию интерфейса InputOutput. Инициализирует UserAuth
+     * и реализацию интерфейса InputOutput
      */
     public CommandHandler(InputOutput inputOutput, FishTextApi fishTextApi) {
         this.inputOutput = inputOutput;
         this.fishTextApi = fishTextApi;
-
-        this.userAuth = new UserAuth();
     }
 
     /**
@@ -54,7 +47,8 @@ public class CommandHandler {
                 switch (command) {
                     case Commands.HELP -> sendHelp();
                     case Commands.SETTINGS -> {
-                        askTrainingTime();
+                        askTrainingTime(session);
+                        transaction.commit();
                     }
                     case Commands.START -> {
                         startTraining(session);
@@ -132,7 +126,6 @@ public class CommandHandler {
         if (isSuccess) {
             inputOutput.output("Вход выполнен!");
             currentUsername = username;
-            trainingSettings.setTrainingTime(0);
         } else {
             inputOutput.output("Неверный логин или пароль.");
         }
@@ -141,17 +134,18 @@ public class CommandHandler {
     /**
      * Запрашивает у пользователя время тренировки в минутах и устанавливает его.
      * time - время в минутах
+     * @param session текущая сессия
      */
-    private void askTrainingTime() {
+    private void askTrainingTime(Session session) {
         inputOutput.output("Укажите время на тренировку (минуты)");
         try {
             int time = Integer.parseInt(inputOutput.input());
-            int millisecondsTime = timeProcess.minutesToMilliseconds(time);
+            double millisecondsTime = time * Time.MINUTES_IN_MILLISECONDS;
             if (time <= 0) {
                 inputOutput.output("Время тренировки должно быть положительным числом.");
                 return;
             }
-            trainingSettings.setTrainingTime(millisecondsTime);
+            userTraining.saveUsersTrainingTime(millisecondsTime, currentUsername, session);
             inputOutput.output("Время тренировки " + time + " минут");
         } catch (NumberFormatException e) {
             inputOutput.output("Некорректный ввод. Введите целое положительное число.");
@@ -164,7 +158,7 @@ public class CommandHandler {
      * @param session текущая сессия
      */
     private void startTraining(Session session) {
-        if (trainingSettings.getTrainingTime() == 0) {
+        if (userTraining.getUserTrainingTime(currentUsername, session) == 0) {
             inputOutput.output("Установите время тренировки с помощью команды /settings.");
             return;
         }
@@ -173,7 +167,6 @@ public class CommandHandler {
         animation.countingDown();
 
         trainingProcess = new TrainingProcess(
-                trainingSettings,
                 inputOutput,
                 fishTextApi,
                 currentUsername);
