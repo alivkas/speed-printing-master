@@ -37,7 +37,7 @@ public class UserEntity extends BaseEntity {
     private Integer trainingCount;
 
     /**
-     * Среднее время слов в минуту (считается как сумма среднего времени деленое на
+     * Среднее время слов в минуту (считается как сумма среднего времени деленное на
      * количество тренировок)
      */
     @Column(name = "average_time")

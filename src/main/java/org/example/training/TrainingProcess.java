@@ -1,7 +1,6 @@
 package org.example.training;
 
 import org.example.commons.Commands;
-import org.example.database.DatabaseManager;
 import org.example.interfaces.InputOutput;
 import org.example.service.UserTraining;
 import org.example.utils.text.TextInteractionUtils;
@@ -16,45 +15,37 @@ public class TrainingProcess {
 
     private final TextInteractionUtils textInteractionUtils = new TextInteractionUtils();
     private final Typo typo = new Typo();
-    private final UserTraining userTraining;
-    private final TrainingSettings settings;
+    private final UserTraining userTraining = new UserTraining();
     private final FishTextApi fishTextApi;
     private final InputOutput inputOutput;
     private final String username;
-    private final DatabaseManager databaseManager;
 
     private TrainingSession session;
 
     /**
-     * Конструктор TrainingProcess, который передает ссылки на объекты session,
-     * settings, fishTextApi и реализацию InputOutput
-     * @param settings ссылка на объек TrainingSettings
+     * Конструктор TrainingProcess, который передает ссылки на объект fishTextApi,
+     * строку username, реализацию интерфейса InputOutput и инициализирует TrainingSession
      * @param inputOutput ссылка на реализацию InputOutput
      * @param fishTextApi ссылка на объект FishTextApi
-     * @param databaseManager ссылка на управление бд
+     * @param username имя текущего пользователя
      */
-    public TrainingProcess(TrainingSettings settings,
-                           InputOutput inputOutput,
+    public TrainingProcess(InputOutput inputOutput,
                            FishTextApi fishTextApi,
-                           String username,
-                           DatabaseManager databaseManager) {
-        this.settings = settings;
+                           String username) {
         this.inputOutput = inputOutput;
         this.fishTextApi = fishTextApi;
         this.username = username;
-        this.databaseManager = databaseManager;
 
-        this.userTraining = new UserTraining(databaseManager);
-        session = new TrainingSession(settings, inputOutput);
+        this.session = new TrainingSession(inputOutput);
     }
 
     /**
      * Производит процесс тренировки
-     * @param dbSession сессия базы данных
+     * @param sessionDb текущая сессия
      */
-    public void process(Session dbSession) {
+    public void process(Session sessionDb) {
         int wordsCount = 0;
-        session.start();
+        session.start(sessionDb, username);
 
         while (session.isActive()) {
             String processedText = fishTextApi.getProcessedText();
@@ -78,11 +69,14 @@ public class TrainingProcess {
 
         userTraining.updateTrainingData(
                 username,
-                settings.getTrainingTime(),
                 wordsCount,
-                dbSession);
+                sessionDb);
 
-        Result result = new Result(wordsCount, settings, typo, inputOutput);
+        Result result = new Result(wordsCount,
+                typo,
+                inputOutput,
+                username,
+                sessionDb);
         result.printResult();
         typo.clearTypo();
     }
