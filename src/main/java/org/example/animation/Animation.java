@@ -1,11 +1,14 @@
 package org.example.animation;
 
+import org.example.commons.LogsFile;
 import org.example.interfaces.InputOutput;
+import org.example.utils.log.LogsWriterUtils;
 
 /**
- * Анимация в консоли
+ * Анимация в выводе
  */
 public class Animation {
+    private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
     private final InputOutput inputOutput;
     private static final int COUNT = 3;
 
@@ -26,6 +29,7 @@ public class Animation {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
+                logsWriter.writeStackTraceToFile(e);
                 throw new RuntimeException("Поток занят", e);
             }
         }
