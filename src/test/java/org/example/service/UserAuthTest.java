@@ -3,11 +3,13 @@ package org.example.service;
 import org.example.database.SessionManager;
 import org.example.database.dao.UserDao;
 import org.example.database.entity.UserEntity;
+import org.example.interfaces.InputOutput;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,6 +21,9 @@ public class UserAuthTest {
     private UserAuth userAuth;
     private SessionManager sessionManager;
 
+    @Mock
+    private InputOutput inputOutput;
+
     /**
      * Настраивает тестовую среду перед каждым тестом, создавая тестового пользователя
      */
@@ -26,7 +31,7 @@ public class UserAuthTest {
     void setUp() {
         sessionManager = new SessionManager();
         userDao = new UserDao();
-        userAuth = new UserAuth();
+        userAuth = new UserAuth(inputOutput);
 
         try (Session session = sessionManager.getSession()) {
             Transaction transaction = session.beginTransaction();
@@ -55,7 +60,7 @@ public class UserAuthTest {
      */
     @Test
     void testRegisterUserSuccess() {
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             Transaction transaction = session.beginTransaction();
             boolean result = userAuth.registerUser("testUser2", "anotherPassword", session);
             assertTrue(result);
@@ -70,7 +75,7 @@ public class UserAuthTest {
      */
     @Test
     void testRegisterUserFailure_UserExists() {
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             Transaction transaction = session.beginTransaction();
             boolean result = userAuth.registerUser("testUser", "anotherPassword", session);
             assertFalse(result);
@@ -86,7 +91,7 @@ public class UserAuthTest {
      */
     @Test
     void testLoginUserSuccess() {
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             boolean result = userAuth.loginUser("testUser", "testPassword", session);
             assertTrue(result);
         }
@@ -97,7 +102,7 @@ public class UserAuthTest {
      */
     @Test
     void testLoginUserFailure_IncorrectPassword(){
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             boolean result = userAuth.loginUser("existingUser", "wrongPassword", session);
             assertFalse(result);
         }

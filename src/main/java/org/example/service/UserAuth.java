@@ -3,6 +3,7 @@ package org.example.service;
 import org.apache.log4j.Logger;
 import org.example.database.dao.UserDao;
 import org.example.database.entity.UserEntity;
+import org.example.interfaces.InputOutput;
 import org.hibernate.Session;
 
 /**
@@ -11,13 +12,15 @@ import org.hibernate.Session;
 public class UserAuth {
 
     private final Logger logger = Logger.getLogger(UserAuth.class);
-    private final UserDao userDao;
+    private final UserDao userDao = new UserDao();
+    private final InputOutput inputOutput;
 
     /**
-     * Конструктор UserAuth, который создает объект UserDao
+     * Конструктор UserAuth, который получает ссылку на реализацию InputOutput
+     * @param inputOutput реализация интерфейса InputOutput
      */
-    public UserAuth() {
-        this.userDao = new UserDao();
+    public UserAuth(InputOutput inputOutput) {
+        this.inputOutput = inputOutput;
     }
 
     /**
@@ -44,7 +47,7 @@ public class UserAuth {
             }
         } catch (IllegalArgumentException e) {
             logger.error(e.getMessage(), e);
-            logger.info(e.getMessage());
+            inputOutput.output(e.getMessage());
         }
         return false;
     }
@@ -63,7 +66,7 @@ public class UserAuth {
                     && user.getPassword().equals(password);
         } catch (IllegalArgumentException e) {
             logger.error(e.getMessage(), e);
-            logger.info(e.getMessage());
+            inputOutput.output(e.getMessage());
         }
         return false;
     }

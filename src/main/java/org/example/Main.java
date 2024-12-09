@@ -8,8 +8,8 @@ import org.example.web.FishTextApi;
  */
 public class Main {
     public static void main(String[] args) {
-        FishTextApi fishTextApi = new FishTextApi();
         Console app = new Console();
+        FishTextApi fishTextApi = new FishTextApi(app);
         CommandHandler commandHandler = new CommandHandler(app, fishTextApi);
         String info = """
                 Добро пожаловать в тренировочное приложение! Введите команду /help для просмотра всех команд

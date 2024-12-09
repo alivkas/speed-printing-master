@@ -20,22 +20,25 @@ import org.hibernate.Transaction;
 public class CommandHandler {
     private final Logger logger = Logger.getLogger(CommandHandler.class);
     private final SessionManager sessionManager = new SessionManager();
-    protected final UserAuth userAuth = new UserAuth();
-    private final UserTraining userTraining = new UserTraining();
-    private  final UserStatistics userStatistics = new UserStatistics();
-    protected TrainingProcess trainingProcess;
+    private final UserStatistics userStatistics = new UserStatistics();
+    private final UserAuth userAuth;
+    private final UserTraining userTraining;
     private final InputOutput inputOutput;
     private final FishTextApi fishTextApi;
 
-    protected String currentUsername = null;
+    private TrainingProcess trainingProcess;
+    private String currentUsername = null;
 
     /**
      * Конструктор класса CommandHandler, который получает ссылку на объект fishTextApi
-     * и реализацию интерфейса InputOutput
+     * и реализацию интерфейса InputOutput, также инициализирует UserTraining и UserAuth
      */
     public CommandHandler(InputOutput inputOutput, FishTextApi fishTextApi) {
         this.inputOutput = inputOutput;
         this.fishTextApi = fishTextApi;
+
+        this.userTraining = new UserTraining(inputOutput);
+        this.userAuth = new UserAuth(inputOutput);
     }
 
     /**
@@ -60,14 +63,10 @@ public class CommandHandler {
                         register(session);
                         transaction.commit();
                     }
-                    case Commands.LOGIN -> {
-                        login(session);
-                        transaction.commit();
-                    }
-                    case  Commands.INFO   -> {
+                    case Commands.LOGIN -> login(session);
+                    case Commands.INFO   -> {
                         String userInfo = userStatistics.getUserInfo(currentUsername, session);
                         inputOutput.output(userInfo);
-                        transaction.commit();
                     }
                     case Commands.STOP -> inputOutput.output("Нет активной тренировки.");
                     case Commands.EXIT -> {
@@ -82,7 +81,7 @@ public class CommandHandler {
             }
         } catch (IllegalStateException e) {
             logger.error(e.getMessage(), e);
-            logger.info("Нет доступа к базе данных");
+            inputOutput.output("Нет доступа к базе данных");
         }
     }
 
@@ -117,7 +116,7 @@ public class CommandHandler {
 
         if (isSuccess) {
             inputOutput.output("Регистрация прошла успешно! Войдите в аккаунт.");
-        } else {
+        } else if (!username.isEmpty()) {
             inputOutput.output("Пользователь с таким именем уже существует.");
         }
     }
@@ -137,7 +136,7 @@ public class CommandHandler {
         if (isSuccess) {
             inputOutput.output("Вход выполнен!");
             currentUsername = username;
-        } else {
+        } else if (currentUsername != null) {
             inputOutput.output("Неверный логин или пароль.");
         }
     }

@@ -5,6 +5,9 @@ package org.example.commons;
  */
 public class Time {
 
+    /**
+     * Перевод минут в миллисекунды
+     */
     public static final int MINUTES_IN_MILLISECONDS = 60000;
 
     private Time() {

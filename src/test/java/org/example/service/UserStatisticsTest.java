@@ -1,6 +1,6 @@
 package org.example.service;
 
-import org.example.database.DatabaseManager;
+import org.example.database.SessionManager;
 import org.example.database.entity.UserEntity;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -11,10 +11,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**
- * Тестовый класс для  UserStatistics
+ * Тестовый класс для UserStatistics
  */
 public class UserStatisticsTest {
-    private DatabaseManager databaseManager;
+    private SessionManager sessionManager;
     private UserStatistics userStatistics;
 
     /**
@@ -22,10 +22,10 @@ public class UserStatisticsTest {
      */
     @BeforeEach
     void setUp()  {
-        databaseManager = new DatabaseManager();
+        sessionManager = new SessionManager();
         userStatistics = new UserStatistics();
 
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             Transaction transaction = session.beginTransaction();
             UserEntity testUser = new UserEntity();
             testUser.setUsername("testUser");
@@ -42,7 +42,7 @@ public class UserStatisticsTest {
      */
     @AfterEach
     void tearDown()  {
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             Transaction transaction = session.beginTransaction();
             session.createQuery("DELETE FROM UserEntity WHERE username = 'testUser'").executeUpdate();
             transaction.commit();
@@ -54,7 +54,7 @@ public class UserStatisticsTest {
      */
     @Test
     void testGetUserInfo_UserExists() {
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             String userInfo = userStatistics.getUserInfo("testUser", session);
             String expectedInfo = String.format("""
                        Информация о пользователе:
@@ -72,9 +72,9 @@ public class UserStatisticsTest {
      */
     @Test
     void testGetUserInfo_UserDoesNotExist() {
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             String userInfo = userStatistics.getUserInfo("nonExistingUser", session);
-            assertEquals("Пользователь не найден", userInfo);
+            assertEquals("Для получения информации о пользователе необходимо авторизоваться", userInfo);
         }
     }
 }
