@@ -6,85 +6,112 @@ import org.example.database.dao.UserDao;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 
-import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+
 
 /**
  * Тестовый класс для проверки функциональности класса UserTraining
  */
-class UserTrainingTest {
+public class UserTrainingTest {
+    private DatabaseManager databaseManager;
+    private UserDao userDao;
+    private UserTraining userTraining;
 
+    /**
+     * Настраивает тестовую среду перед каждым тестом, создавая тестового пользователя
+     */
+    @BeforeEach
+    void setUp() {
+        databaseManager = new DatabaseManager();
+        userDao = new UserDao();
+        userTraining = new UserTraining();
 
+        try (Session session = databaseManager.getSession()) {
+            Transaction transaction = session.beginTransaction();
+            UserEntity testUser = new UserEntity();
+            testUser.setUsername("testUser");
+            testUser.setTrainingCount(2);
+            testUser.setTime(100000.0);
+            testUser.setAverageTime(50.0);
+            session.save(testUser);
+            transaction.commit();
+        }
+    }
 
+    /**
+     * Очищает тестовую среду после каждого теста, удаляя тестового пользователя
+     */
+    @AfterEach
+    void tearDown() {
+        try (Session session = databaseManager.getSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.createQuery("DELETE FROM UserEntity WHERE username = 'testUser'").executeUpdate();
+            transaction.commit();
+        }
+    }
 
+    /**
+     * Тестирует успешное обновление данных о тренировке для существующего пользователя
+     */
+    @Test
+    void testUpdateTrainingData_Success() {
+        try (Session session = databaseManager.getSession()) {
+            int totalWords = 10;
+            userTraining.updateTrainingData("testUser", totalWords, session);
 
-//    private UserTraining userTraining;
-//    private UserDao userDaoMock;
-//    private DatabaseManager databaseManagerMock;
-//    private Session sessionMock;
-//
-//    /**
-//     * Настройка мока перед каждым тестом
-//     */
-//    @BeforeEach
-//    void setUp() throws Exception {
-//        MockitoAnnotations.openMocks(this);
-//        userDaoMock = mock(UserDao.class);
-//        databaseManagerMock = mock(DatabaseManager.class);
-//        sessionMock = mock(Session.class);
-//
-//        when(databaseManagerMock.getSession()).thenReturn(sessionMock);
-//        when(sessionMock.merge(any(UserEntity.class))).thenReturn(new UserEntity());
-//
-//        userTraining = new UserTraining();
-//        Field databaseManagerField = UserTraining.class.getDeclaredField("databaseManager");
-//        databaseManagerField.setAccessible(true);
-//        databaseManagerField.set(userTraining, databaseManagerMock);
-//
-//        Field userDaoField = UserTraining.class.getDeclaredField("userDao");
-//        userDaoField.setAccessible(true);
-//        userDaoField.set(userTraining, userDaoMock);
-//    }
-//
-//    /**
-//     * Тестирует успешное обновление данных о тренировке для существующего пользователя
-//     * Проверяется корректность обновления полей сущности пользователя после вызова метода updateTrainingData
-//     */
-//    @Test
-//    void testUpdateTrainingData_Success() {
-//        UserEntity user = new UserEntity();
-//        user.setUsername("testUser");
-//        user.setTrainingCount(2);
-//        user.setTime(100.0 * Time.MILLISECONDS);
-//        user.setAverageTime(50.0);
-//
-//        when(userDaoMock.getUserByUsername("testUser", sessionMock)).thenReturn(user);
-//
-//        userTraining.updateTrainingData("testUser", 10 * Time.MILLISECONDS, 50, sessionMock);
-//
-//        verify(sessionMock).merge(any(UserEntity.class));
-//
-//        assertEquals(3, user.getTrainingCount());
-//        assertEquals(110.0 * Time.MILLISECONDS, user.getTime());
-//        assertEquals(55.0, user.getAverageTime());
-//    }
-//
-//    /**
-//     * Тестирует сценарий, когда пользователь не найден в базе данных
-//     * Проверяется, что метод updateTrainingData не вызывает Session merge и
-//     * Transaction commit
-//     * , если пользователь с указанным именем не существует
-//     */
-//    @Test
-//    void testUpdateTrainingData_UserNotFound() {
-//        when(userDaoMock.getUserByUsername("nonExistingUser", sessionMock)).thenReturn(null);
-//        userTraining.updateTrainingData("nonExistingUser", 10, 50, sessionMock);
-//
-//        verify(sessionMock, never()).merge(any(UserEntity.class));
-//    }
+            UserEntity updatedUser = userDao.getUserByUsername("testUser", session);
+            assertNotNull(updatedUser);
+            assertEquals(3, updatedUser.getTrainingCount());
+            assertEquals(100000, updatedUser.getTime());
+            assertEquals(56.0, updatedUser.getAverageTime());
+        }
+    }
+
+    /**
+     * Тестирует успешное сохранение времени тренировки пользователя
+     */
+    @Test
+    void testSaveUsersTrainingTime_Success() {
+        double newTime = 120000.0;
+
+        try (Session session = databaseManager.getSession()) {
+            userTraining.saveUsersTrainingTime(newTime, "testUser", session);
+
+            UserEntity updatedUser = userDao.getUserByUsername("testUser", session);
+            assertNotNull(updatedUser);
+            assertEquals(newTime, updatedUser.getTime());
+        }
+    }
+
+    /**
+     * Тестирует получение времени тренировки пользователя
+     */
+    @Test
+    void testGetUserTrainingTime_Success() {
+        try (Session session = databaseManager.getSession()) {
+            double trainingTime = userTraining.getUserTrainingTime("testUser", session);
+
+            assertEquals(100000.0, trainingTime);
+        }
+    }
+
+    /**
+     * Тестирует сохранение времени тренировки для несуществующего пользователя
+     */
+    @Test
+    void testSaveUsersTrainingTime_UserNotFound() {
+        double newTime = 150000.0;
+
+        try (Session session = databaseManager.getSession()) {
+            userTraining.saveUsersTrainingTime(newTime, "nonExistentUser", session);
+
+            UserEntity updatedUser = userDao.getUserByUsername("testUser", session);
+            assertNotNull(updatedUser);
+            assertEquals(100000.0, updatedUser.getTime());
+        }
+    }
 }
