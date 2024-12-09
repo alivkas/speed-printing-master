@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.example.commons.Time;
 import org.example.database.dao.UserDao;
 import org.example.database.entity.UserEntity;
+import org.example.interfaces.InputOutput;
 import org.hibernate.Session;
 
 /**
@@ -12,13 +13,15 @@ import org.hibernate.Session;
 public class UserTraining {
 
     private final Logger logger = Logger.getLogger(UserTraining.class);
-    public UserDao userDao;
+    private final UserDao userDao = new UserDao();
+    private final InputOutput inputOutput;
 
     /**
-     * Конструктор UserTraining, который создает объект UserDao
+     * Конструктор UserTraining, который получает ссылку на реализацию InputOutput
+     * @param inputOutput реализация интерфейса InputOutput
      */
-    public UserTraining() {
-        this.userDao = new UserDao();
+    public UserTraining(InputOutput inputOutput) {
+        this.inputOutput = inputOutput;
     }
 
     /**
@@ -56,7 +59,7 @@ public class UserTraining {
             }
         } catch (IllegalArgumentException e) {
             logger.error(e.getMessage(), e);
-            logger.info(e.getMessage());
+            inputOutput.output(e.getMessage());
         }
     }
 
@@ -77,7 +80,7 @@ public class UserTraining {
             }
         } catch (IllegalArgumentException e) {
             logger.error(e.getMessage(), e);
-            logger.info(e.getMessage());
+            inputOutput.output(e.getMessage());
         }
     }
 
@@ -95,7 +98,7 @@ public class UserTraining {
             }
         } catch (IllegalArgumentException e) {
             logger.error(e.getMessage(), e);
-            logger.info(e.getMessage());
+            inputOutput.output(e.getMessage());
         }
         return 0.0;
     }

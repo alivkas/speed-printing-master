@@ -4,6 +4,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.log4j.Logger;
+import org.example.interfaces.InputOutput;
 import org.example.training.TrainingSession;
 import org.example.utils.processing.ResponseProcessingUtils;
 
@@ -18,6 +19,15 @@ public class FishTextApi {
     private final static String URL = "https://fish-text.ru/get?type=title&format=html";
 
     private final Logger logger = org.apache.log4j.Logger.getLogger(FishTextApi.class);
+    private final InputOutput inputOutput;
+
+    /**
+     * Конструктор FishTextApi, который получает ссылку на реализацию InputOutput
+     * @param inputOutput реализация интерфейса InputOutput
+     */
+    public FishTextApi(InputOutput inputOutput) {
+        this.inputOutput = inputOutput;
+    }
 
     /**
      * Получить сгенерированное предложение из GET запроса к FishTextApi
@@ -36,10 +46,10 @@ public class FishTextApi {
             }
         } catch (UnknownHostException e) {
             logger.error(e.getMessage(), e);
-            logger.info("Нет подключения к интернету");
+            inputOutput.output("Нет подключения к интернету");
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
-            logger.info("Ошибка чтения строки");
+            inputOutput.output("Ошибка чтения строки");
         }
         return null;
     }
@@ -55,7 +65,7 @@ public class FishTextApi {
             processedText = responseProcessingUtils.sanitize(getGeneratedText());
         } catch (NullPointerException e) {
             logger.error(e.getMessage(), e);
-            logger.info("Нет данных из API");
+            inputOutput.output("Нет данных из API");
         }
 
         return processedText;

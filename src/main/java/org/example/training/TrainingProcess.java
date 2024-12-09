@@ -15,7 +15,7 @@ public class TrainingProcess {
 
     private final TextInteractionUtils textInteractionUtils = new TextInteractionUtils();
     private final Typo typo = new Typo();
-    private final UserTraining userTraining = new UserTraining();
+    private final UserTraining userTraining;
     private final FishTextApi fishTextApi;
     private final InputOutput inputOutput;
     private final String username;
@@ -25,6 +25,7 @@ public class TrainingProcess {
     /**
      * Конструктор TrainingProcess, который передает ссылки на объект fishTextApi,
      * строку username, реализацию интерфейса InputOutput и инициализирует TrainingSession
+     * c UserTraining
      * @param inputOutput ссылка на реализацию InputOutput
      * @param fishTextApi ссылка на объект FishTextApi
      * @param username имя текущего пользователя
@@ -37,6 +38,7 @@ public class TrainingProcess {
         this.username = username;
 
         this.session = new TrainingSession(inputOutput);
+        this.userTraining = new UserTraining(inputOutput);
     }
 
     /**

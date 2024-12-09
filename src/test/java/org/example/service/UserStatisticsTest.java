@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**
- * Тестовый класс для  UserStatistics
+ * Тестовый класс для UserStatistics
  */
 public class UserStatisticsTest {
     private SessionManager sessionManager;
@@ -74,7 +74,7 @@ public class UserStatisticsTest {
     void testGetUserInfo_UserDoesNotExist() {
         try (Session session = sessionManager.getSession()) {
             String userInfo = userStatistics.getUserInfo("nonExistingUser", session);
-            assertEquals("Пользователь не найден", userInfo);
+            assertEquals("Для получения информации о пользователе необходимо авторизоваться", userInfo);
         }
     }
 }

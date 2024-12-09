@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class Result {
 
-    private final UserTraining userTraining = new UserTraining();
+    private final UserTraining userTraining;
     private final int totalWordsTyped;
     private final Typo typo;
     private final InputOutput inputOutput;
@@ -22,7 +22,8 @@ public class Result {
 
     /**
      * Конструктор Result, который передает ссылки на объекты totalWordsTyped, settings,
-     * typo, session, реализацию InputOutput и строку username
+     * typo, session, реализацию InputOutput и строку username, также инициализирует
+     * UserTraining
      * @param totalWordsTyped количество введенных слов
      * @param typo ссылка на объект Typo
      * @param inputOutput ссылка на реализацию InputOutput
@@ -39,6 +40,8 @@ public class Result {
         this.inputOutput = inputOutput;
         this.username = username;
         this.session = session;
+
+        this.userTraining = new UserTraining(inputOutput);
     }
 
     /**

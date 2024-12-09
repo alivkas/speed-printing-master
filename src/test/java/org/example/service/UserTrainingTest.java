@@ -4,11 +4,13 @@ package org.example.service;
 import org.example.database.SessionManager;
 import org.example.database.entity.UserEntity;
 import org.example.database.dao.UserDao;
+import org.example.interfaces.InputOutput;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,6 +23,9 @@ public class UserTrainingTest {
     private UserDao userDao;
     private UserTraining userTraining;
 
+    @Mock
+    private InputOutput inputOutput;
+
     /**
      * Настраивает тестовую среду перед каждым тестом, создавая тестового пользователя
      */
@@ -28,7 +33,7 @@ public class UserTrainingTest {
     void setUp() {
         sessionManager = new SessionManager();
         userDao = new UserDao();
-        userTraining = new UserTraining();
+        userTraining = new UserTraining(inputOutput);
 
         try (Session session = sessionManager.getSession()) {
             Transaction transaction = session.beginTransaction();

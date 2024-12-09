@@ -176,4 +176,3 @@ public class CommandHandlerTest {
         verify(inputOutputMock).output("Неизвестная команда. Введите /help для списка команд.");
     }
 }
-

@@ -18,25 +18,27 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class TrainingSession {
     private final Logger logger = org.apache.log4j.Logger.getLogger(TrainingSession.class);
     private final AtomicBoolean isActive = new AtomicBoolean(false);
-    private final UserTraining userTraining = new UserTraining();
+    private final UserTraining userTraining;
 
     private Timer timer;
     private final InputOutput inputOutput;
 
     /**
-     * Создает сессию тренировки.
-     * Инициализирует параметры тренировки и устанавливает
-     * статус сессии как неактивную
+     * Конструктор TrainingSession, который инициализирует UserTraining
+     * и получает ссылку на реализацию InputOutput
      *
-     * @param inputOutput  Объект для вывода информации.
+     * @param inputOutput реализация интерфейса InputOutput
      */
     public TrainingSession(InputOutput inputOutput) {
         this.inputOutput = inputOutput;
+
+        this.userTraining = new UserTraining(inputOutput);
     }
 
     /**
      * Запускает сессию тренировки с установленным временем
-     *
+     * @param session текущая сессия
+     * @param username имя текущего пользователя
      */
     public void start(Session session, String username) {
         isActive.set(true);

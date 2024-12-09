@@ -6,12 +6,14 @@ import org.example.database.SessionManager;
 
 
 import org.example.database.entity.UserEntity;
+import org.example.interfaces.InputOutput;
 import org.example.service.UserTraining;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -26,7 +28,10 @@ public class TrainingSessionTest   {
     private SessionManager  sessionManager;
     private UserTraining userTraining;
     private Session session;
-    private final String testUsername = "testUser";
+    private final static String TEST_USERNAME = "testUser";
+
+    @Mock
+    private InputOutput inputOutput;
 
     /**
      * Настраивает тестовую среду перед каждым тестом, создавая тестового пользователя
@@ -36,13 +41,13 @@ public class TrainingSessionTest   {
         testInputOutput = new TestInputOutput();
         trainingSession = new TrainingSession(testInputOutput);
         sessionManager = new SessionManager();
-        userTraining = new UserTraining();
+        userTraining = new UserTraining(inputOutput);
         session = sessionManager.getSession();
 
 
         session.beginTransaction();
         UserEntity testUser = new UserEntity();
-        testUser.setUsername(testUsername);
+        testUser.setUsername(TEST_USERNAME);
         testUser.setPassword("testPassword");
         testUser.setTime(0.0);
         session.save(testUser);
@@ -69,7 +74,7 @@ public class TrainingSessionTest   {
         CountDownLatch latch = new CountDownLatch(1);
 
         new Thread(() -> {
-            trainingSession.start(session, testUsername);
+            trainingSession.start(session, TEST_USERNAME);
             latch.countDown();
         }).start();
 
@@ -88,12 +93,12 @@ public class TrainingSessionTest   {
      */
     @Test
     public void testSessionEndsAfterDuration() throws InterruptedException {
-        userTraining.saveUsersTrainingTime(1000,testUsername, session);
+        userTraining.saveUsersTrainingTime(1000, TEST_USERNAME, session);
 
         CountDownLatch latch = new CountDownLatch(1);
 
         new Thread(()  ->  {
-            trainingSession.start(session, testUsername);
+            trainingSession.start(session, TEST_USERNAME);
             latch.countDown();
         }).start();
 
@@ -112,7 +117,7 @@ public class TrainingSessionTest   {
         CountDownLatch latch = new CountDownLatch(1);
 
         new Thread(() -> {
-            trainingSession.start(session,testUsername);
+            trainingSession.start(session, TEST_USERNAME);
             latch.countDown();
         }).start();
 
