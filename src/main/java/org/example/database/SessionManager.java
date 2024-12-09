@@ -1,7 +1,6 @@
 package org.example.database;
 
-import org.example.commons.LogsFile;
-import org.example.utils.log.LogsWriterUtils;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -10,26 +9,39 @@ import org.hibernate.cfg.Configuration;
  * Управление сессиями
  */
 public class SessionManager {
-    private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
     private SessionFactory sessionFactory;
 
     /**
-     * Вернуть текущую сессию
+     * Конструктор SessionManager, который строит SessionFactory
+     */
+    public SessionManager() {
+        buildSessionFactory();
+    }
+
+    /**
+     * Получить экземпляр сессии из фабрики сессий
      * @return сессия
      */
     public Session getSession() {
         if (sessionFactory == null) {
-            logsWriter.writeStackTraceToFile(new IllegalStateException());
             throw new IllegalStateException("SessionFactory не инициализирован");
         }
-        return sessionFactory.openSession();
+        try {
+            return sessionFactory.openSession();
+        } catch (HibernateException e) {
+            throw new HibernateException(e.getMessage(), e);
+        }
     }
 
     /**
-     * Запустить сессию
-     * @param configuration конфигурация базы данных
+     * Построить sessionFactory, с конфигурацией Hibernate
      */
-    public void startSession(Configuration configuration) {
-        sessionFactory = configuration.buildSessionFactory();
+    private void buildSessionFactory() {
+        try {
+            Configuration configuration = new Configuration().configure();
+            sessionFactory = configuration.buildSessionFactory();
+        } catch (HibernateException e) {
+            throw new HibernateException("Ошибка при создании SessionFactory", e);
+        }
     }
 }

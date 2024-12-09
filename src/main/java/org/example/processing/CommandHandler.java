@@ -1,16 +1,15 @@
 package org.example.processing;
 
+import org.apache.log4j.Logger;
 import org.example.animation.Animation;
 import org.example.commons.Commands;
-import org.example.commons.LogsFile;
 import org.example.commons.Time;
-import org.example.database.DatabaseManager;
+import org.example.database.SessionManager;
 import org.example.interfaces.InputOutput;
 import org.example.service.UserAuth;
 import org.example.service.UserStatistics;
 import org.example.service.UserTraining;
 import org.example.training.TrainingProcess;
-import org.example.utils.log.LogsWriterUtils;
 import org.example.web.FishTextApi;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -19,8 +18,8 @@ import org.hibernate.Transaction;
  * Класс для обработки команд пользователя.
  */
 public class CommandHandler {
-    private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
-    private final DatabaseManager databaseManager = new DatabaseManager();
+    private final Logger logger = Logger.getLogger(CommandHandler.class);
+    private final SessionManager sessionManager = new SessionManager();
     protected final UserAuth userAuth = new UserAuth();
     private final UserTraining userTraining = new UserTraining();
     private  final UserStatistics userStatistics = new UserStatistics();
@@ -44,7 +43,7 @@ public class CommandHandler {
      * @param command Команда, введенная пользователем.
      */
     public void handleCommand(String command) {
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             final Transaction transaction = session.beginTransaction();
             try {
                 switch (command) {
@@ -81,6 +80,9 @@ public class CommandHandler {
                 transaction.rollback();
                 throw new RuntimeException("Ошибка транзакции", e);
             }
+        } catch (IllegalStateException e) {
+            logger.error(e.getMessage(), e);
+            logger.info("Нет доступа к базе данных");
         }
     }
 
@@ -157,8 +159,8 @@ public class CommandHandler {
             userTraining.saveUsersTrainingTime(millisecondsTime, currentUsername, session);
             inputOutput.output("Время тренировки " + time + " минут");
         } catch (NumberFormatException e) {
+            logger.error("Некорректный ввод. Введите целое положительное число.", e);
             inputOutput.output("Некорректный ввод. Введите целое положительное число.");
-            logsWriter.writeStackTraceToFile(e);
         }
     }
 

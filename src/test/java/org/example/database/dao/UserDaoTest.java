@@ -1,6 +1,6 @@
 package org.example.database.dao;
 
-import org.example.database.DatabaseManager;
+import org.example.database.SessionManager;
 import org.example.database.entity.UserEntity;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *Тестируем работоспособность класса UserDao
  */
 class UserDaoTest {
-    private DatabaseManager databaseManager;
+    private SessionManager sessionManager;
     private UserDao userDao;
 
     /**
@@ -24,10 +24,9 @@ class UserDaoTest {
      */
     @BeforeEach
     void setUp() {
-        databaseManager = new DatabaseManager();
         userDao = new UserDao();
 
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             Transaction transaction = session.beginTransaction();
             UserEntity user = new UserEntity();
             user.setUsername("testUser");

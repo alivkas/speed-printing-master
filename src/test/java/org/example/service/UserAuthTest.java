@@ -1,6 +1,6 @@
 package org.example.service;
 
-import org.example.database.DatabaseManager;
+import org.example.database.SessionManager;
 import org.example.database.dao.UserDao;
 import org.example.database.entity.UserEntity;
 import org.hibernate.Session;
@@ -15,20 +15,20 @@ import static org.junit.jupiter.api.Assertions.*;
  * Тестирование класса UserAuth
  */
 public class UserAuthTest {
-    private DatabaseManager databaseManager;
     private UserDao userDao;
     private UserAuth userAuth;
+    private SessionManager sessionManager;
 
     /**
      * Настраивает тестовую среду перед каждым тестом, создавая тестового пользователя
      */
     @BeforeEach
     void setUp() {
-        databaseManager = new DatabaseManager();
+        sessionManager = new SessionManager();
         userDao = new UserDao();
         userAuth = new UserAuth();
 
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             Transaction transaction = session.beginTransaction();
             UserEntity testUser = new UserEntity();
             testUser.setUsername("testUser");
@@ -43,7 +43,7 @@ public class UserAuthTest {
      */
     @AfterEach
     void tearDown() {
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             Transaction transaction = session.beginTransaction();
             session.createQuery("DELETE FROM UserEntity WHERE username = 'testUser'").executeUpdate();
             transaction.commit();

@@ -1,10 +1,9 @@
 package org.example.training;
 
-import org.example.commons.LogsFile;
+import org.apache.log4j.Logger;
 import org.example.commons.Time;
 import org.example.interfaces.InputOutput;
 import org.example.service.UserTraining;
-import org.example.utils.log.LogsWriterUtils;
 import org.hibernate.Session;
 
 import java.awt.*;
@@ -12,16 +11,13 @@ import java.awt.event.KeyEvent;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Управление сессией тренировки
  */
 public class TrainingSession {
-    private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
+    private final Logger logger = org.apache.log4j.Logger.getLogger(TrainingSession.class);
     private final AtomicBoolean isActive = new AtomicBoolean(false);
-    private final Logger logger = Logger.getLogger(TrainingSession.class.getName());
     private final UserTraining userTraining = new UserTraining();
 
     private Timer timer;
@@ -56,8 +52,8 @@ public class TrainingSession {
                     robot.keyPress(KeyEvent.VK_ENTER);
                     robot.keyRelease(KeyEvent.VK_ENTER);
                 } catch (AWTException e) {
-                    logsWriter.writeStackTraceToFile(e);
-                    logger.log(Level.SEVERE, "Ошибка при работе с роботом");
+                    logger.error(e.getMessage(), e);
+                    logger.info("Ошибка при работе с роботом");
                 }
                 stop();
             }
