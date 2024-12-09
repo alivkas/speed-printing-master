@@ -32,6 +32,8 @@ public class CommandHandler {
     /**
      * Конструктор класса CommandHandler, который получает ссылку на объект fishTextApi
      * и реализацию интерфейса InputOutput, также инициализирует UserTraining и UserAuth
+     * @param inputOutput реализация интерфейса InputOutput
+     * @param fishTextApi ссылка на внешний апи для получения текста
      */
     public CommandHandler(InputOutput inputOutput, FishTextApi fishTextApi) {
         this.inputOutput = inputOutput;
