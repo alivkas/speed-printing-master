@@ -1,6 +1,7 @@
 package org.example.service;
 
-import org.example.commons.Time;
+
+import org.example.database.SessionManager;
 import org.example.database.entity.UserEntity;
 import org.example.database.dao.UserDao;
 import org.hibernate.Session;
@@ -12,12 +13,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 /**
  * Тестовый класс для проверки функциональности класса UserTraining
  */
 public class UserTrainingTest {
-    private DatabaseManager databaseManager;
+    private SessionManager sessionManager;
     private UserDao userDao;
     private UserTraining userTraining;
 
@@ -26,11 +26,11 @@ public class UserTrainingTest {
      */
     @BeforeEach
     void setUp() {
-        databaseManager = new DatabaseManager();
+        sessionManager = new SessionManager();
         userDao = new UserDao();
         userTraining = new UserTraining();
 
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             Transaction transaction = session.beginTransaction();
             UserEntity testUser = new UserEntity();
             testUser.setUsername("testUser");
@@ -47,7 +47,7 @@ public class UserTrainingTest {
      */
     @AfterEach
     void tearDown() {
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             Transaction transaction = session.beginTransaction();
             session.createQuery("DELETE FROM UserEntity WHERE username = 'testUser'").executeUpdate();
             transaction.commit();
@@ -59,7 +59,7 @@ public class UserTrainingTest {
      */
     @Test
     void testUpdateTrainingData_Success() {
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             int totalWords = 10;
             userTraining.updateTrainingData("testUser", totalWords, session);
 
@@ -78,7 +78,7 @@ public class UserTrainingTest {
     void testSaveUsersTrainingTime_Success() {
         double newTime = 120000.0;
 
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             userTraining.saveUsersTrainingTime(newTime, "testUser", session);
 
             UserEntity updatedUser = userDao.getUserByUsername("testUser", session);
@@ -92,7 +92,7 @@ public class UserTrainingTest {
      */
     @Test
     void testGetUserTrainingTime_Success() {
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             double trainingTime = userTraining.getUserTrainingTime("testUser", session);
 
             assertEquals(100000.0, trainingTime);
@@ -106,7 +106,7 @@ public class UserTrainingTest {
     void testSaveUsersTrainingTime_UserNotFound() {
         double newTime = 150000.0;
 
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             userTraining.saveUsersTrainingTime(newTime, "nonExistentUser", session);
 
             UserEntity updatedUser = userDao.getUserByUsername("testUser", session);

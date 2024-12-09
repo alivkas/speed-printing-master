@@ -55,7 +55,7 @@ public class UserAuthTest {
      */
     @Test
     void testRegisterUserSuccess() {
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             Transaction transaction = session.beginTransaction();
             boolean result = userAuth.registerUser("testUser2", "anotherPassword", session);
             assertTrue(result);
@@ -70,7 +70,7 @@ public class UserAuthTest {
      */
     @Test
     void testRegisterUserFailure_UserExists() {
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             Transaction transaction = session.beginTransaction();
             boolean result = userAuth.registerUser("testUser", "anotherPassword", session);
             assertFalse(result);
@@ -86,7 +86,7 @@ public class UserAuthTest {
      */
     @Test
     void testLoginUserSuccess() {
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             boolean result = userAuth.loginUser("testUser", "testPassword", session);
             assertTrue(result);
         }
@@ -97,7 +97,7 @@ public class UserAuthTest {
      */
     @Test
     void testLoginUserFailure_IncorrectPassword(){
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             boolean result = userAuth.loginUser("existingUser", "wrongPassword", session);
             assertFalse(result);
         }

@@ -1,106 +1,125 @@
 package org.example.training;
 
 import org.example.TestInputOutput;
-import org.example.commons.Time;
-import org.example.interfaces.InputOutput;
+import org.example.database.SessionManager;
+
+
+
+import org.example.database.entity.UserEntity;
+import org.example.service.UserTraining;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.junit.jupiter.api.Assertions;
-import org.mockito.Mockito;
-
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Тестовый класс для проверки состояния сессии
  */
-public class TrainingSessionTest {
-//    private TrainingSession trainingSession;
-//    private TestInputOutput testInputOutput;
-//    private InputOutput mockInputOutput;
-//    private static final int TEST_DURATION_MINUTES = 1;
-//    private static final int SECONDS = 60;
-//
-//    /**
-//     * Настройка тестовой среды перед каждым тестом
-//     * EST_DURATION_MINUTES/60 для сокращения времени ожидания
-//     */
-//    @BeforeEach
-//    public void setUp() {
-//        testInputOutput = new TestInputOutput();
-//        trainingSession = new TrainingSession(testInputOutput);
-//    }
-//
-//    /**
-//     * Тест на остановку тренировки с ожиданием исключения AWTException
-//     * Проверяет, что обработка исключения выполнена корректно,
-//     * а сообщение об ошибке не выводится, если исключение не возникает
-//     */
-//    @Test
-//    void testStopWithErrorHandling_CountDownLatch() {
-//        mockInputOutput = Mockito.mock(InputOutput.class);
-//        trainingSession = new TrainingSession(mockInputOutput);
-//        CountDownLatch latch = new CountDownLatch(1);
-//        trainingSession.start();
-//
-//        try {
-//            latch.await(2, TimeUnit.SECONDS);
-//        } catch (InterruptedException e) {
-//            Thread.currentThread().interrupt();
-//        }
-//
-//        Mockito.verify(mockInputOutput, Mockito.times(1)).output("Новая тренировка на 1 минут");
-//        Mockito.verify(mockInputOutput, Mockito.times(0)).output("Ошибка при работе с роботом.");
-//
-//        trainingSession.stop();
-//        Assertions.assertFalse(trainingSession.isActive());
-//    }
-//
-//    /**
-//     * Проверяет, что сессия активна после запуска и выводится сообщение о начале тренировки.
-//     * В этом тесте устанавливается время тренировки TEST_DURATION_MINUTES минут,
-//     * но для ускорения тестирования это значение делится на 60, чтобы сократить время ожидания
-//     * до 1 секунды (т.е. фактически устанавливается 0 минут). Это позволяет быстро проверить,
-//     * что сессия активна, и выводится сообщение о начале тренировки.
-//     * После небольшой паузы (1 секунда) проверяется, что сессия становится неактивной
-//     * и выводится сообщение о завершении тренировки.
-//     * @throws InterruptedException если поток прерывается во время ожидания
-//     */
-//    @Test
-//    public void testSessionIsActiveAfterStart() throws InterruptedException {
-//        trainingSession.start();
-//
-//        Assertions.assertTrue(trainingSession.isActive());
-//        Assertions.assertEquals("Новая тренировка на 0" +
-//                " минут", testInputOutput.getLatestOutput());
-//
-//        Thread.sleep(1000 + 100);
-//        Assertions.assertFalse(trainingSession.isActive());
-//        Assertions.assertEquals("Тренировка Завершена!", testInputOutput.getLatestOutput());
-//        trainingSession.stop();
-//    }
-//
-//    /**
-//     * Проверяем, что сессия становится неактивной по истечении времени и выводятся сообщение
-//     */
-//    @Test
-//    public void testSessionEndsAfterDuration() throws InterruptedException {
-//        trainingSession.start();
-//        Thread.sleep((TEST_DURATION_MINUTES/60 + 100));
-//        Assertions.assertFalse(trainingSession.isActive());
-//        Assertions.assertEquals("Тренировка Завершена!", testInputOutput.getLatestOutput());
-//    }
-//
-//    /**
-//     * Проверяем, что сессия останавливается методом stop
-//     */
-//    @Test
-//    public void testSessionActiveAfterBeingStopped() {
-//        trainingSession.start();
-//        trainingSession.stop();
-//        Assertions.assertFalse(trainingSession.isActive());
-//        Assertions.assertEquals("Тренировка Завершена!", testInputOutput.getLatestOutput());
-//    }
+public class TrainingSessionTest   {
+    private TrainingSession trainingSession;
+    private TestInputOutput testInputOutput;
+    private SessionManager  sessionManager;
+    private UserTraining userTraining;
+    private Session session;
+    private final String testUsername = "testUser";
 
+    /**
+     * Настраивает тестовую среду перед каждым тестом, создавая тестового пользователя
+     */
+    @BeforeEach
+    public void setUp()  {
+        testInputOutput = new TestInputOutput();
+        trainingSession = new TrainingSession(testInputOutput);
+        sessionManager = new SessionManager();
+        userTraining = new UserTraining();
+        session = sessionManager.getSession();
+
+
+        session.beginTransaction();
+        UserEntity testUser = new UserEntity();
+        testUser.setUsername(testUsername);
+        testUser.setPassword("testPassword");
+        testUser.setTime(0.0);
+        session.save(testUser);
+        session.getTransaction().commit();
+    }
+
+    /**
+     * Очищает тестовую среду после каждого теста, удаляя тестового пользователя
+     */
+    @AfterEach
+    void tearDown()  {
+        try (Session session = sessionManager.getSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.createQuery("DELETE FROM UserEntity WHERE username = 'testUser'").executeUpdate();
+            transaction.commit();
+        }
+    }
+
+    /**
+     * Проверяет,что сессия активна после запуска и выводится сообщение о начале тренировки
+     */
+    @Test
+    public void testSessionIsActiveAfterStart() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+
+        new Thread(() -> {
+            trainingSession.start(session, testUsername);
+            latch.countDown();
+        }).start();
+
+        latch.await();
+
+        assertTrue(trainingSession.isActive());
+        assertEquals("Новая тренировка на 0 минут", testInputOutput.getLatestOutput());
+
+        trainingSession.stop();
+        assertFalse(trainingSession.isActive());
+        assertEquals("Тренировка Завершена!", testInputOutput.getLatestOutput());
+    }
+
+    /**
+     * Проверяем, что сессия становится неактивной после завершения времени тренировки
+     */
+    @Test
+    public void testSessionEndsAfterDuration() throws InterruptedException {
+        userTraining.saveUsersTrainingTime(1000,testUsername, session);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        new Thread(()  ->  {
+            trainingSession.start(session, testUsername);
+            latch.countDown();
+        }).start();
+
+        latch.await();
+
+        Thread.sleep(1500);
+        assertFalse(trainingSession.isActive());
+        assertEquals("Тренировка Завершена!", testInputOutput.getLatestOutput());
+    }
+
+    /**
+     * Проверяем, что сессия останавливается методом stop()
+     */
+    @Test
+    public void testSessionActiveAfterBeingStopped() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+
+        new Thread(() -> {
+            trainingSession.start(session,testUsername);
+            latch.countDown();
+        }).start();
+
+        latch.await();
+
+        trainingSession.stop();
+        assertFalse(trainingSession.isActive());
+        assertEquals("Тренировка Завершена!", testInputOutput.getLatestOutput());
+    }
 }
