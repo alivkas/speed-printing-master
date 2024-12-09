@@ -1,6 +1,6 @@
 package org.example.service;
 
-import org.example.database.DatabaseManager;
+import org.example.database.SessionManager;
 import org.example.database.dao.UserDao;
 import org.example.database.entity.UserEntity;
 import org.hibernate.Session;
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
  * Тестирование класса UserAuth
  */
 public class UserAuthTest {
-    private DatabaseManager databaseManagerMock;
+    private SessionManager sessionManager;
     private Session sessionMock;
     private UserAuth userAuth;
     @Mock
@@ -31,11 +31,11 @@ public class UserAuthTest {
     @BeforeEach
     public void setUp() throws IllegalAccessException, NoSuchFieldException {
         MockitoAnnotations.openMocks(this);
-        databaseManagerMock = mock(DatabaseManager.class);
+        sessionManager = mock(SessionManager.class);
         sessionMock = mock(Session.class);
         userDaoMock = mock(UserDao.class);
 
-        when(databaseManagerMock.getSession()).thenReturn(sessionMock);
+        when(sessionManager.getSession()).thenReturn(sessionMock);
 
         userAuth = new UserAuth();
         Field userDaoField = UserAuth.class.getDeclaredField("userDao");

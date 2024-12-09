@@ -1,6 +1,6 @@
 package org.example.database.dao;
 
-import org.example.database.DatabaseManager;
+import org.example.database.SessionManager;
 import org.example.database.entity.UserEntity;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 class UserDaoTest {
 
     @Mock
-    private DatabaseManager databaseManager;
+    private SessionManager sessionManager;
 
     @Mock
     private Session session;
@@ -51,7 +51,7 @@ class UserDaoTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        when(databaseManager.getSession()).thenReturn(session);
+        when(sessionManager.getSession()).thenReturn(session);
         userDao = new UserDao();
     }
 

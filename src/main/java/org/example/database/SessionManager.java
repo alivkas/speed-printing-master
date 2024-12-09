@@ -1,5 +1,6 @@
 package org.example.database;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -11,21 +12,36 @@ public class SessionManager {
     private SessionFactory sessionFactory;
 
     /**
-     * Вернуть текущую сессию
+     * Конструктор SessionManager, который строит SessionFactory
+     */
+    public SessionManager() {
+        buildSessionFactory();
+    }
+
+    /**
+     * Получить экземпляр сессии из фабрики сессий
      * @return сессия
      */
     public Session getSession() {
         if (sessionFactory == null) {
             throw new IllegalStateException("SessionFactory не инициализирован");
         }
-        return sessionFactory.openSession();
+        try {
+            return sessionFactory.openSession();
+        } catch (HibernateException e) {
+            throw new HibernateException(e.getMessage(), e);
+        }
     }
 
     /**
-     * Построить sessionFactory
-     * @param configuration конфигурация базы данных
+     * Построить sessionFactory, с конфигурацией Hibernate
      */
-    public void buildSessionFactory(Configuration configuration) {
-        sessionFactory = configuration.buildSessionFactory();
+    private void buildSessionFactory() {
+        try {
+            Configuration configuration = new Configuration().configure();
+            sessionFactory = configuration.buildSessionFactory();
+        } catch (HibernateException e) {
+            throw new HibernateException("Ошибка при создании SessionFactory", e);
+        }
     }
 }

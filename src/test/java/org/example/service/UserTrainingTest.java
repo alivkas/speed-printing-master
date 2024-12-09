@@ -1,7 +1,6 @@
 package org.example.service;
 
 import org.example.commons.Time;
-import org.example.database.DatabaseManager;
 import org.example.database.entity.UserEntity;
 import org.example.database.dao.UserDao;
 import org.hibernate.Session;
