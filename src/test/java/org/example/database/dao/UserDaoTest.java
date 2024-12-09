@@ -24,6 +24,7 @@ class UserDaoTest {
      */
     @BeforeEach
     void setUp() {
+        sessionManager = new SessionManager();
         userDao = new UserDao();
 
         try (Session session = sessionManager.getSession()) {
@@ -41,7 +42,7 @@ class UserDaoTest {
      */
     @AfterEach
     void tearDown() {
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             Transaction transaction = session.beginTransaction();
             session.createQuery("DELETE FROM UserEntity").executeUpdate();
             transaction.commit();
@@ -55,7 +56,7 @@ class UserDaoTest {
      */
     @Test
     void testGetUserByUsernameReturnsUserWhenExists() {
-        UserEntity user = userDao.getUserByUsername("testUser", databaseManager.getSession());
+        UserEntity user = userDao.getUserByUsername("testUser", sessionManager.getSession());
         assertNotNull(user);
         assertEquals("testUser", user.getUsername());
     }
@@ -66,7 +67,7 @@ class UserDaoTest {
      */
     @Test
     void testGetUserByUsernameReturnsNullWhenNotExists() {
-        UserEntity user = userDao.getUserByUsername("nonExistentUser",databaseManager.getSession());
+        UserEntity user = userDao.getUserByUsername("nonExistentUser",sessionManager.getSession());
         assertNull(user);
     }
 }

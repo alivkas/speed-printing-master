@@ -1,6 +1,6 @@
 package org.example.processing;
 
-import org.example.database.DatabaseManager;
+import org.example.database.SessionManager;
 import org.example.database.entity.UserEntity;
 import org.example.interfaces.InputOutput;
 import org.example.web.FishTextApi;
@@ -21,21 +21,21 @@ public class CommandHandlerTest {
     private InputOutput inputOutputMock;
     private CommandHandler commandHandler;
     private FishTextApi fishTextApiMock;
-    private DatabaseManager databaseManager;
+    private SessionManager sessionManager;
 
     /**
      * Инициализируем тестовую среду
      */
     @BeforeEach
     void setUp() {
-        databaseManager = new DatabaseManager();
+        sessionManager = new SessionManager();
         inputOutputMock = mock(InputOutput.class);
         fishTextApiMock = mock(FishTextApi.class);
         when(inputOutputMock.input()).thenReturn("");
 
         commandHandler = new CommandHandler(inputOutputMock, fishTextApiMock);
 
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             Transaction transaction = session.beginTransaction();
             UserEntity testUser = new UserEntity();
             testUser.setUsername("testUser");
@@ -50,7 +50,7 @@ public class CommandHandlerTest {
      */
     @AfterEach
     void tearDown() {
-        try (Session session = databaseManager.getSession()) {
+        try (Session session = sessionManager.getSession()) {
             Transaction transaction = session.beginTransaction();
             session.createQuery("DELETE FROM UserEntity WHERE username = 'testUser'").executeUpdate();
             transaction.commit();
