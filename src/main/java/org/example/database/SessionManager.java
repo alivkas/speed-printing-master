@@ -29,7 +29,8 @@ public class SessionManager {
         try {
             return sessionFactory.openSession();
         } catch (HibernateException e) {
-            throw new HibernateException(e.getMessage(), e);
+            throw new HibernateException("Ошибка во время взаимодействия с базой данных " +
+                    "через Hibernate", e);
         }
     }
 
