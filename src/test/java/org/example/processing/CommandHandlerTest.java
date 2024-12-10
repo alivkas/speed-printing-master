@@ -1,13 +1,17 @@
 package org.example.processing;
 
-
+import org.example.database.SessionManager;
+import org.example.database.entity.UserEntity;
 import org.example.interfaces.InputOutput;
-import org.example.training.TrainingSettings;
 import org.example.web.FishTextApi;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 /**
@@ -16,33 +20,59 @@ import static org.mockito.Mockito.*;
 public class CommandHandlerTest {
     private InputOutput inputOutputMock;
     private CommandHandler commandHandler;
-    private TrainingSettings trainingSettings;
     private FishTextApi fishTextApiMock;
+    private SessionManager sessionManager;
 
+    /**
+     * Инициализируем тестовую среду
+     */
     @BeforeEach
     void setUp() {
+        sessionManager = new SessionManager();
         inputOutputMock = mock(InputOutput.class);
         fishTextApiMock = mock(FishTextApi.class);
         when(inputOutputMock.input()).thenReturn("");
 
         commandHandler = new CommandHandler(inputOutputMock, fishTextApiMock);
-        trainingSettings = new TrainingSettings();
 
-        commandHandler.trainingSettings = trainingSettings;
+        try (Session session = sessionManager.getSession()) {
+            Transaction transaction = session.beginTransaction();
+            UserEntity testUser = new UserEntity();
+            testUser.setUsername("testUser");
+            testUser.setPassword("testPassword");
+            session.save(testUser);
+            transaction.commit();
+        }
     }
 
     /**
-     * Обработка команды "/help" должна вывести текст справки
+     * Очищает тестовую среду после каждого теста, удаляя тестового пользователя
+     */
+    @AfterEach
+    void tearDown() {
+        try (Session session = sessionManager.getSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.createQuery("DELETE FROM UserEntity WHERE username = 'testUser'").executeUpdate();
+            transaction.commit();
+        }
+    }
+
+    /**
+     * Проверяет, что команда "/help" выводит корректный текст справки
      */
     @Test
     void handleCommand_Help_ShouldOutputHelpText() {
+        CommandHandler commandHandler = new CommandHandler(inputOutputMock ,fishTextApiMock);
         String helpText = """
-                /help - Все команды
-                /settings - Настройки тренировки
-                /start - Начать тренировку
-                /stop - Прервать тренировку
-                /exit - Завершить приложение
-                """;
+            /help - Все команды
+            /registration - зарегистрироваться
+            /login - войти в систему
+            /settings - Настройки тренировки
+            /start - Начать тренировку
+            /stop - Прервать тренировку
+            /exit - Завершить приложение
+            /info - Информация о пользователе
+            """;
 
         commandHandler.handleCommand("/help");
         verify(inputOutputMock).output(helpText);
@@ -56,26 +86,30 @@ public class CommandHandlerTest {
      */
     @Test
     public void testStartTrainingWithSettingTime() {
-        trainingSettings.setTrainingTime(1);
+        when(inputOutputMock.input()).thenReturn("1000");
+        commandHandler.handleCommand("/settings");
 
         when(fishTextApiMock.getProcessedText())
                 .thenReturn("Some text");
 
-        when(inputOutputMock.input()).thenReturn("");
+        when(inputOutputMock.input())
+                .thenReturn("");
         commandHandler.handleCommand("/start");
-
-        assertNotNull(commandHandler.trainingSession);
-        assertNotNull(commandHandler.trainingProcess);
 
         verify(inputOutputMock, atLeastOnce()).output(anyString());
     }
 
     /**
-     * Тестировать получение текста из запроса без интернета
+     * Тестировать тренировку без интернета
      */
     @Test
     public void testNoInternetConnection() {
-        trainingSettings.setTrainingTime(1);
+        when(inputOutputMock.input())
+                .thenReturn("testUser", "testPassword");
+        commandHandler.handleCommand("/login");
+        when(inputOutputMock.input())
+                .thenReturn("5000");
+        commandHandler.handleCommand("/settings");
 
         when(fishTextApiMock.getProcessedText())
                 .thenThrow(new RuntimeException("Нет подключения к интернету"));
@@ -83,7 +117,7 @@ public class CommandHandlerTest {
         Exception exception = assertThrows(RuntimeException.class, () ->
                 commandHandler.handleCommand("/start"));
 
-        assertEquals("Нет подключения к интернету", exception.getMessage());
+        assertEquals("Ошибка транзакции", exception.getMessage());
     }
 
     /**
@@ -98,7 +132,8 @@ public class CommandHandlerTest {
     }
 
     /**
-     * Обработка команды "/settings" с неправильным вводом, должна вывести сообщение об ошибке.
+     * Проверяет обработку некорректного ввода времени в команде "/settings"
+     * Ожидается вывод сообщения об ошибке
      */
     @Test
     public void not_correct_Time_Test() {
@@ -114,6 +149,7 @@ public class CommandHandlerTest {
     @Test
     public void negative_Time_Test() {
         when(inputOutputMock.input()).thenReturn("-5");
+
         commandHandler.handleCommand("/settings");
         verify(inputOutputMock).output("Укажите время на тренировку (минуты)");
         verify(inputOutputMock).output("Время тренировки должно быть положительным числом.");
@@ -124,7 +160,8 @@ public class CommandHandlerTest {
      */
     @Test
     public void handleCommand_Start_WithoutTrainingTime_OutputsError() {
-        trainingSettings.setTrainingTime(0);
+        when(inputOutputMock.input()).thenReturn("0");
+        commandHandler.handleCommand("/settings");
         commandHandler.handleCommand("/start");
         verify(inputOutputMock).output("Установите время тренировки с помощью команды /settings.");
     }

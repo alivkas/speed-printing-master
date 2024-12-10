@@ -8,7 +8,7 @@ public class TextInteractionUtils {
     /**
      * Получить количество слов введенных пользователем
      * @param input предложение, введенное пользователем
-     * @return количество введеных слов
+     * @return количество введенных слов
      */
     public int getWordsCount(String input) {
         String[] splitText = input.split(" ");

@@ -1,7 +1,10 @@
 package org.example.training;
 
+import org.example.commons.Time;
 import org.example.interfaces.InputOutput;
+import org.example.service.UserTraining;
 import org.example.text.Typo;
+import org.hibernate.Session;
 
 import java.util.List;
 
@@ -10,24 +13,35 @@ import java.util.List;
  */
 public class Result {
 
+    private final UserTraining userTraining;
     private final int totalWordsTyped;
-    private final TrainingSettings settings;
     private final Typo typo;
     private final InputOutput inputOutput;
+    private final String username;
+    private final Session session;
 
     /**
      * Конструктор Result, который передает ссылки на объекты totalWordsTyped, settings,
-     * typo и реализацию InputOutput
+     * typo, session, реализацию InputOutput и строку username, также инициализирует
+     * UserTraining
      * @param totalWordsTyped количество введенных слов
-     * @param settings ссылка на обект TrainingSettings
      * @param typo ссылка на объект Typo
      * @param inputOutput ссылка на реализацию InputOutput
+     * @param username имя пользователя
+     * @param session текущая сессия
      */
-    public Result(int totalWordsTyped, TrainingSettings settings, Typo typo, InputOutput inputOutput) {
+    public Result(int totalWordsTyped,
+                  Typo typo,
+                  InputOutput inputOutput,
+                  String username,
+                  Session session) {
         this.typo = typo;
         this.totalWordsTyped = totalWordsTyped;
-        this.settings = settings;
         this.inputOutput = inputOutput;
+        this.username = username;
+        this.session = session;
+
+        this.userTraining = new UserTraining(inputOutput);
     }
 
     /**
@@ -45,7 +59,9 @@ public class Result {
      * @return количество слов в минуту с припиской "Итоговая скорость печати: "
      */
     private String getWordsPerMinute() {
-        double wordsPerMinute = ((double) totalWordsTyped / (settings.getTrainingTime()));
+        double trainingTime = userTraining.getUserTrainingTime(username, session);
+        double wordsPerMinute = ((double) totalWordsTyped
+                / (trainingTime / Time.MINUTES_IN_MILLISECONDS));
         return String.format("Итоговая скорость печати: %.2f слов/мин.", wordsPerMinute);
     }
 
