@@ -12,15 +12,16 @@ import org.hibernate.Session;
 public class UserAuth {
 
     private final Logger logger = Logger.getLogger(UserAuth.class);
-    private final UserDao userDao = new UserDao();
+    private final UserDao userDao;
     private final InputOutput inputOutput;
 
     /**
      * Конструктор UserAuth, который получает ссылку на реализацию InputOutput
      * @param inputOutput реализация интерфейса InputOutput
      */
-    public UserAuth(InputOutput inputOutput) {
+    public UserAuth(InputOutput inputOutput, UserDao userDao) {
         this.inputOutput = inputOutput;
+        this.userDao = userDao;
     }
 
     /**
@@ -40,7 +41,7 @@ public class UserAuth {
                 newUser.setPassword(password);
                 newUser.setAverageTime(0.0);
                 newUser.setTrainingCount(0);
-                newUser.setTime(0.0);
+                newUser.setTime(0);
 
                 session.save(newUser);
                 return true;

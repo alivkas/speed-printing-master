@@ -1,8 +1,10 @@
 package org.example.database;
 
+import org.example.interfaces.TransactionalOperation;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
 /**
@@ -23,9 +25,6 @@ public class SessionManager {
      * @return сессия
      */
     public Session getSession() {
-        if (sessionFactory == null) {
-            throw new IllegalStateException("SessionFactory не инициализирован");
-        }
         try {
             return sessionFactory.openSession();
         } catch (HibernateException e) {
@@ -43,6 +42,25 @@ public class SessionManager {
             sessionFactory = configuration.buildSessionFactory();
         } catch (HibernateException e) {
             throw new HibernateException("Ошибка при создании SessionFactory", e);
+        }
+    }
+
+    /**
+     * Метод для управления транзакцией
+     * @param transactionalOperation код, выполняющий операции с базой данных
+     */
+    public void executeInTransaction(TransactionalOperation transactionalOperation) {
+        try (Session session = getSession()) {
+            final Transaction transaction = session.beginTransaction();
+            try {
+                transactionalOperation.execute(session);
+                transaction.commit();
+
+
+            } catch (Exception e) {
+                transaction.rollback();
+                throw new RuntimeException("Ошибка транзакции", e);
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ import org.example.animation.Animation;
 import org.example.commons.Commands;
 import org.example.commons.Time;
 import org.example.database.SessionManager;
+import org.example.database.dao.UserDao;
 import org.example.interfaces.InputOutput;
 import org.example.service.UserAuth;
 import org.example.service.UserStatistics;
@@ -25,6 +26,8 @@ public class CommandHandler {
     private final UserTraining userTraining;
     private final InputOutput inputOutput;
     private final FishTextApi fishTextApi;
+    private final UserDao userDao;
+
 
     private TrainingProcess trainingProcess;
     private String currentUsername = null;
@@ -32,15 +35,18 @@ public class CommandHandler {
     /**
      * Конструктор класса CommandHandler, который получает ссылку на объект fishTextApi
      * и реализацию интерфейса InputOutput, также инициализирует UserTraining и UserAuth
+     *
      * @param inputOutput реализация интерфейса InputOutput
      * @param fishTextApi ссылка на внешний апи для получения текста
+     * @param userDao объект класса UserDao, используемый для взаимодействия с данными пользователей
      */
-    public CommandHandler(InputOutput inputOutput, FishTextApi fishTextApi) {
+    public CommandHandler(InputOutput inputOutput, FishTextApi fishTextApi, UserDao userDao) {
         this.inputOutput = inputOutput;
         this.fishTextApi = fishTextApi;
+        this.userDao = userDao;
 
-        this.userTraining = new UserTraining(inputOutput);
-        this.userAuth = new UserAuth(inputOutput);
+        this.userTraining = new UserTraining(inputOutput,userDao);
+        this.userAuth = new UserAuth(inputOutput, userDao);
     }
 
     /**
@@ -48,43 +54,25 @@ public class CommandHandler {
      * @param command Команда, введенная пользователем.
      */
     public void handleCommand(String command) {
-        try (Session session = sessionManager.getSession()) {
-            final Transaction transaction = session.beginTransaction();
-            try {
-                switch (command) {
-                    case Commands.HELP -> sendHelp();
-                    case Commands.SETTINGS -> {
-                        askTrainingTime(session);
-                        transaction.commit();
-                    }
-                    case Commands.START -> {
-                        startTraining(session);
-                        transaction.commit();
-                    }
-                    case Commands.REGISTRATION -> {
-                        register(session);
-                        transaction.commit();
-                    }
-                    case Commands.LOGIN -> login(session);
-                    case Commands.INFO   -> {
-                        String userInfo = userStatistics.getUserInfo(currentUsername, session);
-                        inputOutput.output(userInfo);
-                    }
-                    case Commands.STOP -> inputOutput.output("Нет активной тренировки.");
-                    case Commands.EXIT -> {
-                        inputOutput.output("Выход из приложения.");
-                        System.exit(0);
-                    }
-                    default -> inputOutput.output("Неизвестная команда. Введите /help для списка команд.");
+        sessionManager.executeInTransaction(session -> {
+            switch (command) {
+                case Commands.HELP -> sendHelp();
+                case Commands.SETTINGS -> askTrainingTime(session);
+                case Commands.START -> startTraining(session);
+                case Commands.REGISTRATION -> register(session);
+                case Commands.LOGIN -> login(session);
+                case Commands.INFO -> {
+                    String userInfo = userStatistics.getUserInfo(currentUsername, session);
+                    inputOutput.output(userInfo);
                 }
-            } catch (Exception e) {
-                transaction.rollback();
-                throw new RuntimeException("Ошибка транзакции", e);
+                case Commands.STOP -> inputOutput.output("Нет активной тренировки.");
+                case Commands.EXIT -> {
+                    inputOutput.output("Выход из приложения.");
+                    System.exit(0);
+                }
+                default -> inputOutput.output("Неизвестная команда. Введите /help для списка команд.");
             }
-        } catch (IllegalStateException e) {
-            logger.error(e.getMessage(), e);
-            inputOutput.output("Нет доступа к базе данных");
-        }
+        });
     }
 
     /**
@@ -152,11 +140,13 @@ public class CommandHandler {
         inputOutput.output("Укажите время на тренировку (минуты)");
         try {
             int time = Integer.parseInt(inputOutput.input());
-            double millisecondsTime = time * Time.MINUTES_IN_MILLISECONDS;
+            int millisecondsTime = time * Time.MINUTES_IN_MILLISECONDS;
             if (time <= 0) {
                 inputOutput.output("Время тренировки должно быть положительным числом.");
                 return;
             }
+
+
             userTraining.saveUsersTrainingTime(millisecondsTime, currentUsername, session);
             inputOutput.output("Время тренировки " + time + " минут");
         } catch (NumberFormatException e) {
@@ -181,7 +171,8 @@ public class CommandHandler {
         trainingProcess = new TrainingProcess(
                 inputOutput,
                 fishTextApi,
-                currentUsername);
+                currentUsername,
+                userDao);
 
         trainingProcess.process(session);
     }

@@ -13,15 +13,16 @@ import org.hibernate.Session;
 public class UserTraining {
 
     private final Logger logger = Logger.getLogger(UserTraining.class);
-    private final UserDao userDao = new UserDao();
+    private final UserDao userDao;
     private final InputOutput inputOutput;
 
     /**
      * Конструктор UserTraining, который получает ссылку на реализацию InputOutput
      * @param inputOutput реализация интерфейса InputOutput
      */
-    public UserTraining(InputOutput inputOutput) {
+    public UserTraining(InputOutput inputOutput, UserDao userDao) {
         this.inputOutput = inputOutput;
+        this.userDao = userDao;
     }
 
     /**
@@ -69,7 +70,7 @@ public class UserTraining {
      * @param username имя текущего пользователя
      * @param session текущая сессия
      */
-    public void saveUsersTrainingTime(double time, String username, Session session) {
+    public void saveUsersTrainingTime(int time, String username, Session session) {
         try {
             if (username != null) {
                 UserEntity user = userDao.getUserByUsername(username, session);
@@ -90,7 +91,7 @@ public class UserTraining {
      * @param session текущая сессия
      * @return время тренировки
      */
-    public double getUserTrainingTime(String username, Session session) {
+    public int getUserTrainingTime(String username, Session session) {
         try {
             if (username != null) {
                 UserEntity user = userDao.getUserByUsername(username, session);
@@ -100,6 +101,6 @@ public class UserTraining {
             logger.error(e.getMessage(), e);
             inputOutput.output(e.getMessage());
         }
-        return 0.0;
+        return 0;
     }
 }

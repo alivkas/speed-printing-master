@@ -1,6 +1,7 @@
 package org.example.training;
 
 import org.example.commons.Time;
+import org.example.database.dao.UserDao;
 import org.example.interfaces.InputOutput;
 import org.example.service.UserTraining;
 import org.example.text.Typo;
@@ -20,6 +21,8 @@ public class Result {
     private final String username;
     private final Session session;
 
+    private final UserDao userDao;
+
     /**
      * Конструктор Result, который передает ссылки на объекты totalWordsTyped, settings,
      * typo, session, реализацию InputOutput и строку username, также инициализирует
@@ -34,14 +37,15 @@ public class Result {
                   Typo typo,
                   InputOutput inputOutput,
                   String username,
-                  Session session) {
+                  Session session, UserDao userDao) {
         this.typo = typo;
         this.totalWordsTyped = totalWordsTyped;
         this.inputOutput = inputOutput;
         this.username = username;
         this.session = session;
+        this.userDao =userDao;
 
-        this.userTraining = new UserTraining(inputOutput);
+        this.userTraining = new UserTraining(inputOutput, userDao);
     }
 
     /**
