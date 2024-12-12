@@ -54,12 +54,15 @@ public class CommandHandler {
      * @param command Команда, введенная пользователем.
      */
     public void handleCommand(String command) {
-        sessionManager.executeInTransaction(session -> {
+        try (Session session = sessionManager.getSession()) {
             switch (command) {
                 case Commands.HELP -> sendHelp();
-                case Commands.SETTINGS -> askTrainingTime(session);
-                case Commands.START -> startTraining(session);
-                case Commands.REGISTRATION -> register(session);
+                case Commands.SETTINGS -> sessionManager
+                        .executeInTransaction(this::askTrainingTime);
+                case Commands.START -> sessionManager
+                        .executeInTransaction(this::startTraining);
+                case Commands.REGISTRATION -> sessionManager
+                        .executeInTransaction(this::register);
                 case Commands.LOGIN -> login(session);
                 case Commands.INFO -> {
                     String userInfo = userStatistics.getUserInfo(currentUsername, session);
@@ -72,7 +75,7 @@ public class CommandHandler {
                 }
                 default -> inputOutput.output("Неизвестная команда. Введите /help для списка команд.");
             }
-        });
+        }
     }
 
     /**
