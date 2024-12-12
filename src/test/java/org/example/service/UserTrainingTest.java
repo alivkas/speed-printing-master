@@ -27,6 +27,8 @@ public class UserTrainingTest {
     private Session sessionMock;
 
     @BeforeEach
+
+
     void setUp() {
         inputOutputMock = mock(InputOutput.class);
         userDaoMock = mock(UserDao.class);
@@ -44,7 +46,7 @@ public class UserTrainingTest {
         UserEntity existingUser = new UserEntity();
         existingUser.setUsername(TEST_USER);
         existingUser.setTrainingCount(2);
-        existingUser.setTime(100000.0);
+        existingUser.setTime(100000);
         existingUser.setAverageTime(50.0);
 
         when(userDaoMock.getUserByUsername(TEST_USER, sessionMock)).thenReturn(existingUser);
@@ -62,11 +64,11 @@ public class UserTrainingTest {
      */
     @Test
     void testSaveUsersTrainingTime_Success() {
-        double newTime = 120000.0;
+        int newTime = 120000;
 
         UserEntity existingUser = new UserEntity();
         existingUser.setUsername(TEST_USER);
-        existingUser.setTime(100000.0);
+        existingUser.setTime(100000);
 
         when(userDaoMock.getUserByUsername(TEST_USER, sessionMock)).thenReturn(existingUser);
 
@@ -84,7 +86,7 @@ public class UserTrainingTest {
     void testGetUserTrainingTime_Success() {
         UserEntity existingUser = new UserEntity();
         existingUser.setUsername(TEST_USER);
-        existingUser.setTime(100000.0);
+        existingUser.setTime(100000);
 
         when(userDaoMock.getUserByUsername(TEST_USER, sessionMock)).thenReturn(existingUser);
 
@@ -100,7 +102,7 @@ public class UserTrainingTest {
     @Test
     void testSaveUsersTrainingTime_UserNotFound() {
         String username = "nonExistentUser";
-        double newTime = 150000.0;
+        int newTime = 150000;
 
         when(userDaoMock.getUserByUsername(username, sessionMock)).thenReturn(null);
 

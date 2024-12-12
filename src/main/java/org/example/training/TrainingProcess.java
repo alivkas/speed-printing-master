@@ -41,7 +41,7 @@ public class TrainingProcess {
         this.username = username;
         this.userDao =userDao;
 
-        this.session = new TrainingSession(inputOutput,new UserTraining(inputOutput, userDao));
+        this.session = new TrainingSession(inputOutput);
         this.userTraining = new UserTraining(inputOutput, userDao);
     }
 
@@ -51,7 +51,7 @@ public class TrainingProcess {
      */
     public void process(Session sessionDb) {
         int wordsCount = 0;
-        session.start(sessionDb, username);
+        session.start(userTraining.getUserTrainingTime(username, sessionDb));
 
         while (session.isActive()) {
             String processedText = fishTextApi.getProcessedText();

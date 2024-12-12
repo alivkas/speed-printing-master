@@ -3,8 +3,6 @@ package org.example.training;
 import org.apache.log4j.Logger;
 import org.example.commons.Time;
 import org.example.interfaces.InputOutput;
-import org.example.service.UserTraining;
-import org.hibernate.Session;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -18,8 +16,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class TrainingSession {
     private final Logger logger = org.apache.log4j.Logger.getLogger(TrainingSession.class);
     private final AtomicBoolean isActive = new AtomicBoolean(false);
-    private UserTraining userTraining;
-
     private Timer timer;
     private final InputOutput inputOutput;
 
@@ -29,21 +25,16 @@ public class TrainingSession {
      *
      * @param inputOutput реализация интерфейса InputOutput
      */
-    public TrainingSession(InputOutput inputOutput, UserTraining userTraining) {
+    public TrainingSession(InputOutput inputOutput) {
         this.inputOutput = inputOutput;
-        this.userTraining = userTraining;
     }
 
     /**
      * Запускает сессию тренировки с установленным временем
-     * @param session текущая сессия
-     * @param username имя текущего пользователя
      */
-    public void start(Session session, String username) {
+    public void start(int durationMilliseconds) {
         isActive.set(true);
         timer = new Timer();
-
-        int durationMilliseconds = (int) userTraining.getUserTrainingTime(username, session);
 
         timer.schedule(new TimerTask() {
             @Override
@@ -54,7 +45,7 @@ public class TrainingSession {
                     robot.keyRelease(KeyEvent.VK_ENTER);
                 } catch (AWTException e) {
                     logger.error(e.getMessage(), e);
-                    logger.info("Ошибка при работе с роботом");
+                    inputOutput.output("Ошибка при работе с роботом");
                 }
                 stop();
             }

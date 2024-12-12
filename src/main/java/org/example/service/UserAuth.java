@@ -41,7 +41,7 @@ public class UserAuth {
                 newUser.setPassword(password);
                 newUser.setAverageTime(0.0);
                 newUser.setTrainingCount(0);
-                newUser.setTime(0.0);
+                newUser.setTime(0);
 
                 session.save(newUser);
                 return true;

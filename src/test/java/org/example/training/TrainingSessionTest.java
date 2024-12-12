@@ -1,8 +1,6 @@
 package org.example.training;
 
 import org.example.interfaces.InputOutput;
-import org.example.service.UserTraining;
-import org.hibernate.Session;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,9 +14,8 @@ import static org.mockito.Mockito.*;
 public class TrainingSessionTest {
     private TrainingSession trainingSession;
     private InputOutput inputOutputMock;
-    private UserTraining userTrainingMock;
-    private Session sessionMock;
-    private static final double TEST_DURATION_MS = 1000.0;
+
+    private static final int TEST_DURATION_MS = 1000;
 
     /**
      * Инициализация тестовой среды перед каждым тестом
@@ -27,11 +24,7 @@ public class TrainingSessionTest {
     @BeforeEach
     public void setUp() {
         inputOutputMock = mock(InputOutput.class);
-        userTrainingMock = mock(UserTraining.class);
-        trainingSession = new TrainingSession(inputOutputMock,userTrainingMock);
-        sessionMock = mock(Session.class);
-
-        when(userTrainingMock.getUserTrainingTime("testUser", sessionMock)).thenReturn(TEST_DURATION_MS);
+        trainingSession = new TrainingSession(inputOutputMock);
     }
 
     /**
@@ -39,7 +32,7 @@ public class TrainingSessionTest {
      */
     @Test
     public void testStart() {
-        trainingSession.start(sessionMock, "testUser");
+        trainingSession.start(TEST_DURATION_MS);
         assertTrue(trainingSession.isActive());
     }
 
@@ -49,10 +42,12 @@ public class TrainingSessionTest {
      */
     @Test
     public void testSessionEndsAfterDuration() throws InterruptedException {
-        trainingSession.start(sessionMock, "testUser");
+        trainingSession.start(TEST_DURATION_MS);
         Thread.sleep(1000
                 + 100);
         assertFalse(trainingSession.isActive());
+
+
     }
 
     /**
@@ -60,7 +55,7 @@ public class TrainingSessionTest {
      */
     @Test
     public void testStop() {
-        trainingSession.start(sessionMock, "testUser");
+        trainingSession.start(TEST_DURATION_MS);
         trainingSession.stop();
         assertFalse(trainingSession.isActive());
     }

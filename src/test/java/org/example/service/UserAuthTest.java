@@ -46,7 +46,7 @@ public class UserAuthTest {
         expectedUser.setPassword("password");
         expectedUser.setAverageTime(0.0);
         expectedUser.setTrainingCount(0);
-        expectedUser.setTime(0.0);
+        expectedUser.setTime(0);
 
         when(userDaoMock.getUserByUsername("testuser", sessionMock)).thenReturn(null);
 
@@ -84,7 +84,9 @@ public class UserAuthTest {
         newUser.setPassword("password");
         newUser.setAverageTime(0.0);
         newUser.setTrainingCount(0);
-        newUser.setTime(0.0);
+        newUser.setTime(0
+
+        );
 
         verify(sessionMock, never()).save(newUser);
     }

@@ -28,7 +28,7 @@ public class UserEntity extends BaseEntity {
      * Время введенное пользователем для тренировки
      */
     @Column(name = "time")
-    private Double time;
+    private Integer time;
 
     /**
      * Количество тренировок
@@ -84,7 +84,7 @@ public class UserEntity extends BaseEntity {
      *
      * @return Время тренировки
      */
-    public Double getTime() {
+    public Integer getTime() {
         return time;
     }
 
@@ -93,7 +93,7 @@ public class UserEntity extends BaseEntity {
      *
      * @param time Новое время тренировки
      */
-    public void setTime(Double time) {
+    public void setTime(Integer time) {
         this.time = time;
     }
 
