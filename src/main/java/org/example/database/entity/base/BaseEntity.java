@@ -27,4 +27,12 @@ public class BaseEntity {
         return id;
     }
 
+    /**
+     * Установить значение идентификатора сущности
+     *
+     * @param id идентификатор
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

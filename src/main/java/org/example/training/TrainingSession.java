@@ -31,6 +31,7 @@ public class TrainingSession {
 
     /**
      * Запускает сессию тренировки с установленным временем
+     * @param durationMilliseconds длительность в миллисекундах
      */
     public void start(int durationMilliseconds) {
         isActive.set(true);
@@ -44,7 +45,7 @@ public class TrainingSession {
                     robot.keyPress(KeyEvent.VK_ENTER);
                     robot.keyRelease(KeyEvent.VK_ENTER);
                 } catch (AWTException e) {
-                    logger.error(e.getMessage(), e);
+                    logger.error("Ошибка при работе с роботом", e);
                     inputOutput.output("Ошибка при работе с роботом");
                 }
                 stop();

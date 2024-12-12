@@ -14,14 +14,10 @@ import java.util.List;
  */
 public class Result {
 
-    private final UserTraining userTraining;
     private final int totalWordsTyped;
+    private final int trainingTime;
     private final Typo typo;
     private final InputOutput inputOutput;
-    private final String username;
-    private final Session session;
-
-    private final UserDao userDao;
 
     /**
      * Конструктор Result, который передает ссылки на объекты totalWordsTyped, settings,
@@ -30,22 +26,16 @@ public class Result {
      * @param totalWordsTyped количество введенных слов
      * @param typo ссылка на объект Typo
      * @param inputOutput ссылка на реализацию InputOutput
-     * @param username имя пользователя
-     * @param session текущая сессия
+     * @param trainingTime время тренировки пользователя
      */
     public Result(int totalWordsTyped,
                   Typo typo,
                   InputOutput inputOutput,
-                  String username,
-                  Session session, UserDao userDao) {
+                  int trainingTime) {
         this.typo = typo;
         this.totalWordsTyped = totalWordsTyped;
         this.inputOutput = inputOutput;
-        this.username = username;
-        this.session = session;
-        this.userDao =userDao;
-
-        this.userTraining = new UserTraining(inputOutput, userDao);
+        this.trainingTime = trainingTime;
     }
 
     /**
@@ -63,7 +53,6 @@ public class Result {
      * @return количество слов в минуту с припиской "Итоговая скорость печати: "
      */
     private String getWordsPerMinute() {
-        double trainingTime = userTraining.getUserTrainingTime(username, session);
         double wordsPerMinute = ((double) totalWordsTyped
                 / (trainingTime / Time.MINUTES_IN_MILLISECONDS));
         return String.format("Итоговая скорость печати: %.2f слов/мин.", wordsPerMinute);

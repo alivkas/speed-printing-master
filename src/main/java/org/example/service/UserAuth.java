@@ -18,6 +18,7 @@ public class UserAuth {
     /**
      * Конструктор UserAuth, который получает ссылку на реализацию InputOutput
      * @param inputOutput реализация интерфейса InputOutput
+     * @param userDao ссылка на объект userDao, взаимодействующий с бд
      */
     public UserAuth(InputOutput inputOutput, UserDao userDao) {
         this.inputOutput = inputOutput;
@@ -47,8 +48,8 @@ public class UserAuth {
                 return true;
             }
         } catch (IllegalArgumentException e) {
-            logger.error(e.getMessage(), e);
-            inputOutput.output(e.getMessage());
+            logger.error("Имя пользователя не может быть пустым", e);
+            inputOutput.output("Имя пользователя не может быть пустым");
         }
         return false;
     }
@@ -66,8 +67,8 @@ public class UserAuth {
             return user != null
                     && user.getPassword().equals(password);
         } catch (IllegalArgumentException e) {
-            logger.error(e.getMessage(), e);
-            inputOutput.output(e.getMessage());
+            logger.error("Имя пользователя не может быть пустым", e);
+            inputOutput.output("Имя пользователя не может быть пустым");
         }
         return false;
     }

@@ -31,6 +31,7 @@ public class TrainingProcess {
      * @param inputOutput ссылка на реализацию InputOutput
      * @param fishTextApi ссылка на объект FishTextApi
      * @param username имя текущего пользователя
+     * @param userDao ссылка на объект userDao, взаимодействующий с бд
      */
     public TrainingProcess(InputOutput inputOutput,
                            FishTextApi fishTextApi,
@@ -39,7 +40,7 @@ public class TrainingProcess {
         this.inputOutput = inputOutput;
         this.fishTextApi = fishTextApi;
         this.username = username;
-        this.userDao =userDao;
+        this.userDao = userDao;
 
         this.session = new TrainingSession(inputOutput);
         this.userTraining = new UserTraining(inputOutput, userDao);
@@ -50,8 +51,9 @@ public class TrainingProcess {
      * @param sessionDb текущая сессия
      */
     public void process(Session sessionDb) {
+        int trainingTime = userTraining.getUserTrainingTime(username, sessionDb);
         int wordsCount = 0;
-        session.start(userTraining.getUserTrainingTime(username, sessionDb));
+        session.start(trainingTime);
 
         while (session.isActive()) {
             String processedText = fishTextApi.getProcessedText();
@@ -81,9 +83,7 @@ public class TrainingProcess {
         Result result = new Result(wordsCount,
                 typo,
                 inputOutput,
-                username,
-                sessionDb,
-                userDao);
+                trainingTime);
         result.printResult();
         typo.clearTypo();
     }
