@@ -19,6 +19,7 @@ public class UserTraining {
     /**
      * Конструктор UserTraining, который получает ссылку на реализацию InputOutput
      * @param inputOutput реализация интерфейса InputOutput
+     * @param userDao ссылка на объект userDao, взаимодействующий с бд
      */
     public UserTraining(InputOutput inputOutput, UserDao userDao) {
         this.inputOutput = inputOutput;
@@ -59,8 +60,8 @@ public class UserTraining {
                 }
             }
         } catch (IllegalArgumentException e) {
-            logger.error(e.getMessage(), e);
-            inputOutput.output(e.getMessage());
+            logger.error("Имя пользователя не может быть пустым", e);
+            inputOutput.output("Имя пользователя не может быть пустым");
         }
     }
 
@@ -80,8 +81,8 @@ public class UserTraining {
                 }
             }
         } catch (IllegalArgumentException e) {
-            logger.error(e.getMessage(), e);
-            inputOutput.output(e.getMessage());
+            logger.error("Имя пользователя не может быть пустым", e);
+            inputOutput.output("Имя пользователя не может быть пустым");
         }
     }
 
@@ -98,8 +99,8 @@ public class UserTraining {
                 return user.getTime();
             }
         } catch (IllegalArgumentException e) {
-            logger.error(e.getMessage(), e);
-            inputOutput.output(e.getMessage());
+            logger.error("Имя пользователя не может быть пустым", e);
+            inputOutput.output("Имя пользователя не может быть пустым");
         }
         return 0;
     }

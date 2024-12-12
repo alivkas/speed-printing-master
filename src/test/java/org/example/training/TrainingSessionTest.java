@@ -19,7 +19,7 @@ public class TrainingSessionTest {
 
     /**
      * Инициализация тестовой среды перед каждым тестом
-     * Создает моки и экземпляр TrainingSession с замокированным InputOutput и UserTraining
+     * Создает моки и экземпляр TrainingSession с замокированным InputOutput
      */
     @BeforeEach
     public void setUp() {

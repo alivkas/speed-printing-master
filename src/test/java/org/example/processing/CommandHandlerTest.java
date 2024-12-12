@@ -1,17 +1,13 @@
 package org.example.processing;
 
-import org.example.commons.Commands;
 import org.example.database.SessionManager;
-import org.example.database.dao.UserDao;
 import org.example.interfaces.InputOutput;
+import org.example.interfaces.TransactionalOperation;
 import org.example.web.FishTextApi;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 /**
@@ -21,8 +17,8 @@ public class CommandHandlerTest {
     private InputOutput inputOutputMock;
     private CommandHandler commandHandler;
     private FishTextApi fishTextApiMock;
-
-    private UserDao userDaoMock;
+    private SessionManager sessionManagerMock;
+    private Session sessionMock;
     /**
      * Инициализируем тестовую среду
      */
@@ -30,11 +26,18 @@ public class CommandHandlerTest {
     void setUp() {
         inputOutputMock = mock(InputOutput.class);
         fishTextApiMock = mock(FishTextApi.class);
-        userDaoMock = mock(UserDao.class);
+        sessionManagerMock = mock(SessionManager.class);
+        sessionMock = mock(Session.class);
 
-        commandHandler = new CommandHandler(inputOutputMock, fishTextApiMock, userDaoMock);
+        doAnswer(invocation -> {
+            TransactionalOperation operation = invocation.getArgument(0);
+            operation.execute(sessionMock);
+            return null;
+        }).when(sessionManagerMock)
+                .executeInTransaction(any(TransactionalOperation.class));
+
+        commandHandler = new CommandHandler(inputOutputMock, fishTextApiMock, sessionManagerMock);
     }
-
 
     /**
      * Проверяет, что команда "/help" выводит корректный текст справки

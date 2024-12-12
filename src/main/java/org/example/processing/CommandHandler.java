@@ -13,21 +13,19 @@ import org.example.service.UserTraining;
 import org.example.training.TrainingProcess;
 import org.example.web.FishTextApi;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 /**
  * Класс для обработки команд пользователя.
  */
 public class CommandHandler {
     private final Logger logger = Logger.getLogger(CommandHandler.class);
-    private final SessionManager sessionManager = new SessionManager();
     private final UserStatistics userStatistics = new UserStatistics();
+    private final UserDao userDao = new UserDao();
+    private final SessionManager sessionManager;
     private final UserAuth userAuth;
     private final UserTraining userTraining;
     private final InputOutput inputOutput;
     private final FishTextApi fishTextApi;
-    private final UserDao userDao;
-
 
     private TrainingProcess trainingProcess;
     private String currentUsername = null;
@@ -38,14 +36,16 @@ public class CommandHandler {
      *
      * @param inputOutput реализация интерфейса InputOutput
      * @param fishTextApi ссылка на внешний апи для получения текста
-     * @param userDao объект класса UserDao, используемый для взаимодействия с данными пользователей
+     * @param sessionManager ссылка на управление сессиями
      */
-    public CommandHandler(InputOutput inputOutput, FishTextApi fishTextApi, UserDao userDao) {
+    public CommandHandler(InputOutput inputOutput,
+                          FishTextApi fishTextApi,
+                          SessionManager sessionManager) {
         this.inputOutput = inputOutput;
         this.fishTextApi = fishTextApi;
-        this.userDao = userDao;
+        this.sessionManager = sessionManager;
 
-        this.userTraining = new UserTraining(inputOutput,userDao);
+        this.userTraining = new UserTraining(inputOutput, userDao);
         this.userAuth = new UserAuth(inputOutput, userDao);
     }
 
@@ -145,8 +145,6 @@ public class CommandHandler {
                 inputOutput.output("Время тренировки должно быть положительным числом.");
                 return;
             }
-
-
             userTraining.saveUsersTrainingTime(millisecondsTime, currentUsername, session);
             inputOutput.output("Время тренировки " + time + " минут");
         } catch (NumberFormatException e) {

@@ -7,7 +7,6 @@ import org.example.database.entity.UserEntity;
 import org.hibernate.Session;
 import org.example.commons.Time;
 
-
 /**
  * Класс для получения статистики пользователя
  */
@@ -29,7 +28,7 @@ public class UserStatistics {
                 return String.format("""
                        Информация о пользователе:
                        Имя пользователя: %s
-                       Время тренировок: %.1f минут
+                       Время тренировок: %d минут
                        Количество тренировок: %d
                        Среднее время слов в минуту: %.2f
                        """,
@@ -39,7 +38,7 @@ public class UserStatistics {
                         user.getAverageTime());
             }
         } catch (IllegalArgumentException e) {
-            logger.error(e.getMessage(), e);
+            logger.error("Имя пользователя не может быть пустым", e);
         }
         return "Для получения информации о пользователе" +
                 " необходимо авторизоваться";

@@ -11,6 +11,9 @@ import org.mockito.Mock;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Тестирование UserTraining
+ */
 public class UserTrainingTest {
 
     private final static String TEST_USER = "testUser";
@@ -27,8 +30,6 @@ public class UserTrainingTest {
     private Session sessionMock;
 
     @BeforeEach
-
-
     void setUp() {
         inputOutputMock = mock(InputOutput.class);
         userDaoMock = mock(UserDao.class);
