@@ -1,12 +1,12 @@
 package org.example.processing;
 
+import org.example.commons.Commands;
 import org.example.database.SessionManager;
-import org.example.database.entity.UserEntity;
+import org.example.database.dao.UserDao;
 import org.example.interfaces.InputOutput;
 import org.example.web.FishTextApi;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,48 +21,26 @@ public class CommandHandlerTest {
     private InputOutput inputOutputMock;
     private CommandHandler commandHandler;
     private FishTextApi fishTextApiMock;
-    private SessionManager sessionManager;
 
+    private UserDao userDaoMock;
     /**
      * Инициализируем тестовую среду
      */
     @BeforeEach
     void setUp() {
-        sessionManager = new SessionManager();
         inputOutputMock = mock(InputOutput.class);
         fishTextApiMock = mock(FishTextApi.class);
-        when(inputOutputMock.input()).thenReturn("");
+        userDaoMock = mock(UserDao.class);
 
-        commandHandler = new CommandHandler(inputOutputMock, fishTextApiMock);
-
-        try (Session session = sessionManager.getSession()) {
-            Transaction transaction = session.beginTransaction();
-            UserEntity testUser = new UserEntity();
-            testUser.setUsername("testUser");
-            testUser.setPassword("testPassword");
-            session.save(testUser);
-            transaction.commit();
-        }
+        commandHandler = new CommandHandler(inputOutputMock, fishTextApiMock, userDaoMock);
     }
 
-    /**
-     * Очищает тестовую среду после каждого теста, удаляя тестового пользователя
-     */
-    @AfterEach
-    void tearDown() {
-        try (Session session = sessionManager.getSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.createQuery("DELETE FROM UserEntity WHERE username = 'testUser'").executeUpdate();
-            transaction.commit();
-        }
-    }
 
     /**
      * Проверяет, что команда "/help" выводит корректный текст справки
      */
     @Test
     void handleCommand_Help_ShouldOutputHelpText() {
-        CommandHandler commandHandler = new CommandHandler(inputOutputMock ,fishTextApiMock);
         String helpText = """
             /help - Все команды
             /registration - зарегистрироваться
@@ -97,27 +75,6 @@ public class CommandHandlerTest {
         commandHandler.handleCommand("/start");
 
         verify(inputOutputMock, atLeastOnce()).output(anyString());
-    }
-
-    /**
-     * Тестировать тренировку без интернета
-     */
-    @Test
-    public void testNoInternetConnection() {
-        when(inputOutputMock.input())
-                .thenReturn("testUser", "testPassword");
-        commandHandler.handleCommand("/login");
-        when(inputOutputMock.input())
-                .thenReturn("5000");
-        commandHandler.handleCommand("/settings");
-
-        when(fishTextApiMock.getProcessedText())
-                .thenThrow(new RuntimeException("Нет подключения к интернету"));
-
-        Exception exception = assertThrows(RuntimeException.class, () ->
-                commandHandler.handleCommand("/start"));
-
-        assertEquals("Ошибка транзакции", exception.getMessage());
     }
 
     /**

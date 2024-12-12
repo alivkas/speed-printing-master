@@ -1,6 +1,7 @@
 package org.example.training;
 
 import org.example.commons.Commands;
+import org.example.database.dao.UserDao;
 import org.example.interfaces.InputOutput;
 import org.example.service.UserTraining;
 import org.example.utils.text.TextInteractionUtils;
@@ -19,6 +20,7 @@ public class TrainingProcess {
     private final FishTextApi fishTextApi;
     private final InputOutput inputOutput;
     private final String username;
+    private final UserDao userDao;
 
     private TrainingSession session;
 
@@ -32,13 +34,15 @@ public class TrainingProcess {
      */
     public TrainingProcess(InputOutput inputOutput,
                            FishTextApi fishTextApi,
-                           String username) {
+                           String username,
+                           UserDao userDao) {
         this.inputOutput = inputOutput;
         this.fishTextApi = fishTextApi;
         this.username = username;
+        this.userDao =userDao;
 
-        this.session = new TrainingSession(inputOutput);
-        this.userTraining = new UserTraining(inputOutput);
+        this.session = new TrainingSession(inputOutput,new UserTraining(inputOutput, userDao));
+        this.userTraining = new UserTraining(inputOutput, userDao);
     }
 
     /**
@@ -78,7 +82,8 @@ public class TrainingProcess {
                 typo,
                 inputOutput,
                 username,
-                sessionDb);
+                sessionDb,
+                userDao);
         result.printResult();
         typo.clearTypo();
     }

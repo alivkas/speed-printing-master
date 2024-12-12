@@ -5,6 +5,7 @@ import org.example.animation.Animation;
 import org.example.commons.Commands;
 import org.example.commons.Time;
 import org.example.database.SessionManager;
+import org.example.database.dao.UserDao;
 import org.example.interfaces.InputOutput;
 import org.example.service.UserAuth;
 import org.example.service.UserStatistics;
@@ -25,6 +26,7 @@ public class CommandHandler {
     private final UserTraining userTraining;
     private final InputOutput inputOutput;
     private final FishTextApi fishTextApi;
+    private UserDao userDao;
 
     private TrainingProcess trainingProcess;
     private String currentUsername = null;
@@ -32,15 +34,18 @@ public class CommandHandler {
     /**
      * Конструктор класса CommandHandler, который получает ссылку на объект fishTextApi
      * и реализацию интерфейса InputOutput, также инициализирует UserTraining и UserAuth
+     *
      * @param inputOutput реализация интерфейса InputOutput
      * @param fishTextApi ссылка на внешний апи для получения текста
+     * @param userDao
      */
-    public CommandHandler(InputOutput inputOutput, FishTextApi fishTextApi) {
+    public CommandHandler(InputOutput inputOutput, FishTextApi fishTextApi, UserDao userDao) {
         this.inputOutput = inputOutput;
         this.fishTextApi = fishTextApi;
+        this.userDao = userDao;
 
-        this.userTraining = new UserTraining(inputOutput);
-        this.userAuth = new UserAuth(inputOutput);
+        this.userTraining = new UserTraining(inputOutput, userDao);
+        this.userAuth = new UserAuth(inputOutput, userDao);
     }
 
     /**
@@ -85,6 +90,8 @@ public class CommandHandler {
             logger.error(e.getMessage(), e);
             inputOutput.output("Нет доступа к базе данных");
         }
+
+
     }
 
     /**
@@ -181,7 +188,8 @@ public class CommandHandler {
         trainingProcess = new TrainingProcess(
                 inputOutput,
                 fishTextApi,
-                currentUsername);
+                currentUsername,
+                userDao);
 
         trainingProcess.process(session);
     }

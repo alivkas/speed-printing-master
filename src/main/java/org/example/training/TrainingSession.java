@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class TrainingSession {
     private final Logger logger = org.apache.log4j.Logger.getLogger(TrainingSession.class);
     private final AtomicBoolean isActive = new AtomicBoolean(false);
-    private final UserTraining userTraining;
+    private UserTraining userTraining;
 
     private Timer timer;
     private final InputOutput inputOutput;
@@ -29,10 +29,9 @@ public class TrainingSession {
      *
      * @param inputOutput реализация интерфейса InputOutput
      */
-    public TrainingSession(InputOutput inputOutput) {
+    public TrainingSession(InputOutput inputOutput, UserTraining userTraining) {
         this.inputOutput = inputOutput;
-
-        this.userTraining = new UserTraining(inputOutput);
+        this.userTraining = userTraining;
     }
 
     /**

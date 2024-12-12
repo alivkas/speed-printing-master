@@ -13,15 +13,16 @@ import org.hibernate.Session;
 public class UserTraining {
 
     private final Logger logger = Logger.getLogger(UserTraining.class);
-    private final UserDao userDao = new UserDao();
+    private final UserDao userDao;
     private final InputOutput inputOutput;
 
     /**
      * Конструктор UserTraining, который получает ссылку на реализацию InputOutput
      * @param inputOutput реализация интерфейса InputOutput
      */
-    public UserTraining(InputOutput inputOutput) {
+    public UserTraining(InputOutput inputOutput, UserDao userDao) {
         this.inputOutput = inputOutput;
+        this.userDao = userDao;
     }
 
     /**
