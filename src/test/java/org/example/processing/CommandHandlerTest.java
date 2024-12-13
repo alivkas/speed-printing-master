@@ -2,7 +2,7 @@ package org.example.processing;
 
 import org.example.database.SessionManager;
 import org.example.interfaces.InputOutput;
-import org.example.interfaces.TransactionalOperation;
+import org.example.interfaces.SessionOperation;
 import org.example.web.FishTextApi;
 import org.hibernate.Session;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +19,7 @@ public class CommandHandlerTest {
     private FishTextApi fishTextApiMock;
     private SessionManager sessionManagerMock;
     private Session sessionMock;
+
     /**
      * Инициализируем тестовую среду
      */
@@ -30,11 +31,11 @@ public class CommandHandlerTest {
         sessionMock = mock(Session.class);
 
         doAnswer(invocation -> {
-            TransactionalOperation operation = invocation.getArgument(0);
+            SessionOperation operation = invocation.getArgument(0);
             operation.execute(sessionMock);
             return null;
         }).when(sessionManagerMock)
-                .executeInTransaction(any(TransactionalOperation.class));
+                .executeInTransaction(any(SessionOperation.class));
 
         commandHandler = new CommandHandler(inputOutputMock, fishTextApiMock, sessionManagerMock);
     }
