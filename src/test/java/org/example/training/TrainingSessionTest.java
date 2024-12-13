@@ -46,8 +46,6 @@ public class TrainingSessionTest {
         Thread.sleep(1000
                 + 100);
         assertFalse(trainingSession.isActive());
-
-
     }
 
     /**

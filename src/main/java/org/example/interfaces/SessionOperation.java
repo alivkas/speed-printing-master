@@ -1,11 +1,13 @@
 package org.example.interfaces;
 
 import org.hibernate.Session;
+
 /**
- * Функциональный интерфейс для выполнения операций в рамках транзакции
+ * Функциональный интерфейс для выполнения операций в сессиях
  */
 @FunctionalInterface
-public interface TransactionalOperation {
+public interface SessionOperation {
+
     /**
      * Метод для выполнения операций с сессией
      *

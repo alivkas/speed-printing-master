@@ -54,27 +54,27 @@ public class CommandHandler {
      * @param command Команда, введенная пользователем.
      */
     public void handleCommand(String command) {
-        try (Session session = sessionManager.getSession()) {
-            switch (command) {
-                case Commands.HELP -> sendHelp();
-                case Commands.SETTINGS -> sessionManager
-                        .executeInTransaction(this::askTrainingTime);
-                case Commands.START -> sessionManager
-                        .executeInTransaction(this::startTraining);
-                case Commands.REGISTRATION -> sessionManager
-                        .executeInTransaction(this::register);
-                case Commands.LOGIN -> login(session);
-                case Commands.INFO -> {
+        switch (command) {
+            case Commands.HELP -> sendHelp();
+            case Commands.SETTINGS -> sessionManager
+                    .executeInTransaction(this::askTrainingTime);
+            case Commands.START -> sessionManager
+                    .executeInTransaction(this::startTraining);
+            case Commands.REGISTRATION -> sessionManager
+                    .executeInTransaction(this::register);
+            case Commands.LOGIN -> sessionManager
+                    .executeInSession(this::login);
+            case Commands.INFO ->
+                sessionManager.executeInSession(session -> {
                     String userInfo = userStatistics.getUserInfo(currentUsername, session);
                     inputOutput.output(userInfo);
-                }
-                case Commands.STOP -> inputOutput.output("Нет активной тренировки.");
-                case Commands.EXIT -> {
-                    inputOutput.output("Выход из приложения.");
-                    System.exit(0);
-                }
-                default -> inputOutput.output("Неизвестная команда. Введите /help для списка команд.");
+                });
+            case Commands.STOP -> inputOutput.output("Нет активной тренировки.");
+            case Commands.EXIT -> {
+                inputOutput.output("Выход из приложения.");
+                System.exit(0);
             }
+            default -> inputOutput.output("Неизвестная команда. Введите /help для списка команд.");
         }
     }
 
