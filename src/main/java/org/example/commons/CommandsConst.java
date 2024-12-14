@@ -3,7 +3,7 @@ package org.example.commons;
 /**
  * Класс хранения констант для команд
  */
-public class Commands {
+public class CommandsConst {
     /**
      * Команда /help (вывод всех доступных команд)
      */
@@ -38,6 +38,6 @@ public class Commands {
     public final static String INFO = "/info";
 
 
-    private Commands() {
+    private CommandsConst() {
     }
 }

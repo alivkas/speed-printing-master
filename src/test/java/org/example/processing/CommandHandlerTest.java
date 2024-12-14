@@ -48,10 +48,7 @@ public class CommandHandlerTest {
                 .thenReturn(user);
 
         commandHandler = new CommandHandler(inputOutputMock,
-                fishTextApiMock,
-                sessionManagerMock,
-                "test",
-                userDao);
+                sessionManagerMock);
     }
 
     /**
