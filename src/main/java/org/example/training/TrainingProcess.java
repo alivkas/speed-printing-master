@@ -43,7 +43,7 @@ public class TrainingProcess {
         this.userDao = userDao;
 
         this.session = new TrainingSession(inputOutput);
-        this.userTraining = new UserTraining(inputOutput, userDao);
+        this.userTraining = new UserTraining(userDao);
     }
 
     /**
