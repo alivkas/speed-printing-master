@@ -3,7 +3,7 @@ package org.example.animation;
 import org.example.interfaces.InputOutput;
 
 /**
- * Анимация в консоли
+ * Анимация в выводе
  */
 public class Animation {
     private final InputOutput inputOutput;

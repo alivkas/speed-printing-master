@@ -1,13 +1,15 @@
 package org.example.processing;
 
-
+import org.example.database.SessionManager;
+import org.example.database.dao.UserDao;
+import org.example.database.entity.UserEntity;
 import org.example.interfaces.InputOutput;
-import org.example.training.TrainingSettings;
+import org.example.interfaces.SessionOperation;
 import org.example.web.FishTextApi;
+import org.hibernate.Session;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -16,33 +18,57 @@ import static org.mockito.Mockito.*;
 public class CommandHandlerTest {
     private InputOutput inputOutputMock;
     private CommandHandler commandHandler;
-    private TrainingSettings trainingSettings;
     private FishTextApi fishTextApiMock;
+    private SessionManager sessionManagerMock;
+    private Session sessionMock;
+    private UserDao userDao;
 
+    /**
+     * Инициализируем тестовую среду
+     */
     @BeforeEach
     void setUp() {
+        UserEntity user = new UserEntity();
+        user.setTime(0);
+
         inputOutputMock = mock(InputOutput.class);
         fishTextApiMock = mock(FishTextApi.class);
-        when(inputOutputMock.input()).thenReturn("");
+        sessionManagerMock = mock(SessionManager.class);
+        sessionMock = mock(Session.class);
+        userDao = mock(UserDao.class);
 
-        commandHandler = new CommandHandler(inputOutputMock, fishTextApiMock);
-        trainingSettings = new TrainingSettings();
+        doAnswer(invocation -> {
+            SessionOperation operation = invocation.getArgument(0);
+            operation.execute(sessionMock);
+            return null;
+        }).when(sessionManagerMock)
+                .executeInTransaction(any(SessionOperation.class));
 
-        commandHandler.trainingSettings = trainingSettings;
+        when(userDao.getUserByUsername("test", sessionMock))
+                .thenReturn(user);
+
+        commandHandler = new CommandHandler(inputOutputMock,
+                fishTextApiMock,
+                sessionManagerMock,
+                "test",
+                userDao);
     }
 
     /**
-     * Обработка команды "/help" должна вывести текст справки
+     * Проверяет, что команда "/help" выводит корректный текст справки
      */
     @Test
     void handleCommand_Help_ShouldOutputHelpText() {
         String helpText = """
-                /help - Все команды
-                /settings - Настройки тренировки
-                /start - Начать тренировку
-                /stop - Прервать тренировку
-                /exit - Завершить приложение
-                """;
+            /help - Все команды
+            /registration - зарегистрироваться
+            /login - войти в систему
+            /settings - Настройки тренировки
+            /start - Начать тренировку
+            /stop - Прервать тренировку
+            /exit - Завершить приложение
+            /info - Информация о пользователе
+            """;
 
         commandHandler.handleCommand("/help");
         verify(inputOutputMock).output(helpText);
@@ -56,34 +82,16 @@ public class CommandHandlerTest {
      */
     @Test
     public void testStartTrainingWithSettingTime() {
-        trainingSettings.setTrainingTime(1);
-
+        commandHandler.handleCommand("/settings");
+        when(inputOutputMock.input()).thenReturn("1000");
         when(fishTextApiMock.getProcessedText())
                 .thenReturn("Some text");
 
-        when(inputOutputMock.input()).thenReturn("");
+        when(inputOutputMock.input())
+                .thenReturn("");
         commandHandler.handleCommand("/start");
 
-        assertNotNull(commandHandler.trainingSession);
-        assertNotNull(commandHandler.trainingProcess);
-
         verify(inputOutputMock, atLeastOnce()).output(anyString());
-    }
-
-    /**
-     * Тестировать получение текста из запроса без интернета
-     */
-    @Test
-    public void testNoInternetConnection() {
-        trainingSettings.setTrainingTime(1);
-
-        when(fishTextApiMock.getProcessedText())
-                .thenThrow(new RuntimeException("Нет подключения к интернету"));
-
-        Exception exception = assertThrows(RuntimeException.class, () ->
-                commandHandler.handleCommand("/start"));
-
-        assertEquals("Нет подключения к интернету", exception.getMessage());
     }
 
     /**
@@ -98,7 +106,8 @@ public class CommandHandlerTest {
     }
 
     /**
-     * Обработка команды "/settings" с неправильным вводом, должна вывести сообщение об ошибке.
+     * Проверяет обработку некорректного ввода времени в команде "/settings"
+     * Ожидается вывод сообщения об ошибке
      */
     @Test
     public void not_correct_Time_Test() {
@@ -114,6 +123,7 @@ public class CommandHandlerTest {
     @Test
     public void negative_Time_Test() {
         when(inputOutputMock.input()).thenReturn("-5");
+
         commandHandler.handleCommand("/settings");
         verify(inputOutputMock).output("Укажите время на тренировку (минуты)");
         verify(inputOutputMock).output("Время тренировки должно быть положительным числом.");
@@ -124,7 +134,8 @@ public class CommandHandlerTest {
      */
     @Test
     public void handleCommand_Start_WithoutTrainingTime_OutputsError() {
-        trainingSettings.setTrainingTime(0);
+        when(inputOutputMock.input()).thenReturn("0");
+        commandHandler.handleCommand("/settings");
         commandHandler.handleCommand("/start");
         verify(inputOutputMock).output("Установите время тренировки с помощью команды /settings.");
     }

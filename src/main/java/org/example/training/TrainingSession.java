@@ -1,54 +1,41 @@
 package org.example.training;
 
-import org.example.commons.LogsFile;
+import org.apache.log4j.Logger;
+import org.example.commons.Time;
 import org.example.interfaces.InputOutput;
-import org.example.utils.log.LogsWriterUtils;
-import org.example.web.FishTextApi;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Управление сессией тренировки
  */
 public class TrainingSession {
-    private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
+    private final Logger logger = org.apache.log4j.Logger.getLogger(TrainingSession.class);
     private final AtomicBoolean isActive = new AtomicBoolean(false);
-    private final Logger logger = Logger.getLogger(TrainingSession.class.getName());
-    private static final int SECONDS_IN_MINUTE = 60;
-    private static final int MILLISECONDS_IN_SECOND = 1000;
-
     private Timer timer;
     private final InputOutput inputOutput;
-    private final TrainingSettings settings;
 
     /**
-     * Создает сессию тренировки.
-     * Инициализирует параметры тренировки и устанавливает
-     * статус сессии как неактивную
+     * Конструктор TrainingSession, который инициализирует UserTraining
+     * и получает ссылку на реализацию InputOutput
      *
-     * @param settings Параметры тренировки
-     * @param inputOutput  Объект для вывода информации.
+     * @param inputOutput реализация интерфейса InputOutput
      */
-    public TrainingSession(TrainingSettings settings, InputOutput inputOutput) {
-        this.settings = settings;
+    public TrainingSession(InputOutput inputOutput) {
         this.inputOutput = inputOutput;
     }
 
     /**
      * Запускает сессию тренировки с установленным временем
-     *
+     * @param durationMilliseconds длительность в миллисекундах
      */
-    public void start() {
+    public void start(int durationMilliseconds) {
         isActive.set(true);
         timer = new Timer();
-
-        int durationMilliseconds = settings.getTrainingTime() * SECONDS_IN_MINUTE * MILLISECONDS_IN_SECOND;
 
         timer.schedule(new TimerTask() {
             @Override
@@ -58,13 +45,14 @@ public class TrainingSession {
                     robot.keyPress(KeyEvent.VK_ENTER);
                     robot.keyRelease(KeyEvent.VK_ENTER);
                 } catch (AWTException e) {
-                    logsWriter.writeStackTraceToFile(e);
-                    logger.log(Level.SEVERE, "Ошибка при работе с роботом");
+                    logger.error("Ошибка при работе с роботом", e);
+                    inputOutput.output("Ошибка при работе с роботом");
                 }
                 stop();
             }
         }, durationMilliseconds);
-        inputOutput.output ("Новая тренировка на " + settings.getTrainingTime() + " минут");
+        inputOutput.output ("Новая тренировка на " + durationMilliseconds / Time.MINUTES_IN_MILLISECONDS
+                + " минут");
     }
 
     /**

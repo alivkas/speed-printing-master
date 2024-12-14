@@ -3,14 +3,14 @@ package org.example.web;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.example.commons.LogsFile;
-import org.example.utils.log.LogsWriterUtils;
+import org.apache.log4j.Logger;
+import org.example.interfaces.InputOutput;
+import org.example.training.TrainingSession;
 import org.example.utils.processing.ResponseProcessingUtils;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Взаимодействие с внешним апи FishTextApi
@@ -18,8 +18,16 @@ import java.util.logging.Logger;
 public class FishTextApi {
     private final static String URL = "https://fish-text.ru/get?type=title&format=html";
 
-    private final LogsWriterUtils logsWriter = new LogsWriterUtils(LogsFile.FILE_NAME);
-    private final Logger logger = Logger.getLogger(FishTextApi.class.getName());
+    private final Logger logger = org.apache.log4j.Logger.getLogger(FishTextApi.class);
+    private final InputOutput inputOutput;
+
+    /**
+     * Конструктор FishTextApi, который получает ссылку на реализацию InputOutput
+     * @param inputOutput реализация интерфейса InputOutput
+     */
+    public FishTextApi(InputOutput inputOutput) {
+        this.inputOutput = inputOutput;
+    }
 
     /**
      * Получить сгенерированное предложение из GET запроса к FishTextApi
@@ -37,11 +45,11 @@ public class FishTextApi {
                 }
             }
         } catch (UnknownHostException e) {
-            logsWriter.writeStackTraceToFile(e);
-            logger.log(Level.SEVERE, "Нет подключения к интернету");
+            logger.error(e.getMessage(), e);
+            inputOutput.output("Нет подключения к интернету");
         } catch (IOException e) {
-            logsWriter.writeStackTraceToFile(e);
-            logger.log(Level.SEVERE, "Ошибка чтения строки");
+            logger.error(e.getMessage(), e);
+            inputOutput.output("Ошибка чтения строки");
         }
         return null;
     }
@@ -56,8 +64,8 @@ public class FishTextApi {
         try {
             processedText = responseProcessingUtils.sanitize(getGeneratedText());
         } catch (NullPointerException e) {
-            logsWriter.writeStackTraceToFile(e);
-            logger.log(Level.SEVERE, "Нет данных из API");
+            logger.error(e.getMessage(), e);
+            inputOutput.output("Нет данных из API");
         }
 
         return processedText;
