@@ -19,10 +19,6 @@ public class UserDao {
      * @return Пользователь, если найден, иначе null.
      */
     public UserEntity getUserByUsername(String username, Session session) {
-        if (username == null || username.isEmpty()) {
-            throw new IllegalArgumentException("Имя пользователя не может быть пустым");
-        }
-
         CriteriaBuilder builder = session.getEntityManagerFactory().getCriteriaBuilder();
         CriteriaQuery<UserEntity> criteria = builder.createQuery(UserEntity.class);
         Root<UserEntity> root = criteria.from(UserEntity.class);

@@ -1,10 +1,8 @@
 package org.example.service;
 
-import org.apache.log4j.Logger;
 import org.example.commons.Time;
 import org.example.database.dao.UserDao;
 import org.example.database.entity.UserEntity;
-import org.example.interfaces.InputOutput;
 import org.hibernate.Session;
 
 /**
@@ -12,17 +10,13 @@ import org.hibernate.Session;
  */
 public class UserTraining {
 
-    private final Logger logger = Logger.getLogger(UserTraining.class);
     private final UserDao userDao;
-    private final InputOutput inputOutput;
 
     /**
      * Конструктор UserTraining, который получает ссылку на реализацию InputOutput
-     * @param inputOutput реализация интерфейса InputOutput
      * @param userDao ссылка на объект userDao, взаимодействующий с бд
      */
-    public UserTraining(InputOutput inputOutput, UserDao userDao) {
-        this.inputOutput = inputOutput;
+    public UserTraining(UserDao userDao) {
         this.userDao = userDao;
     }
 
@@ -50,19 +44,10 @@ public class UserTraining {
     private void addNewTrainingSession(String username,
                                        double averageTime,
                                        Session session) {
-        try {
-            if (username != null) {
-                UserEntity user = userDao.getUserByUsername(username, session);
-                if (user != null) {
-                    user.setTrainingCount(user.getTrainingCount() + 1);
-                    user.setAverageTime(user.getAverageTime() + averageTime);
-                    session.merge(user);
-                }
-            }
-        } catch (IllegalArgumentException e) {
-            logger.error("Имя пользователя не может быть пустым", e);
-            inputOutput.output("Имя пользователя не может быть пустым");
-        }
+        UserEntity user = userDao.getUserByUsername(username, session);
+        user.setTrainingCount(user.getTrainingCount() + 1);
+        user.setAverageTime(user.getAverageTime() + averageTime);
+        session.merge(user);
     }
 
     /**
@@ -72,18 +57,9 @@ public class UserTraining {
      * @param session текущая сессия
      */
     public void saveUsersTrainingTime(int time, String username, Session session) {
-        try {
-            if (username != null) {
-                UserEntity user = userDao.getUserByUsername(username, session);
-                if (user != null) {
-                    user.setTime(time);
-                    session.merge(user);
-                }
-            }
-        } catch (IllegalArgumentException e) {
-            logger.error("Имя пользователя не может быть пустым", e);
-            inputOutput.output("Имя пользователя не может быть пустым");
-        }
+        UserEntity user = userDao.getUserByUsername(username, session);
+        user.setTime(time);
+        session.merge(user);
     }
 
     /**
@@ -93,15 +69,7 @@ public class UserTraining {
      * @return время тренировки
      */
     public int getUserTrainingTime(String username, Session session) {
-        try {
-            if (username != null) {
-                UserEntity user = userDao.getUserByUsername(username, session);
-                return user.getTime();
-            }
-        } catch (IllegalArgumentException e) {
-            logger.error("Имя пользователя не может быть пустым", e);
-            inputOutput.output("Имя пользователя не может быть пустым");
-        }
-        return 0;
+        UserEntity user = userDao.getUserByUsername(username, session);
+        return user.getTime();
     }
 }

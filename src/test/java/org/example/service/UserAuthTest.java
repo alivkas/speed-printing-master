@@ -18,7 +18,6 @@ import static org.mockito.Mockito.*;
 public class UserAuthTest {
 
     private UserAuth userAuth;
-    private InputOutput inputOutputMock;
     private UserDao userDaoMock;
     private Session sessionMock;
 
@@ -28,10 +27,9 @@ public class UserAuthTest {
      */
     @BeforeEach
     void setUp() {
-        inputOutputMock = mock(InputOutput.class);
         userDaoMock = mock(UserDao.class);
         sessionMock = mock(Session.class);
-        userAuth = new UserAuth(inputOutputMock, userDaoMock);
+        userAuth = new UserAuth(userDaoMock);
     }
 
     /**

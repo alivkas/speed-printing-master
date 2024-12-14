@@ -1,7 +1,5 @@
 package org.example.service;
 
-
-import org.apache.log4j.Logger;
 import org.example.database.dao.UserDao;
 import org.example.database.entity.UserEntity;
 import org.hibernate.Session;
@@ -12,7 +10,6 @@ import org.example.commons.Time;
  */
 public class UserStatistics {
 
-    private final Logger logger = Logger.getLogger(UserStatistics.class);
     private final UserDao userDao = new UserDao();
 
     /**
@@ -22,25 +19,17 @@ public class UserStatistics {
      * @return строка с информацией о пользователе
      */
     public String getUserInfo(String username, Session session) {
-        try {
-            UserEntity user = userDao.getUserByUsername(username,  session);
-            if (user != null) {
-                return String.format("""
+        UserEntity user = userDao.getUserByUsername(username,  session);
+        return String.format("""
                        Информация о пользователе:
                        Имя пользователя: %s
                        Время тренировок: %d минут
                        Количество тренировок: %d
                        Среднее время слов в минуту: %.2f
                        """,
-                        user.getUsername(),
-                        user.getTime() / Time.MINUTES_IN_MILLISECONDS,
-                        user.getTrainingCount(),
-                        user.getAverageTime());
-            }
-        } catch (IllegalArgumentException e) {
-            logger.error("Имя пользователя не может быть пустым", e);
-        }
-        return "Для получения информации о пользователе" +
-                " необходимо авторизоваться";
+                user.getUsername(),
+                user.getTime() / Time.MINUTES_IN_MILLISECONDS,
+                user.getTrainingCount(),
+                user.getAverageTime());
     }
 }

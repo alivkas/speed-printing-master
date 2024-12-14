@@ -21,9 +21,6 @@ public class UserTrainingTest {
     private UserTraining userTraining;
 
     @Mock
-    private InputOutput inputOutputMock;
-
-    @Mock
     private UserDao userDaoMock;
 
     @Mock
@@ -31,10 +28,9 @@ public class UserTrainingTest {
 
     @BeforeEach
     void setUp() {
-        inputOutputMock = mock(InputOutput.class);
         userDaoMock = mock(UserDao.class);
         sessionMock = mock(Session.class);
-        userTraining = new UserTraining(inputOutputMock, userDaoMock);
+        userTraining = new UserTraining(userDaoMock);
     }
 
     /**
@@ -95,26 +91,5 @@ public class UserTrainingTest {
 
         assertEquals(100000.0, trainingTime);
         verify(userDaoMock).getUserByUsername(TEST_USER, sessionMock);
-    }
-
-    /**
-     * Тестирует сохранение времени тренировки для несуществующего пользователя
-     */
-    @Test
-    void testSaveUsersTrainingTime_UserNotFound() {
-        String username = "nonExistentUser";
-        int newTime = 150000;
-
-        when(userDaoMock.getUserByUsername(username, sessionMock)).thenReturn(null);
-
-        userTraining.saveUsersTrainingTime(newTime, username, sessionMock);
-
-        verify(userDaoMock).getUserByUsername(username, sessionMock);
-
-        UserEntity userEntity = new UserEntity();
-        userEntity.setUsername(username);
-        userEntity.setTime(newTime);
-
-        verify(sessionMock, never()).merge(userEntity);
     }
 }

@@ -1,6 +1,8 @@
 package org.example.processing;
 
 import org.example.database.SessionManager;
+import org.example.database.dao.UserDao;
+import org.example.database.entity.UserEntity;
 import org.example.interfaces.InputOutput;
 import org.example.interfaces.SessionOperation;
 import org.example.web.FishTextApi;
@@ -19,16 +21,21 @@ public class CommandHandlerTest {
     private FishTextApi fishTextApiMock;
     private SessionManager sessionManagerMock;
     private Session sessionMock;
+    private UserDao userDao;
 
     /**
      * Инициализируем тестовую среду
      */
     @BeforeEach
     void setUp() {
+        UserEntity user = new UserEntity();
+        user.setTime(0);
+
         inputOutputMock = mock(InputOutput.class);
         fishTextApiMock = mock(FishTextApi.class);
         sessionManagerMock = mock(SessionManager.class);
         sessionMock = mock(Session.class);
+        userDao = mock(UserDao.class);
 
         doAnswer(invocation -> {
             SessionOperation operation = invocation.getArgument(0);
@@ -37,7 +44,14 @@ public class CommandHandlerTest {
         }).when(sessionManagerMock)
                 .executeInTransaction(any(SessionOperation.class));
 
-        commandHandler = new CommandHandler(inputOutputMock, fishTextApiMock, sessionManagerMock);
+        when(userDao.getUserByUsername("test", sessionMock))
+                .thenReturn(user);
+
+        commandHandler = new CommandHandler(inputOutputMock,
+                fishTextApiMock,
+                sessionManagerMock,
+                "test",
+                userDao);
     }
 
     /**
@@ -68,9 +82,8 @@ public class CommandHandlerTest {
      */
     @Test
     public void testStartTrainingWithSettingTime() {
-        when(inputOutputMock.input()).thenReturn("1000");
         commandHandler.handleCommand("/settings");
-
+        when(inputOutputMock.input()).thenReturn("1000");
         when(fishTextApiMock.getProcessedText())
                 .thenReturn("Some text");
 

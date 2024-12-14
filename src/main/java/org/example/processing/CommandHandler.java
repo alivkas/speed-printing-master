@@ -20,7 +20,7 @@ import org.hibernate.Session;
 public class CommandHandler {
     private final Logger logger = Logger.getLogger(CommandHandler.class);
     private final UserStatistics userStatistics = new UserStatistics();
-    private final UserDao userDao = new UserDao();
+    private final UserDao userDao;
     private final SessionManager sessionManager;
     private final UserAuth userAuth;
     private final UserTraining userTraining;
@@ -28,7 +28,7 @@ public class CommandHandler {
     private final FishTextApi fishTextApi;
 
     private TrainingProcess trainingProcess;
-    private String currentUsername = null;
+    private String currentUsername;
 
     /**
      * Конструктор класса CommandHandler, который получает ссылку на объект fishTextApi
@@ -40,13 +40,17 @@ public class CommandHandler {
      */
     public CommandHandler(InputOutput inputOutput,
                           FishTextApi fishTextApi,
-                          SessionManager sessionManager) {
+                          SessionManager sessionManager,
+                          String currentUsername,
+                          UserDao userDao) {
         this.inputOutput = inputOutput;
         this.fishTextApi = fishTextApi;
         this.sessionManager = sessionManager;
+        this.currentUsername = currentUsername;
+        this.userDao = userDao;
 
-        this.userTraining = new UserTraining(inputOutput, userDao);
-        this.userAuth = new UserAuth(inputOutput, userDao);
+        this.userTraining = new UserTraining(userDao);
+        this.userAuth = new UserAuth(userDao);
     }
 
     /**
@@ -64,11 +68,8 @@ public class CommandHandler {
                     .executeInTransaction(this::register);
             case Commands.LOGIN -> sessionManager
                     .executeInSession(this::login);
-            case Commands.INFO ->
-                sessionManager.executeInSession(session -> {
-                    String userInfo = userStatistics.getUserInfo(currentUsername, session);
-                    inputOutput.output(userInfo);
-                });
+            case Commands.INFO -> sessionManager
+                    .executeInSession(this::getInfo);
             case Commands.STOP -> inputOutput.output("Нет активной тренировки.");
             case Commands.EXIT -> {
                 inputOutput.output("Выход из приложения.");
@@ -95,6 +96,7 @@ public class CommandHandler {
         inputOutput.output(helpText);
     }
 
+
     /**
      * Регистрирует нового пользователя в системе
      * @param session текущая сессия
@@ -105,13 +107,15 @@ public class CommandHandler {
         inputOutput.output("Введите пароль: ");
         String password = inputOutput.input();
 
-        boolean isSuccess = userAuth.registerUser(username, password, session);
-
-        if (isSuccess) {
-            inputOutput.output("Регистрация прошла успешно! Войдите в аккаунт.");
-        } else if (!username.isEmpty()) {
-            inputOutput.output("Пользователь с таким именем уже существует.");
+        if (!isValidUsername(username)) {
+            inputOutput.output("Имя пользователя не должно быть пустым");
+            return;
         }
+
+        boolean isSuccess = userAuth.registerUser(username, password, session);
+        inputOutput.output(isSuccess
+                ? "Регистрация прошла успешно! Войдите в аккаунт."
+                : "Пользователь с таким именем уже существует.");
     }
 
     /**
@@ -124,12 +128,16 @@ public class CommandHandler {
         inputOutput.output("Введите пароль: ");
         String password = inputOutput.input();
 
-        boolean isSuccess = userAuth.loginUser(username, password, session);
+        if (!isValidUsername(username)) {
+            inputOutput.output("Имя пользователя не должно быть пустым");
+            return;
+        }
 
+        boolean isSuccess = userAuth.loginUser(username, password, session);
         if (isSuccess) {
             inputOutput.output("Вход выполнен!");
             currentUsername = username;
-        } else if (currentUsername != null) {
+        } else {
             inputOutput.output("Неверный логин или пароль.");
         }
     }
@@ -140,6 +148,11 @@ public class CommandHandler {
      * @param session текущая сессия
      */
     private void askTrainingTime(Session session) {
+        if (!isValidUsername(currentUsername)) {
+            inputOutput.output("Для установки настроек авторизуйтесь в системе");
+            return;
+        }
+
         inputOutput.output("Укажите время на тренировку (минуты)");
         try {
             int time = Integer.parseInt(inputOutput.input());
@@ -161,6 +174,10 @@ public class CommandHandler {
      * @param session текущая сессия
      */
     private void startTraining(Session session) {
+        if (!isValidUsername(currentUsername)) {
+            inputOutput.output("Для начала тренировки авторизуйтесь в системе");
+            return;
+        }
         if (userTraining.getUserTrainingTime(currentUsername, session) == 0) {
             inputOutput.output("Установите время тренировки с помощью команды /settings.");
             return;
@@ -176,5 +193,28 @@ public class CommandHandler {
                 userDao);
 
         trainingProcess.process(session);
+    }
+
+    /**
+     * Получить информацию о пользователе
+     * @param session текущая сессия
+     */
+    private void getInfo(Session session) {
+        if (!isValidUsername(currentUsername)) {
+            inputOutput.output("Для получения информации о пользователе" +
+                    " необходимо авторизоваться");
+            return;
+        }
+        String info = userStatistics.getUserInfo(currentUsername, session);
+        inputOutput.output(info);
+    }
+
+    /**
+     * Проверить валидность ввода имени пользователя на пустоту
+     * @param username имя пользователя
+     * @return true если имя не пустое, false если имя пустое
+     */
+    private boolean isValidUsername(String username) {
+        return username != null && !username.isEmpty();
     }
 }
