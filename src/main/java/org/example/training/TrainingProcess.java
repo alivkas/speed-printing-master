@@ -3,6 +3,7 @@ package org.example.training;
 import org.example.commons.CommandsConst;
 import org.example.database.dao.UserDao;
 import org.example.interfaces.InputOutput;
+import org.example.service.UserStatistics;
 import org.example.service.UserTraining;
 import org.example.utils.text.TextInteractionUtils;
 import org.example.text.Typo;
@@ -16,6 +17,7 @@ public class TrainingProcess {
 
     private final TextInteractionUtils textInteractionUtils = new TextInteractionUtils();
     private final Typo typo = new Typo();
+    private final UserStatistics userStatistics = new UserStatistics();
     private final UserDao userDao = new UserDao();
     private final UserTraining userTraining;
     private final FishTextApi fishTextApi;
@@ -66,9 +68,11 @@ public class TrainingProcess {
             }
         }
 
+        userStatistics.saveUserRating(username, sessionDb);
         userTraining.updateTrainingData(
                 username,
                 wordsCount,
+                typo.countNumberOfTypos(),
                 sessionDb);
 
         Result result = new Result(wordsCount,
