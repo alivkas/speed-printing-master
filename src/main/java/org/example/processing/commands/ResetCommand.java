@@ -1,17 +1,18 @@
 package org.example.processing.commands;
 
 import org.example.database.context.CurrentUserContext;
-import org.example.database.dao.UserDao;
-import org.example.database.entity.UserEntity;
 import org.example.interfaces.Command;
 import org.example.interfaces.InputOutput;
+import org.example.service.UserStatistics;
+import org.example.utils.validation.ValidationUtils;
 import org.hibernate.Session;
 
 import java.util.Optional;
 
 public class ResetCommand implements Command {
 
-    private final UserDao userDao = new UserDao();
+    private final ValidationUtils validationUtils = new ValidationUtils();
+    private final UserStatistics userStatistics = new UserStatistics();
     private final InputOutput inputOutput;
     private final CurrentUserContext currentUserContext;
 
@@ -22,7 +23,8 @@ public class ResetCommand implements Command {
 
     @Override
     public void execute(Optional<Session> optionalSession) throws IllegalArgumentException {
-        if (requiresSession() && optionalSession.isEmpty()) {
+        if (requiresSession()
+                && optionalSession.isEmpty()) {
             throw new IllegalArgumentException("Сессия обязательна для выполнения этой команды");
         }
         optionalSession.ifPresent(this::resetStatistics);
@@ -40,21 +42,16 @@ public class ResetCommand implements Command {
 
     private void resetStatistics(Session session) {
         String username = currentUserContext.getUsername();
+        if (!validationUtils.isValidUsername(username)) {
+            inputOutput.output("Для получения рейтинга необходимо авторизоваться");
+            return;
+        }
         inputOutput.output("Вы уверены, что хотите сбросить вашу статистику? (Y/N)");
         String answer = inputOutput.input();
         if (answer.equalsIgnoreCase("Y")) {
-            UserEntity user = userDao.getUserByUsername(username, session);
-            if (user != null) {
-                user.setTrainingCount(0);
-                user.setAverageTime(0.0);
-                user.setTime(0);
-                user.setSumTypoCount(0);
-                user.setSumTime(0);
-                user.setRating(0.0);
-                session.merge(user);
-                inputOutput.output("Статистика сброшена");
-            }
-        } else {
+            userStatistics.resetUserStatistic(username, session);
+            inputOutput.output("Статистика сброшена");
+        } else if (answer.equalsIgnoreCase("N")) {
             inputOutput.output("Сброс статистики отменен");
         }
     }

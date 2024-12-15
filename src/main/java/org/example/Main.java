@@ -13,7 +13,7 @@ public class Main {
         CommandHandler commandHandler = new CommandHandler(app, sessionManager);
         String info = """
                 Добро пожаловать в тренировочное приложение! Введите команду /help для просмотра всех команд
-                Зарегистрируйтесь (/registration), войдите в существующий аккаунт (/login) или продолжите как гость
+                Зарегистрируйтесь (/registration) или войдите в существующий аккаунт (/login)
                 """;
         app.output(info);
         while (true) {

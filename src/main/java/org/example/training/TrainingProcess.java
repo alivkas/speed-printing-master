@@ -26,9 +26,9 @@ public class TrainingProcess {
     private TrainingSession session;
 
     /**
-     * Конструктор TrainingProcess, который передает ссылки на объект fishTextApi,
-     * строку username, реализацию интерфейса InputOutput и инициализирует TrainingSession
-     * c UserTraining
+     * Конструктор TrainingProcess, который передает ссылку на реализацию
+     * интерфейса InputOutput и инициализирует TrainingSession, FishTextApi,
+     * UserTraining
      * @param inputOutput ссылка на реализацию InputOutput
      */
     public TrainingProcess(InputOutput inputOutput) {
@@ -68,12 +68,12 @@ public class TrainingProcess {
             }
         }
 
-        userStatistics.saveUserRating(username, sessionDb);
         userTraining.updateTrainingData(
                 username,
                 wordsCount,
                 typo.countNumberOfTypos(),
                 sessionDb);
+        userStatistics.saveUserRating(username, sessionDb);
 
         Result result = new Result(wordsCount,
                 typo,
