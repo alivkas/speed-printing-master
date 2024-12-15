@@ -30,6 +30,9 @@ public class CommandFactory {
         commands.put(CommandsConst.REGISTRATION, new RegistrationCommand(inputOutput));
         commands.put(CommandsConst.STOP, new StopCommand(inputOutput));
         commands.put(CommandsConst.START, new StartCommand(inputOutput, currentUserContext));
+        commands.put(CommandsConst.RATING, new RatingCommand(inputOutput,currentUserContext));
+        commands.put(CommandsConst.RESET, new ResetCommand(inputOutput, currentUserContext));
+
     }
 
     /**

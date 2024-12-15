@@ -17,18 +17,18 @@ import static org.mockito.Mockito.*;
  */
 public class UserAuthTest {
 
-    private UserAuth userAuth;
-    private UserDao userDaoMock;
-    private Session sessionMock;
+    private final UserAuth userAuth;
+    private final UserDao userDaoMock= mock(UserDao.class);
+    private final Session sessionMock = mock(Session.class);
 
     /**
+     *
+     *
      * Настройка моков перед каждым тестом
      * Создает экземпляры моков и инициализирует объект userAuth
      */
-    @BeforeEach
-    void setUp() {
-        userDaoMock = mock(UserDao.class);
-        sessionMock = mock(Session.class);
+
+    public UserAuthTest() {
         userAuth = new UserAuth(userDaoMock);
     }
 

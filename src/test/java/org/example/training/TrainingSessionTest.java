@@ -12,20 +12,19 @@ import static org.mockito.Mockito.*;
  * Тестовый класс для проверки состояния сессии тренировки
  */
 public class TrainingSessionTest {
-    private TrainingSession trainingSession;
-    private InputOutput inputOutputMock;
-
+    private final TrainingSession trainingSession;
     private static final int TEST_DURATION_MS = 1000;
 
     /**
      * Инициализация тестовой среды перед каждым тестом
      * Создает моки и экземпляр TrainingSession с замокированным InputOutput
      */
-    @BeforeEach
-    public void setUp() {
-        inputOutputMock = mock(InputOutput.class);
+    public TrainingSessionTest() {
+        InputOutput inputOutputMock = mock(InputOutput.class);
         trainingSession = new TrainingSession(inputOutputMock);
     }
+
+
 
     /**
      * Проверяет, что сессия активна после запуска

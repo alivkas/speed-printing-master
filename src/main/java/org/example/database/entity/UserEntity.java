@@ -44,6 +44,73 @@ public class UserEntity extends BaseEntity {
     private Double averageTime;
 
     /**
+     * Суммарное количество ошибок
+     */
+    @Column(name = "sum_typo_count")
+    private Integer sumTypoCount;
+
+    /**
+     * Суммарное время тренировок
+     */
+    @Column(name = "sum_time")
+    private Integer sumTime;
+
+    /**
+     * Рейтинг пользователя
+     */
+    @Column(name = "rating")
+    private Double rating;
+
+    /**
+     * Возвращает рейтинг пользователя
+     * @return рейтинг пользователя
+     */
+    public Double getRating() {
+        return rating;
+    }
+
+    /**
+     * Устанавливает рейтинг пользователя
+     * @param rating рейтинг пользователя
+     */
+    public void setRating(Double rating) {
+        this.rating = rating;
+    }
+
+    /**
+     * Возвращает суммарное количество времени тренировок
+     * @return суммарное время тренировок
+     */
+    public Integer getSumTime() {
+        return sumTime;
+    }
+
+    /**
+     * Устанавливает суммарное количество времени
+     * @param sumTime суммарное время
+     */
+    public void setSumTime(Integer sumTime) {
+        this.sumTime = sumTime;
+    }
+
+    /**
+     * Возвращает суммарное количество ошибок
+     * @return суммарное количество ошибок
+     */
+    public Integer getSumTypoCount() {
+        return sumTypoCount;
+    }
+
+    /**
+     * Устанавливает суммарное количество ошибок
+     * @param sumTypoCount количество ошибок
+     */
+    public void setSumTypoCount(Integer sumTypoCount)
+    {
+        this.sumTypoCount = sumTypoCount;
+    }
+
+    /**
      * Возвращает имя пользователя.
      *
      * @return Имя пользователя.
@@ -134,3 +201,4 @@ public class UserEntity extends BaseEntity {
     }
 
 }
+

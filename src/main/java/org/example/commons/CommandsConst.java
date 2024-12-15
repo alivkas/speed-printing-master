@@ -36,6 +36,15 @@ public class CommandsConst {
      * Команда /info (вывод информации о пользователе)
      */
     public final static String INFO = "/info";
+    /**
+     * Команда /rating (вывод рейтинга первых 10 пользователей)
+     */
+    public final static String RATING = "/rating";
+
+    /**
+     * Команда /reset (обнуляет всю статистику)
+     */
+    public final static String RESET = "/reset";
 
 
     private CommandsConst() {
