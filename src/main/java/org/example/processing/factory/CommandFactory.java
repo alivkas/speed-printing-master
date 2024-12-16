@@ -22,6 +22,15 @@ public class CommandFactory {
      * @param currentUserContext контекст текущего пользователя
      */
     public CommandFactory(InputOutput inputOutput, CurrentUserContext currentUserContext) {
+        init(inputOutput, currentUserContext);
+    }
+
+    /**
+     * Инициализация всех команд
+     * @param inputOutput реализация интерфейса InputOutput
+     * @param currentUserContext контекст текущего пользователя
+     */
+    private void init(InputOutput inputOutput, CurrentUserContext currentUserContext) {
         commands.put(CommandsConst.SETTINGS, new SettingsCommand(inputOutput, currentUserContext));
         commands.put(CommandsConst.INFO, new InfoCommand(inputOutput, currentUserContext));
         commands.put(CommandsConst.HELP, new HelpCommand(inputOutput));
@@ -32,7 +41,6 @@ public class CommandFactory {
         commands.put(CommandsConst.START, new StartCommand(inputOutput, currentUserContext));
         commands.put(CommandsConst.RATING, new RatingCommand(inputOutput,currentUserContext));
         commands.put(CommandsConst.RESET, new ResetCommand(inputOutput, currentUserContext));
-
     }
 
     /**

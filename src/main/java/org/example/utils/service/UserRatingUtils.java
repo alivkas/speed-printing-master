@@ -11,6 +11,8 @@ import java.util.List;
  */
 public class UserRatingUtils {
 
+    private final static double AVERAGE_TIME_WEIGHT = 2.5;
+
     /**
      * Подсчет рейтинга
      * @param sumTrainingCount сумма количества тренировок
@@ -19,8 +21,8 @@ public class UserRatingUtils {
      * @return число рейтинга
      */
     public double ratingCalculation(int sumTrainingCount, int sumTypoCount, double sumAverageTime) {
-        double allTrainingsAverageTime = sumAverageTime / sumTypoCount + 1;
-        return ((double) sumTrainingCount / (sumTypoCount + 1)) * allTrainingsAverageTime;
+        double allTrainingsAverageTime = sumAverageTime / sumTrainingCount;
+        return allTrainingsAverageTime * AVERAGE_TIME_WEIGHT / (sumTypoCount + 1);
     }
 
     /**
@@ -42,7 +44,8 @@ public class UserRatingUtils {
      * @param users список отсортированных по рейтингу пользователей
      * @param username имя текущего пользователя
      * @return ранг пользователя, если имя текущего пользователя совпадает
-     * с именем найденного пользователя, -1, если пользователь не найден
+     * с именем найденного пользователя, -1, если пользователь не найден,
+     * 0, если рейтинг пользователя равен 0
      */
     public int findUserRank(List<UserEntity> users, String username) {
         for (int i = 0; i < users.size(); i++) {
@@ -61,6 +64,7 @@ public class UserRatingUtils {
      * @return отформатированную в строку информацию о пользователе
      */
     public String formatUserInfo(UserEntity user, String username, int rank) {
+        double allTrainingsAverageTime = user.getAverageTime() / user.getTrainingCount();
         String rankInfo = rank > 0
                 ? rank + " место"
                 : "Место отсутствует";
@@ -80,7 +84,7 @@ public class UserRatingUtils {
                 user.getRating(),
                 user.getTrainingCount(),
                 user.getSumTypoCount(),
-                user.getAverageTime(),
+                allTrainingsAverageTime,
                 user.getTime() / Time.MINUTES_IN_MILLISECONDS);
     }
 

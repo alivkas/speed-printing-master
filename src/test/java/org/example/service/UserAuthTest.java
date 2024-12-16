@@ -22,12 +22,9 @@ public class UserAuthTest {
     private final Session sessionMock = mock(Session.class);
 
     /**
-     *
-     *
      * Настройка моков перед каждым тестом
      * Создает экземпляры моков и инициализирует объект userAuth
      */
-
     public UserAuthTest() {
         userAuth = new UserAuth(userDaoMock);
     }

@@ -24,8 +24,6 @@ public class TrainingSessionTest {
         trainingSession = new TrainingSession(inputOutputMock);
     }
 
-
-
     /**
      * Проверяет, что сессия активна после запуска
      */
