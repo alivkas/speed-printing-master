@@ -2,9 +2,7 @@ package org.example.service;
 
 import org.example.database.dao.UserDao;
 import org.example.database.entity.UserEntity;
-import org.example.interfaces.InputOutput;
 import org.hibernate.Session;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
