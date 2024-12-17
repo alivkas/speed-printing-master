@@ -49,9 +49,6 @@ public class UserRatingUtils {
      */
     public int findUserRank(List<UserEntity> users, String username) {
         for (int i = 0; i < users.size(); i++) {
-            if (users.get(i).getUsername().equals(username)
-                    && users.get(i).getRating() == 0.0)
-                return 0;
             if (users.get(i).getUsername().equals(username)) {
                 return i + 1;
             }
@@ -67,7 +64,7 @@ public class UserRatingUtils {
      * @return отформатированную в строку информацию о пользователе
      */
     public String formatUserInfo(UserEntity user, String username, int rank) {
-        double allTrainingsAverageTime = user.getAverageTime() / (user.getTrainingCount() + 1);
+        double allTrainingsAverageTime = user.getAverageTime() / user.getTrainingCount();
         String rankInfo = rank > 0
                 ? rank + " место"
                 : "Место отсутствует";
@@ -110,12 +107,9 @@ public class UserRatingUtils {
 
         for (int i = 0; i < topUsers.size(); i++) {
             UserEntity user = topUsers.get(i);
-            int rank = findUserRank(topUsers, user.getUsername());
-            if(rank  !=  0) {
-                String userInfo = formatUserInfo(user, username, i + 1);
-                info.append(userInfo);
-                info.append("<------------------------------>\n");
-            }
+            String userInfo = formatUserInfo(user, username, i + 1);
+            info.append(userInfo);
+            info.append("<------------------------------>\n");
         }
 
         return info.toString();

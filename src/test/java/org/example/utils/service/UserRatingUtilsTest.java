@@ -92,7 +92,7 @@ class UserRatingUtilsTest {
                 2 место —> рейтинг 2,00
                 Количество тренировок: 2
                 Количество ошибок: 3
-                Средняя скорость: 2 слов/мин
+                Средняя скорость: 3 слов/мин
                 Последнее время тренировки: 3 минут
                 """;
         Assertions.assertEquals(expected, formattedCurrentUser);
@@ -109,7 +109,7 @@ class UserRatingUtilsTest {
                 2 место —> рейтинг 2,00
                 Количество тренировок: 2
                 Количество ошибок: 3
-                Средняя скорость: 2 слов/мин
+                Средняя скорость: 3 слов/мин
                 Последнее время тренировки: 3 минут
                 """;
         Assertions.assertEquals(expected, formattedCurrentUser);
@@ -126,7 +126,7 @@ class UserRatingUtilsTest {
                 Место отсутствует —> рейтинг 2,00
                 Количество тренировок: 2
                 Количество ошибок: 3
-                Средняя скорость: 2 слов/мин
+                Средняя скорость: 3 слов/мин
                 Последнее время тренировки: 3 минут
                 """;
         Assertions.assertEquals(expected, formattedCurrentUser);
