@@ -9,6 +9,9 @@ import org.hibernate.Session;
 
 import java.util.Optional;
 
+/**
+ * Определение команды /reset
+ */
 public class ResetCommand implements Command {
 
     private final ValidationUtils validationUtils = new ValidationUtils();
