@@ -8,7 +8,7 @@ import org.example.processing.factory.CommandFactory;
 import java.util.Optional;
 
 /**
- * Класс для обработки команд пользователя.
+ * Класс для перехвата команд пользователя.
  */
 public class CommandHandler {
     private final CurrentUserContext currentUserContext = new CurrentUserContext();
@@ -17,9 +17,8 @@ public class CommandHandler {
     private final InputOutput inputOutput;
 
     /**
-     * Конструктор класса CommandHandler, который получает ссылку на объект fishTextApi
-     * и реализацию интерфейса InputOutput, также инициализирует UserTraining и UserAuth
-     *
+     * Конструктор класса CommandHandler, который получает ссылку реализацию inputOutput
+     * и sessionManager. Инициализирует CommandFactory
      * @param inputOutput реализация интерфейса InputOutput
      * @param sessionManager ссылка на управление сессиями
      */

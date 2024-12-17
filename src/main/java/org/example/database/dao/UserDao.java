@@ -28,6 +28,7 @@ public class UserDao {
 
         return session.createQuery(criteria).uniqueResult();
     }
+
     /**
      * Получить всех пользователей
      * @param session текущая сессия

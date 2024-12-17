@@ -1,7 +1,6 @@
 package org.example.processing.commands;
 
 import org.example.database.context.CurrentUserContext;
-import org.example.database.dao.UserDao;
 import org.example.interfaces.Command;
 import org.example.interfaces.InputOutput;
 import org.example.service.UserStatistics;

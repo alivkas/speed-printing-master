@@ -20,14 +20,13 @@ public class StartCommand implements Command {
 
     private final ValidationUtils validationUtils = new ValidationUtils();
     private final UserDao userDao = new UserDao();
-    private final FishTextApi fishTextApi;
     private final UserTraining userTraining;
     private final InputOutput inputOutput;
     private final CurrentUserContext currentUserContext;
 
     /**
      * Конструктор StartCommand, который получает ссылку на реализацию InputOutput,
-     * инициализирует userTraining и fishTextApi
+     * инициализирует userTraining
      * @param inputOutput реализация интерфейса InputOutput
      * @param currentUserContext контекст текущего пользователя
      */
@@ -35,7 +34,6 @@ public class StartCommand implements Command {
         this.inputOutput = inputOutput;
         this.currentUserContext = currentUserContext;
         this.userTraining = new UserTraining(userDao);
-        this.fishTextApi = new FishTextApi(inputOutput);
     }
 
     @Override
