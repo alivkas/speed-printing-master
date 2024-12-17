@@ -21,6 +21,7 @@ public class InfoCommand implements Command {
 
     /**
      * Конструктор InfoCommand, который получает ссылку на реализацию InputOutput
+     * и объект CurrentUserContext
      * @param inputOutput реализация интерфейса InputOutput
      * @param currentUserContext контекст текущего пользователя
      */

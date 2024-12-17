@@ -50,12 +50,6 @@ public class UserEntity extends BaseEntity {
     private Integer sumTypoCount;
 
     /**
-     * Суммарное время тренировок
-     */
-    @Column(name = "sum_time")
-    private Integer sumTime;
-
-    /**
      * Рейтинг пользователя
      */
     @Column(name = "rating")
@@ -75,22 +69,6 @@ public class UserEntity extends BaseEntity {
      */
     public void setRating(Double rating) {
         this.rating = rating;
-    }
-
-    /**
-     * Возвращает суммарное количество времени тренировок
-     * @return суммарное время тренировок
-     */
-    public Integer getSumTime() {
-        return sumTime;
-    }
-
-    /**
-     * Устанавливает суммарное количество времени
-     * @param sumTime суммарное время
-     */
-    public void setSumTime(Integer sumTime) {
-        this.sumTime = sumTime;
     }
 
     /**

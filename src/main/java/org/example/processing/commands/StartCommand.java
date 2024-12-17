@@ -25,7 +25,7 @@ public class StartCommand implements Command {
 
     /**
      * Конструктор StartCommand, который получает ссылку на реализацию InputOutput,
-     * инициализирует userTraining
+     * объект CurrentUserContext и инициализирует userTraining
      * @param inputOutput реализация интерфейса InputOutput
      * @param currentUserContext контекст текущего пользователя
      */

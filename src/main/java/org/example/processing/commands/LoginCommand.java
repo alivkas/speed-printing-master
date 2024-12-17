@@ -22,8 +22,8 @@ public class LoginCommand implements Command {
     private final InputOutput inputOutput;
 
     /**
-     * Конструктор LoginCommand, который получает ссылку на реализацию InputOutput
-     * и инициализирует userAuth
+     * Конструктор LoginCommand, который получает ссылку на реализацию InputOutput,
+     * объект CurrentUserContext и инициализирует userAuth
      * @param inputOutput реализация интерфейса InputOutput
      * @param currentUserContext контекст текущего пользователя
      */
