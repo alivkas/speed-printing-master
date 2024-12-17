@@ -1,6 +1,7 @@
 package org.example.training;
 
 import org.example.interfaces.InputOutput;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -11,15 +12,12 @@ import static org.mockito.Mockito.*;
  * Тестовый класс для проверки состояния сессии тренировки
  */
 public class TrainingSessionTest {
-    private final TrainingSession trainingSession;
+    private TrainingSession trainingSession;
     private static final int TEST_DURATION_MS = 1000;
+    private final InputOutput inputOutputMock = mock(InputOutput.class);
 
-    /**
-     * Инициализация тестовой среды перед каждым тестом
-     * Создает моки и экземпляр TrainingSession с замокированным InputOutput
-     */
-    public TrainingSessionTest() {
-        InputOutput inputOutputMock = mock(InputOutput.class);
+    @BeforeEach
+    public void setUp() {
         trainingSession = new TrainingSession(inputOutputMock);
     }
 
@@ -39,8 +37,7 @@ public class TrainingSessionTest {
     @Test
     public void testSessionEndsAfterDuration() throws InterruptedException {
         trainingSession.start(TEST_DURATION_MS);
-        Thread.sleep(1000
-                + 100);
+        Thread.sleep(1300);
         assertFalse(trainingSession.isActive());
     }
 
