@@ -24,25 +24,40 @@ public class UserStatistics {
      * @return строка с информацией о пользователе
      */
     public String getUserInfo(String username, Session session) {
-        UserEntity user = userDao.getUserByUsername(username,  session);
-        List<UserEntity> users = userDao.getAllUsers(session);
-        int userRank = userRatingUtils.findUserRank(users, username);
-        return userRatingUtils.formatUserInfo(user, username, userRank);
+        UserEntity currentUser = userDao.getUserByUsername(username, session);
+        int currentUserRank = getUserRank(username, session);
+        return userRatingUtils.formatUserInfo(currentUser, username, currentUserRank);
     }
 
     /**
-     * Получить рейтинг пользователей
+     * Получить статистику пользователя по имени
      * @param username имя пользователя
      * @param session текущая сессия
-     * @return топ пользователей по возрастанию рейтинга
+     * @return строка с информацией о пользователе
      */
     public String getUsersRating(String username, Session session) {
         List<UserEntity> allUsers = userDao.getAllUsers(session);
         List<UserEntity> topUsers = userRatingUtils.getTopUsers(allUsers, TOP_LIMIT);
         UserEntity currentUser = userDao.getUserByUsername(username, session);
-        int currentUserRank = userRatingUtils.findUserRank(topUsers, username);
+        int currentUserRank = getUserRank(username, session);
+
+
         return userRatingUtils.buildUsersRating(topUsers, currentUserRank, currentUser, username);
     }
+
+    /**
+     * Получить ранг пользователя в рейтинге
+     *
+     * @param username имя пользователя, чей ранг нужно получить
+     * @param session текущая сессия
+     * @return ранг пользователя в рейтинге
+     */
+    private int getUserRank(String username, Session session) {
+        List<UserEntity> allUsers = userDao.getAllUsers(session);
+        List<UserEntity> topUsers = userRatingUtils.getTopUsers(allUsers, TOP_LIMIT);
+        return userRatingUtils.findUserRank(topUsers, username);
+    }
+
 
     /**
      * Сохранить рейтинг пользователя
