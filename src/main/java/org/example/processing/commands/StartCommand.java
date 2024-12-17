@@ -8,7 +8,6 @@ import org.example.interfaces.InputOutput;
 import org.example.service.UserTraining;
 import org.example.training.TrainingProcess;
 import org.example.utils.validation.ValidationUtils;
-import org.example.web.FishTextApi;
 import org.hibernate.Session;
 
 import java.util.Optional;
