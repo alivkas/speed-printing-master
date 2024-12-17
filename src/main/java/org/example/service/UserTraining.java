@@ -64,7 +64,6 @@ public class UserTraining {
     public void saveUsersTrainingTime(int time, String username, Session session) {
         UserEntity user = userDao.getUserByUsername(username, session);
         user.setTime(time);
-        user.setSumTime(user.getTime() + time);
         session.merge(user);
     }
 

@@ -16,6 +16,12 @@ public class ResetCommand implements Command {
     private final InputOutput inputOutput;
     private final CurrentUserContext currentUserContext;
 
+    /**
+     * Конструктор ResetCommand, который получает ссылку на реализацию InputOutput
+     * и объект CurrentUserContext
+     * @param inputOutput реализация интерфейса InputOutput
+     * @param currentUserContext контекст текущего пользователя
+     */
     public ResetCommand(InputOutput inputOutput, CurrentUserContext currentUserContext) {
         this.inputOutput = inputOutput;
         this.currentUserContext = currentUserContext;
@@ -40,6 +46,10 @@ public class ResetCommand implements Command {
         return true;
     }
 
+    /**
+     * Сбросить статистику пользователя с запросом на подтверждение сброса
+     * @param session текущая сессия
+     */
     private void resetStatistics(Session session) {
         String username = currentUserContext.getUsername();
         if (!validationUtils.isValidUsername(username)) {

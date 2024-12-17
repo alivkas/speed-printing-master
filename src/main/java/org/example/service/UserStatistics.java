@@ -84,7 +84,6 @@ public class UserStatistics {
         user.setAverageTime(0.0);
         user.setTime(0);
         user.setSumTypoCount(0);
-        user.setSumTime(0);
         user.setRating(0.0);
         session.merge(user);
     }
