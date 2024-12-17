@@ -34,6 +34,8 @@ public class UserAuth {
             newUser.setAverageTime(0.0);
             newUser.setTrainingCount(0);
             newUser.setTime(0);
+            newUser.setSumTypoCount(0);
+            newUser.setRating(0.0);
 
             session.save(newUser);
             return true;

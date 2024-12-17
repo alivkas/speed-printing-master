@@ -136,8 +136,11 @@ public class Typo {
             }
         }
 
-        return operationCount == OPERATIONS
+        int result = operationCount == OPERATIONS
                 ? operationCount / OPERATIONS
                 : operationCount / OPERATIONS - 1;
+        return result == -1
+                ? 0
+                : result;
     }
 }

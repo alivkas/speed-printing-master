@@ -1,11 +1,8 @@
 package org.example.training;
 
 import org.example.commons.Time;
-import org.example.database.dao.UserDao;
 import org.example.interfaces.InputOutput;
-import org.example.service.UserTraining;
 import org.example.text.Typo;
-import org.hibernate.Session;
 
 import java.util.List;
 

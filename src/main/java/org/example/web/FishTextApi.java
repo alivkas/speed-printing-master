@@ -5,12 +5,11 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.log4j.Logger;
 import org.example.interfaces.InputOutput;
-import org.example.training.TrainingSession;
 import org.example.utils.processing.ResponseProcessingUtils;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.logging.Level;
+
 
 /**
  * Взаимодействие с внешним апи FishTextApi

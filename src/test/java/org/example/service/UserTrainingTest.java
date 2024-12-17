@@ -2,11 +2,8 @@ package org.example.service;
 
 import org.example.database.dao.UserDao;
 import org.example.database.entity.UserEntity;
-import org.example.interfaces.InputOutput;
 import org.hibernate.Session;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -18,18 +15,13 @@ public class UserTrainingTest {
 
     private final static String TEST_USER = "testUser";
 
-    private UserTraining userTraining;
+    private final UserTraining userTraining;
 
-    @Mock
-    private UserDao userDaoMock;
+    private final UserDao userDaoMock = mock(UserDao.class);
 
-    @Mock
-    private Session sessionMock;
+    private final Session sessionMock = mock(Session.class);
 
-    @BeforeEach
-    void setUp() {
-        userDaoMock = mock(UserDao.class);
-        sessionMock = mock(Session.class);
+    public UserTrainingTest() {
         userTraining = new UserTraining(userDaoMock);
     }
 
@@ -39,16 +31,18 @@ public class UserTrainingTest {
     @Test
     void testUpdateTrainingData_Success() {
         int totalWords = 10;
+        int typoCount = 0;
 
         UserEntity existingUser = new UserEntity();
         existingUser.setUsername(TEST_USER);
         existingUser.setTrainingCount(2);
         existingUser.setTime(100000);
         existingUser.setAverageTime(50.0);
+        existingUser.setSumTypoCount(0);
 
         when(userDaoMock.getUserByUsername(TEST_USER, sessionMock)).thenReturn(existingUser);
 
-        userTraining.updateTrainingData(TEST_USER, totalWords, sessionMock);
+        userTraining.updateTrainingData(TEST_USER, totalWords, typoCount, sessionMock);
 
         assertEquals(3, existingUser.getTrainingCount());
         assertEquals(56.0, existingUser.getAverageTime());

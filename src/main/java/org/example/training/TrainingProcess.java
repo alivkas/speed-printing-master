@@ -1,8 +1,9 @@
 package org.example.training;
 
-import org.example.commons.Commands;
+import org.example.commons.CommandsConst;
 import org.example.database.dao.UserDao;
 import org.example.interfaces.InputOutput;
+import org.example.service.UserStatistics;
 import org.example.service.UserTraining;
 import org.example.utils.text.TextInteractionUtils;
 import org.example.text.Typo;
@@ -16,41 +17,33 @@ public class TrainingProcess {
 
     private final TextInteractionUtils textInteractionUtils = new TextInteractionUtils();
     private final Typo typo = new Typo();
+    private final UserStatistics userStatistics = new UserStatistics();
+    private final UserDao userDao = new UserDao();
     private final UserTraining userTraining;
     private final FishTextApi fishTextApi;
     private final InputOutput inputOutput;
-    private final String username;
-    private final UserDao userDao;
 
     private TrainingSession session;
 
     /**
-     * Конструктор TrainingProcess, который передает ссылки на объект fishTextApi,
-     * строку username, реализацию интерфейса InputOutput и инициализирует TrainingSession
-     * c UserTraining
+     * Конструктор TrainingProcess, который передает ссылку на реализацию
+     * интерфейса InputOutput и инициализирует TrainingSession, FishTextApi,
+     * UserTraining
      * @param inputOutput ссылка на реализацию InputOutput
-     * @param fishTextApi ссылка на объект FishTextApi
-     * @param username имя текущего пользователя
-     * @param userDao ссылка на объект userDao, взаимодействующий с бд
      */
-    public TrainingProcess(InputOutput inputOutput,
-                           FishTextApi fishTextApi,
-                           String username,
-                           UserDao userDao) {
+    public TrainingProcess(InputOutput inputOutput) {
         this.inputOutput = inputOutput;
-        this.fishTextApi = fishTextApi;
-        this.username = username;
-        this.userDao = userDao;
-
         this.session = new TrainingSession(inputOutput);
+        this.fishTextApi = new FishTextApi(inputOutput);
         this.userTraining = new UserTraining(userDao);
     }
 
     /**
-     * Производит процесс тренировки
+     * Производит процесс тренировки пользователя
      * @param sessionDb текущая сессия
+     * @param username имя текущего пользователя
      */
-    public void process(Session sessionDb) {
+    public void process(Session sessionDb, String username) {
         int trainingTime = userTraining.getUserTrainingTime(username, sessionDb);
         int wordsCount = 0;
         session.start(trainingTime);
@@ -65,7 +58,7 @@ public class TrainingProcess {
             inputOutput.output(processedText);
             String input = inputOutput.input();
 
-            if (input.equals(Commands.STOP)) {
+            if (input.equals(CommandsConst.STOP)) {
                 stopTraining();
                 break;
             }
@@ -78,7 +71,9 @@ public class TrainingProcess {
         userTraining.updateTrainingData(
                 username,
                 wordsCount,
+                typo.countNumberOfTypos(),
                 sessionDb);
+        userStatistics.saveUserRating(username, sessionDb);
 
         Result result = new Result(wordsCount,
                 typo,

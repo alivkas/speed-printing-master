@@ -25,13 +25,15 @@ public class UserTraining {
      * @param username     Имя пользователя
      * @param totalWords   Все введенные слова
      * @param session сессия базы данных
+     * @param typoCount количество ошибок за тренировку
      */
     public void updateTrainingData(String username,
                                    int totalWords,
+                                   int typoCount,
                                    Session session) {
         double trainingTime = getUserTrainingTime(username, session);
         double averageTime = (double) totalWords / (trainingTime / Time.MINUTES_IN_MILLISECONDS);
-        addNewTrainingSession(username, averageTime, session);
+        addNewTrainingSession(username, averageTime, typoCount, session);
     }
 
     /**
@@ -40,13 +42,16 @@ public class UserTraining {
      * @param username Имя пользователя
      * @param averageTime среднее время тренировки
      * @param session сессия базы данных
+     * @param typoCount количество ошибок за тренировку
      */
     private void addNewTrainingSession(String username,
                                        double averageTime,
+                                       int typoCount,
                                        Session session) {
         UserEntity user = userDao.getUserByUsername(username, session);
         user.setTrainingCount(user.getTrainingCount() + 1);
         user.setAverageTime(user.getAverageTime() + averageTime);
+        user.setSumTypoCount(user.getSumTypoCount() + typoCount);
         session.merge(user);
     }
 

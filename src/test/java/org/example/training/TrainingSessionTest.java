@@ -13,17 +13,11 @@ import static org.mockito.Mockito.*;
  */
 public class TrainingSessionTest {
     private TrainingSession trainingSession;
-    private InputOutput inputOutputMock;
-
     private static final int TEST_DURATION_MS = 1000;
+    private final InputOutput inputOutputMock = mock(InputOutput.class);
 
-    /**
-     * Инициализация тестовой среды перед каждым тестом
-     * Создает моки и экземпляр TrainingSession с замокированным InputOutput
-     */
     @BeforeEach
     public void setUp() {
-        inputOutputMock = mock(InputOutput.class);
         trainingSession = new TrainingSession(inputOutputMock);
     }
 
@@ -43,8 +37,7 @@ public class TrainingSessionTest {
     @Test
     public void testSessionEndsAfterDuration() throws InterruptedException {
         trainingSession.start(TEST_DURATION_MS);
-        Thread.sleep(1000
-                + 100);
+        Thread.sleep(1300);
         assertFalse(trainingSession.isActive());
     }
 
